@@ -37,6 +37,10 @@ function workbookPdfHref(tone: PrintTone) {
     : "/booklet-worksheets/zaviyot-worksheets.pdf";
 }
 
+function workbookPrintHref(tone: PrintTone) {
+  return `/worksheets/print?scope=worksheets&tone=${tone}&print=1`;
+}
+
 function isEditableTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
   return (
@@ -484,9 +488,11 @@ export function UnifiedBookReader() {
             </div>
           </div>
 
-          <div className="zreader__download-strip">
-            <a href={workbookPdfHref("color")} download>⬇ כל דפי העבודה — צבע</a>
-            <a href={workbookPdfHref("bw")} download>⬇ כל דפי העבודה — שחור־לבן</a>
+          <div className="zreader__download-strip" aria-label="פעולות לכל דפי העבודה">
+            <a className="zreader__quick-print" href={workbookPrintHref("color")} target="_blank" rel="noopener noreferrer" aria-label="הדפסת כל דפי העבודה בצבע">🖨 הדפסת כל דפי העבודה — צבע</a>
+            <a className="zreader__quick-print" href={workbookPrintHref("bw")} target="_blank" rel="noopener noreferrer" aria-label="הדפסת כל דפי העבודה בשחור־לבן">🖨 הדפסת כל דפי העבודה — שחור־לבן</a>
+            <a href={workbookPdfHref("color")} download>⬇ PDF צבע</a>
+            <a href={workbookPdfHref("bw")} download>⬇ PDF שחור־לבן</a>
           </div>
 
           {selectionMode && (
@@ -548,8 +554,10 @@ export function UnifiedBookReader() {
             <button type="button" onClick={downloadHtml}>HTML</button>
             <button type="button" onClick={() => window.open(`/worksheets/${page}`, "_blank", "noopener,noreferrer")}>↗ פתח</button>
             <button type="button" onClick={() => openPrint(Array.from({ length: currentGroup.to - currentGroup.from + 1 }, (_, index) => currentGroup.from + index), currentGroup.title)}>🖨 פרק</button>
-            <a href={workbookPdfHref("color")} download>⬇ כל דפי העבודה — צבע</a>
-            <a href={workbookPdfHref("bw")} download>⬇ כל דפי העבודה — שחור־לבן</a>
+            <a href={workbookPrintHref("color")} target="_blank" rel="noopener noreferrer">🖨 כל דפי העבודה — צבע</a>
+            <a href={workbookPrintHref("bw")} target="_blank" rel="noopener noreferrer">🖨 כל דפי העבודה — שחור־לבן</a>
+            <a href={workbookPdfHref("color")} download>⬇ PDF צבע</a>
+            <a href={workbookPdfHref("bw")} download>⬇ PDF שחור־לבן</a>
           </section>
         </div>
       )}

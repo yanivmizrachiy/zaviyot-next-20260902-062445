@@ -1,13 +1,10 @@
-import { SectionHead } from "./SectionHead";
 import { UnifiedBookReader } from "./book/UnifiedBookReader";
 
-// החוברת הדיגיטלית וכל דפי העבודה מוצגים במנוע קורא אחד.
-// התוכן עצמו אינו משוכפל: הקורא נגזר ישירות מ-WS_PAGES, שהוא מקור התוכן הקיים.
+// HOME V2: אין כותרת-סקשן גדולה לפני הספר. הקורא עצמו הוא זהות המוצר.
 export function WorksheetsBookletBook() {
   return (
-    <section className="section" id="worksheets">
+    <section className="book-home" id="worksheets" aria-label="החוברת הדיגיטלית — הוראת זוויות בכיתה ז׳">
       <div className="container container--book">
-        <SectionHead eyebrow="החוברת הדיגיטלית" title="הוראת זוויות בכיתה ז׳" />
         <UnifiedBookReader />
       </div>
     </section>

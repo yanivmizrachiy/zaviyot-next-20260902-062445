@@ -4046,3 +4046,121 @@ main:has(.finale) + .footer {
     transition: none;
   }
 }
+
+/* === ZAVIYOT HOME V2 START === */
+/* הספר הוא המוצר הראשי: Header/Nav קומפקטיים, בלי Hero לפניו. */
+:root { --nav-h: 46px; }
+
+.topbar__inner {
+  --logo-s: 52px;
+  grid-template-columns: 52px minmax(0, 1fr) 52px;
+  min-height: 62px;
+  padding-block: 5px;
+  column-gap: 10px;
+}
+.topbar__text { gap: 1px; }
+.topbar__lead {
+  font-size: clamp(.82rem, .76rem + .22vw, .98rem);
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: min(78vw, 920px);
+}
+.topbar__year {
+  font-size: .74rem;
+  line-height: 1.1;
+}
+.topbar__credit {
+  font-size: .66rem;
+  line-height: 1.1;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: var(--on-dark-soft);
+}
+.topbar__logo {
+  border-width: 2px;
+  box-shadow: none;
+}
+.sitenav__inner {
+  min-height: 46px;
+  justify-content: center;
+  gap: 2px;
+}
+.sitenav__link,
+.sitenav__home,
+.accnav__btn {
+  min-height: 38px !important;
+  padding: 5px 11px !important;
+  font-size: .82rem !important;
+}
+
+/* קורא כמעט-מסך-מלא כבר בכניסה. */
+.book-home {
+  background: #f3f6fa;
+  padding: 8px 0 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.book-home .container--book {
+  width: 100%;
+  max-width: none;
+  padding-inline: 8px;
+}
+
+/* כל התוכן הוותיק נשמר אך מקבל משקל משני. */
+main > .hero { order: initial; }
+.hero__grid {
+  padding-block: 28px 32px;
+  gap: 24px;
+}
+.hero__title {
+  font-size: clamp(2rem, 1.5rem + 2.4vw, 3.25rem);
+}
+.section {
+  padding-block: 38px;
+}
+.section__head {
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+}
+.jpan {
+  padding-block: 28px !important;
+}
+.book-home ~ .hero,
+.book-home ~ .jpan,
+.book-home ~ .section {
+  content-visibility: auto;
+  contain-intrinsic-size: 720px;
+}
+
+@media (max-width: 760px) {
+  .topbar__inner {
+    --logo-s: 42px;
+    grid-template-columns: 42px minmax(0,1fr);
+    min-height: 54px;
+    padding-block: 4px;
+  }
+  .topbar__logobox { grid-column: 1; }
+  .topbar__text { grid-column: 2; align-items: flex-start; text-align: right; }
+  .topbar__lead { font-size: .73rem; max-width: calc(100vw - 82px); }
+  .topbar__year { font-size: .65rem; }
+  .topbar__credit { display: none; }
+  .sitenav__inner {
+    min-height: 44px;
+    justify-content: flex-start;
+    padding-inline: 6px;
+  }
+  .sitenav__link,
+  .sitenav__home,
+  .accnav__btn {
+    min-height: 38px !important;
+    padding: 5px 9px !important;
+    font-size: .76rem !important;
+  }
+  .book-home { padding: 4px 0 8px; }
+  .book-home .container--book { padding-inline: 0; }
+  .section { padding-block: 28px; }
+  .hero__grid { padding-block: 24px; }
+}
+/* === ZAVIYOT HOME V2 END === */
