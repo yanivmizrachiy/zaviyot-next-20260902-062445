@@ -1,0 +1,10 @@
+@page{size:A4;margin:0}
+.bkprint--bw{filter:grayscale(1) contrast(1.04)}
+.bkprint--bw .bkprint__page{background:#fff!important}
+@media print{
+  html,body{margin:0!important;padding:0!important;background:#fff!important}
+  .bkprint{margin:0!important;padding:0!important}
+  .bkprint__page{break-after:page;page-break-after:always;margin:0!important;box-shadow:none!important}
+  .bkprint__page:last-child{break-after:auto;page-break-after:auto}
+  .bkprint--bw,.bkprint--bw *{-webkit-print-color-adjust:economy!important;print-color-adjust:economy!important}
+}
