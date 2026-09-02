@@ -1,17 +1,11 @@
 import type { MetadataRoute } from "next";
 
-// העמודים הציבוריים היציבים בלבד: דף הבית, רשימת דפי העבודה (/worksheets)
-// ואינדקס ההמחשות (/hamchashot) — יש להם title/description ואינם noindex.
-// דפי הקורא (/worksheets/[n], /worksheets/w/[k], /hamchashot/[n]), ההדפסה
-// ו-sugei-zaviyot מסומנים noindex ולכן אינם כאן.
-// בלי lastModified מלאכותי — אין תאריך-תוכן אמיתי, ותאריך-build גורם לכל
-// פריסה להיראות כשינוי תוכן.
+// רק מסלולים ציבוריים שמחזירים תוכן קנוני בפועל.
+// מסלולי התאימות/redirect, הקורא וההדפסה אינם sitemap destinations.
 const SITE_URL = "https://zaviyot-next-20260902-062445.vercel.app";
 
-// רשימה מיוצאת כדי שבדיקת ה-sitemap תאמת אותה מול המסלולים הידועים.
 export const PUBLIC_ROUTES = [
   "/",
-  "/worksheets",
   "/hamchashot",
   "/hamchashot/t/concept",
   "/hamchashot/t/measure",
