@@ -21,7 +21,7 @@ export function HomeQuickActions() {
     const params = new URLSearchParams(window.location.search);
     const requested = params.get("media");
     if (requested === "video" || requested === "presentation") {
-      setMedia(requested);
+      queueMicrotask(() => setMedia(requested));
       params.delete("media");
       const query = params.toString();
       history.replaceState(history.state, "", `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`);
