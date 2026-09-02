@@ -26,6 +26,8 @@ test("canonical book data comes only from registry", () => {
 test("retired duplicate product paths stay deleted", () => {
   [
     "src/components/VideoSection.tsx",
+    "src/components/HeroAngleVideo.tsx",
+    "src/components/HeroSection.tsx",
     "src/components/worksheets/WorksheetPicker.tsx",
     "src/components/worksheets/WsBookletAllBar.tsx",
     "src/components/worksheets/WsWorksheetBar.tsx",
@@ -36,10 +38,21 @@ test("retired duplicate product paths stay deleted", () => {
     "src/fonts/GveretLevin-Regular.ttf",
     "public/team/ayelet-krispin.png",
     "public/video/zaviyot-angles-loop.mp4",
+    "public/video/zaviyot-angles-poster.jpg",
     "public/booklet-worksheets/page-01.webp",
     "public/booklet-worksheets/page-02.webp",
     "public/booklet-worksheets/page-03.webp",
   ].forEach((path) => assert.equal(exists(path), false, `${path} must stay retired`));
+});
+
+test("presentation cannot return as a book-page variant", () => {
+  const registry = read("src/components/worksheets/registry.ts");
+  const kinds = read("src/components/worksheets/worksheetKind.ts");
+  const renderer = read("src/components/worksheets/WorksheetPageRenderer.tsx");
+
+  assert.doesNotMatch(registry, /kind:\s*["']presentation["']|presentationSrc|downloadName/);
+  assert.doesNotMatch(kinds, /case\s+["']presentation["']|\|\s*["']presentation["']/);
+  assert.doesNotMatch(renderer, /PresentationLinkSheet|presentationSrc|case\s+["']presentation["']/);
 });
 
 test("legacy worksheet URLs are redirect-only compatibility routes", () => {
@@ -79,7 +92,13 @@ test("production configuration is locked to the new Zaviyot project", () => {
   }
 });
 
-test("only the approved homepage video asset remains", () => {
-  assert.ok(exists("public/video/zaviyot-race-lamillion.mp4"));
-  assert.ok(exists("public/video/zaviyot-race-poster.jpg"));
+test("only the approved homepage video assets remain", () => {
+  const videoDir = "public/video";
+  assert.ok(exists(`${videoDir}/zaviyot-race-lamillion.mp4`));
+  assert.ok(exists(`${videoDir}/zaviyot-race-poster.jpg`));
+  assert.deepEqual(
+    fs.readdirSync(videoDir).sort(),
+    ["zaviyot-race-lamillion.mp4", "zaviyot-race-poster.jpg"].sort(),
+    "public/video must contain only the approved race video and poster",
+  );
 });
