@@ -9,7 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "node --experimental-strip-types --test test/worksheets.test.ts test/sitemap.test.ts test/print-ready.test.ts test/flipbook.test.ts test/aids.test.ts",
+    "test": "node --experimental-strip-types --test test/worksheets.test.ts test/sitemap.test.ts test/print-ready.test.ts test/flipbook.test.ts test/aids.test.ts test/unified-reader.test.ts",
     "typecheck": "tsc --noEmit",
     "pdf": "node scripts/build-booklet-pdf.mjs",
     "lint:ci": "eslint . --max-warnings=0",
