@@ -1,34 +1,11 @@
 /* Homepage refinement: compact secondary sections + dark site-themed print center. */
 
 /* Keep the book dominant; make the remaining homepage modules practical, not oversized. */
-.hero-media-only {
-  padding-block: 12px !important;
-}
-.hero-media-only .herovid {
-  width: min(680px, 92vw);
-  margin-inline: auto;
-}
-
 .jpan {
   padding-block: 14px !important;
 }
 .jpan > .container {
   max-width: 960px;
-}
-
-#presentation {
-  padding-block: 20px !important;
-}
-#presentation > .container {
-  max-width: 980px;
-}
-#presentation .section__head {
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-}
-#presentation .pdfframe {
-  width: min(900px, 100%);
-  margin-inline: auto;
 }
 
 .finale {
@@ -131,9 +108,7 @@
 }
 
 @media (max-width: 760px) {
-  .hero-media-only .herovid,
-  .jpan > .container,
-  #presentation > .container {
+  .jpan > .container {
     width: 100%;
   }
   .finale__frame {
