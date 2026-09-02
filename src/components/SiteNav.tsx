@@ -5,25 +5,10 @@ import { usePathname } from "next/navigation";
 import { AccessoriesNavMenu } from "./AccessoriesNavMenu";
 import "./sitenav.css";
 
-// ניווט פנימי דביק — עיצוב זהה לאתר מספרים מכוונים.
-// מודע-נתיב (usePathname): בעמוד הבית קישורי העוגן נשארים "#..." (ומקבלים את
-// ה-crossfade של InPageTransitions); מכל עמוד אחר הם הופכים ל-"/#..." — כך
-// "החוברת הדיגיטלית" מגיע לעמוד החוברת מכל מקום באתר, כולל אחרי רענון ישיר,
-// בלי טעינה מיותרת כשכבר נמצאים בעמוד הבית. "דפי עבודה" מוביל לעמוד הייעודי
-// /worksheets (החליף את "הורדת החוברת (PDF)" — ההורדה זמינה בתוך החוברת עצמה).
-// מצב active מסומן ב-aria-current לפי הנתיב (מעוצב ב-globals.css).
-// "אביזרים נלווים להמחשה" נשאר תפריט נפתח (AccessoriesNavMenu), זהה למספרים מכוונים.
-// "עמוד הבית" — כפתור-גלולה קבוע בקצה ההתחלה של הסרגל, בכל עמודי האתר: חזרה
-// ברורה ואחידה לעמוד הראשי מכל מקום (בעמוד הבית עצמו הוא מסומן כ-active).
 export function SiteNav() {
   const pathname = usePathname() ?? "/";
   const onHome = pathname === "/";
-
-  // מצב active: עמוד הרשימה (/worksheets) וקורא דף-עבודה (/worksheets/w/[k])
-  // שייכים ל"דפי עבודה"; קורא עמוד-בודד של החוברת (/worksheets/[n]) שייך
-  // ל"חוברת הדיגיטלית".
-  const inWorksheetsList = pathname === "/worksheets" || pathname.startsWith("/worksheets/w/");
-  const inBooklet = !inWorksheetsList && pathname.startsWith("/worksheets");
+  const inBook = pathname === "/" || pathname.startsWith("/worksheets");
 
   return (
     <nav className="sitenav" aria-label="ניווט בעמוד">
@@ -39,17 +24,15 @@ export function SiteNav() {
           מצגת
         </a>
         {onHome ? (
-          <a className="sitenav__link" href="#worksheets">
+          <a className="sitenav__link" href="#worksheets" aria-current={inBook ? "page" : undefined}>
             החוברת הדיגיטלית
           </a>
         ) : (
-          <Link className="sitenav__link" href="/#worksheets" aria-current={inBooklet ? "page" : undefined}>
+          <Link className="sitenav__link" href="/#worksheets" aria-current={inBook ? "page" : undefined}>
             החוברת הדיגיטלית
           </Link>
         )}
-        {/* "הורדת כל דפי העבודה" עבר לתוך עמוד "דפי עבודה" עצמו (דרישת יניב
-            17.7.2026: כפתור אחד בתפריט — ההורדה בתפריט הפנימי). */}
-        <Link className="sitenav__link" href="/worksheets" aria-current={inWorksheetsList ? "page" : undefined}>
+        <Link className="sitenav__link" href="/?group=worksheets#worksheets">
           דפי עבודה
         </Link>
         <AccessoriesNavMenu />
