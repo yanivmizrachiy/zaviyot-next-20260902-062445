@@ -24,10 +24,10 @@
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
   padding: 6px;
-  background: #fff;
-  border: 1px solid #dce3ec;
-  border-radius: 10px;
-  box-shadow: 0 6px 18px rgba(17, 32, 60, 0.08);
+  background: #0e1830;
+  border: 1px solid #243653;
+  border-radius: 8px;
+  box-shadow: 0 7px 20px rgba(14, 24, 48, 0.14);
   direction: rtl;
 }
 
@@ -37,42 +37,45 @@
   align-items: center;
   justify-content: center;
   padding: 7px 10px;
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 6px;
   color: #fff;
   text-decoration: none;
   text-align: center;
   font-weight: 800;
   font-size: 0.8rem;
   line-height: 1.25;
-  transition: transform 0.15s ease, filter 0.15s ease;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.08);
+  transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
 }
 
 .actions a:hover,
 .actions a:focus-visible {
   transform: translateY(-1px);
-  filter: brightness(1.07);
-  outline: 3px solid rgba(17, 32, 60, 0.18);
+  filter: brightness(1.05);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.16), inset 0 1px rgba(255, 255, 255, 0.1);
+  outline: 3px solid rgba(119, 170, 226, 0.34);
   outline-offset: 2px;
 }
 
 .actionVideo {
-  background: #0f766e;
+  background: #146b68;
 }
 
 .actionPresentation {
-  background: #5b3fa3;
+  background: #59418f;
 }
 
 .actionWorksheets {
-  background: #155e9a;
+  background: #195a91;
 }
 
 .actionAccessories {
-  background: #8a5a0a;
+  background: #87600f;
 }
 
 .actionDownload {
-  background: #11203c;
+  background: #18365f;
 }
 
 .dock {
@@ -107,12 +110,13 @@
     scroll-snap-type: inline mandatory;
     scrollbar-width: thin;
     padding: 6px;
+    border-radius: 7px;
   }
 
   .actions a {
     flex: 0 0 auto;
     min-width: 128px;
-    min-height: 42px;
+    min-height: 44px;
     scroll-snap-align: start;
     font-size: 0.75rem;
   }
@@ -129,13 +133,9 @@
     min-height: 470px;
   }
 
-  .actions {
-    border-radius: 8px;
-  }
-
   .actions a {
     min-width: 118px;
-    min-height: 40px;
+    min-height: 44px;
     font-size: 0.72rem;
   }
 
