@@ -24,7 +24,8 @@ jobs:
         with:
           node-version: "22.14.0"
           cache: npm
-      - run: npm ci
+      - name: Install dependencies without mutating the lockfile
+        run: npm install --no-package-lock --no-audit --no-fund
       - run: npm run build
       - name: Find Chrome
         run: echo "CHROME_PATH=$(which google-chrome || which chromium || which chromium-browser)" >> "$GITHUB_ENV"
