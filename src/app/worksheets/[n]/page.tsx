@@ -29,7 +29,6 @@ export default async function WsReadPage({
   const embedded = sp.reader === "1";
   const node = worksheetContentNode(page, {
     slot: n,
-    presentation: "embed",
     tocHrefFor: (p) => `/worksheets/${p}`,
   });
 
@@ -51,9 +50,7 @@ export default async function WsReadPage({
         className="ws-page__sheets"
         style={embedded ? { margin: 0, padding: 0, width: "100%", minHeight: "297mm" } : undefined}
       >
-        {page.kind === "presentation" ? (
-          <div style={{ width: embedded ? "100%" : "min(1280px, 96vw)", margin: "0 auto" }}>{node}</div>
-        ) : page.kind === "image" ? (
+        {page.kind === "image" ? (
           <div
             className="ws-imgsheet"
             style={{ width: "210mm", height: "297mm", background: "#fff", boxShadow: embedded ? "none" : "0 10px 40px rgba(15,23,42,.14)" }}
