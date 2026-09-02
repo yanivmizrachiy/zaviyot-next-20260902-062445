@@ -1,39 +1,51 @@
 import type { Metadata } from "next";
-import { WS_PAGES } from "@/components/worksheets/registry";
+import { WORKSHEETS, WS_PAGES, WS_TOTAL } from "@/components/worksheets/registry";
 import { PrintAutoTrigger } from "@/components/worksheets/PrintAutoTrigger";
 import { worksheetContentNode } from "@/components/worksheets/WorksheetPageRenderer";
+import "./print.css";
 
-// חוברת מלאה להדפסה / שמירה כ-PDF — כל העמודים ברצף, A4 לכל עמוד.
-// הקישורים נשמרים לחיצים ב-PDF: חיצוניים (מייל/אתר/Matific) כ-<a>, ותוכן
-// העניינים כעוגנים פנימיים (#bk-page-N). ?print=1 פותח מיד את חלון ההדפסה.
-// המיפוי (איזה רכיב לכל עמוד) מגיע מ-WorksheetPageRenderer המשותף — המצגת
-// מוצגת כעמוד-קישור (presentation: "link") כי אינה ניתנת להטמעה ב-PDF.
 export const metadata: Metadata = {
   title: "הוראת זוויות בכיתה ז׳ — החוברת המלאה (הדפסה / PDF)",
   robots: { index: false },
 };
 
+function parsePages(raw?: string) {
+  if (!raw) return [];
+  return [...new Set(
+    raw
+      .split(",")
+      .map((value) => Number(value.trim()))
+      .filter((value) => Number.isInteger(value) && value >= 1 && value <= WS_TOTAL),
+  )].sort((a, b) => a - b);
+}
+
 export default async function BookletPrintPage({
   searchParams,
 }: {
-  searchParams: Promise<{ print?: string }>;
+  searchParams: Promise<{ print?: string; pages?: string; tone?: string; scope?: string }>;
 }) {
   const sp = await searchParams;
+  const requested = parsePages(sp.pages);
+  const slots = requested.length
+    ? requested
+    : sp.scope === "worksheets"
+      ? WORKSHEETS.map((item) => item.slot)
+      : WS_PAGES.map((_, index) => index + 1);
+  const bw = sp.tone === "bw";
 
   return (
-    <div className="bkprint">
+    <div className={`bkprint${bw ? " bkprint--bw" : ""}`}>
       {sp.print === "1" && <PrintAutoTrigger />}
-      {WS_PAGES.map((page, i) => {
-        const n = i + 1;
+      {slots.map((n) => {
+        const page = WS_PAGES[n - 1];
         const node = worksheetContentNode(page, {
           slot: n,
           presentation: "link",
-          tocHrefFor: (p) => `#bk-page-${p}`,
+          tocHrefFor: (target) => `#bk-page-${target}`,
         });
         return (
-          <section className="bkprint__page" id={`bk-page-${n}`} key={i}>
+          <section className="bkprint__page" id={`bk-page-${n}`} key={n} data-source-page={n}>
             {page.kind === "cover" ? (
-              // עטיפת שער בהדפסה — כפי שהיה לפני איחוד ה-renderer (חיתוך overflow ורקע לבן)
               <div style={{ width: "100%", height: "100%", overflow: "hidden", background: "#fff" }}>{node}</div>
             ) : (
               node
