@@ -21,50 +21,44 @@ jobs:
         run: |
           python <<'PY'
           from pathlib import Path
+          import re
           p = Path("src/components/PresentationViewer.tsx")
           s = p.read_text(encoding="utf-8")
-          old = '''  // ניווט במקלדת — הבא = שמאלה ב-RTL, הקודם = ימינה
-          useEffect(() => {
-            const onKey = (e: KeyboardEvent) => {
-              if (e.key === "ArrowLeft") go(1);
-              else if (e.key === "ArrowRight") go(-1);
-            };
-            window.addEventListener("keydown", onKey);
-            return () => window.removeEventListener("keydown", onKey);
-          }, [go]);'''
-          new = '''  // ניווט במקלדת — פועל רק כשהמצגת בפוקוס או במסך מלא,
-          // כדי לא להתנגש עם מנוע הספר או עם שדות קלט אחרים בעמוד.
-          useEffect(() => {
-            const onKey = (e: KeyboardEvent) => {
-              if (e.altKey || e.ctrlKey || e.metaKey) return;
-              const target = e.target;
-              if (
-                target instanceof HTMLElement &&
-                (target.isContentEditable || target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT")
-              ) return;
-              const stage = stageRef.current;
-              const focusedInStage = Boolean(stage && document.activeElement && stage.contains(document.activeElement));
-              if (!max && !focusedInStage) return;
-              if (e.key === "ArrowLeft") {
-                e.preventDefault();
-                go(1);
-              } else if (e.key === "ArrowRight") {
-                e.preventDefault();
-                go(-1);
-              }
-            };
-            window.addEventListener("keydown", onKey);
-            return () => window.removeEventListener("keydown", onKey);
-          }, [go, max]);'''
-          if old not in s:
-              raise SystemExit("keyboard block not found")
-          s = s.replace(old, new, 1)
+          pattern = r'''(?ms)^\s*// ניווט במקלדת — הבא = שמאלה ב-RTL, הקודם = ימינה\n\s*useEffect\(\(\) => \{\n\s*const onKey = \(e: KeyboardEvent\) => \{\n\s*if \(e\.key === "ArrowLeft"\) go\(1\);\n\s*else if \(e\.key === "ArrowRight"\) go\(-1\);\n\s*\};\n\s*window\.addEventListener\("keydown", onKey\);\n\s*return \(\) => window\.removeEventListener\("keydown", onKey\);\n\s*\}, \[go\]\);'''
+          replacement = '''
+            // ניווט במקלדת — פועל רק כשהמצגת בפוקוס או במסך מלא,
+            // כדי לא להתנגש עם מנוע הספר או עם שדות קלט אחרים בעמוד.
+            useEffect(() => {
+              const onKey = (e: KeyboardEvent) => {
+                if (e.altKey || e.ctrlKey || e.metaKey) return;
+                const target = e.target;
+                if (
+                  target instanceof HTMLElement &&
+                  (target.isContentEditable || target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT")
+                ) return;
+                const stage = stageRef.current;
+                const focusedInStage = Boolean(stage && document.activeElement && stage.contains(document.activeElement));
+                if (!max && !focusedInStage) return;
+                if (e.key === "ArrowLeft") {
+                  e.preventDefault();
+                  go(1);
+                } else if (e.key === "ArrowRight") {
+                  e.preventDefault();
+                  go(-1);
+                }
+              };
+              window.addEventListener("keydown", onKey);
+              return () => window.removeEventListener("keydown", onKey);
+            }, [go, max]);'''
+          s2, count = re.subn(pattern, replacement, s, count=1)
+          if count != 1:
+              raise SystemExit(f"keyboard block replacements: {count}")
           old_stage = '<div className="slideshow__stage" ref={stageRef}>'
           new_stage = '<div className="slideshow__stage" ref={stageRef} tabIndex={0} onPointerDown={() => stageRef.current?.focus()}>'
-          if old_stage not in s:
+          if old_stage not in s2:
               raise SystemExit("stage block not found")
-          s = s.replace(old_stage, new_stage, 1)
-          p.write_text(s, encoding="utf-8")
+          s2 = s2.replace(old_stage, new_stage, 1)
+          p.write_text(s2, encoding="utf-8")
           PY
       - name: Install
         run: npm install --no-package-lock --no-audit --no-fund
@@ -80,5 +74,3 @@ jobs:
           git add src/components/PresentationViewer.tsx
           git commit -m "fix: scope presentation keyboard navigation"
           git push
-
-# Triggered after workflow registration.
