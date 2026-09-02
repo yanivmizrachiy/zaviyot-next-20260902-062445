@@ -3,15 +3,22 @@
 import Link from "next/link";
 import { useEffect } from "react";
 
-// סרגל עליון של מצב הקריאה לדף בחוברת דפי־העבודה — זהה במבנה לסרגל דפי המשאבים.
+// סרגל עליון של עמוד בודד מתוך החוברת הדיגיטלית.
+// הסרגל אינו מחליט בעצמו אם העמוד הוא דף עבודה: הסיווג מגיע אך ורק
+// מ-registry.ts דרך worksheetNumber. כך עמודי שער/תוכן/פוסטר לעולם לא
+// יקבלו בטעות כותרת "דף עבודה".
 // autoPrint פותח את חלון ההדפסה מיד עם הטעינה (?print=1) — הורדה כ-PDF / הדפסה.
 export function WsReaderBar({
   n,
   total,
+  worksheetNumber,
+  worksheetTotal,
   autoPrint = false,
 }: {
   n: number;
   total: number;
+  worksheetNumber?: number;
+  worksheetTotal?: number;
   autoPrint?: boolean;
 }) {
   useEffect(() => {
@@ -19,6 +26,10 @@ export function WsReaderBar({
     const t = setTimeout(() => window.print(), 600);
     return () => clearTimeout(t);
   }, [autoPrint]);
+
+  const title = worksheetNumber && worksheetTotal
+    ? `דף עבודה מספר ${worksheetNumber} מתוך ${worksheetTotal}`
+    : `עמוד ${n} מתוך ${total}`;
 
   return (
     <div className="wsbar" data-noprint>
@@ -44,7 +55,7 @@ export function WsReaderBar({
         </span>
       </span>
 
-      <span className="wsbar__title">{`דף עבודה מספר ${n} מתוך ${total}`}</span>
+      <span className="wsbar__title">{title}</span>
 
       <span className="wsbar__side wsbar__side--acts">
         <button type="button" className="btn btn--gold btn--sm" onClick={() => window.print()}>
