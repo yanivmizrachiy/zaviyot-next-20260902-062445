@@ -1,17 +1,12 @@
 .dock {
   direction: rtl;
-  width: min(1080px, 100%);
+  width: min(720px, 100%);
   margin-inline: auto;
-  display: grid;
-  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
-  gap: 10px;
-  align-items: stretch;
   min-width: 0;
-  padding: 8px;
+  padding: 6px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
-  overflow: hidden;
 }
 
 .videoCard {
@@ -24,6 +19,7 @@
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
+  max-height: 320px;
   background: #000;
   object-fit: cover;
 }
@@ -53,62 +49,11 @@
   white-space: nowrap;
 }
 
-.links {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px;
-  align-content: center;
-}
-
-.links a {
-  min-height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 7px 9px;
-  border: 1px solid #dce3ec;
-  border-radius: 7px;
-  background: #fff;
-  color: #11203c;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 0.78rem;
-  text-align: center;
-}
-
-.links a:hover,
-.links a:focus-visible {
-  border-color: #11203c;
-  outline: none;
-}
-
-.links .primaryLink {
-  background: #11203c;
-  border-color: #11203c;
-  color: #fff;
-  font-weight: 800;
-  box-shadow: 0 4px 12px rgba(17, 32, 60, 0.14);
-}
-
-.links .primaryLink:hover,
-.links .primaryLink:focus-visible {
-  background: #182d51;
-  border-color: #182d51;
-  color: #fff;
-}
-
-@media (min-width: 1181px) {
-  .links {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 760px) {
   .dock {
     width: 100%;
-    grid-template-columns: 1fr;
     border-radius: 8px;
-    padding: 7px;
+    padding: 6px;
   }
 
   .videoCard {
@@ -116,14 +61,8 @@
     margin-inline: auto;
   }
 
-  .links {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .links a {
-    min-height: 42px;
-    padding-inline: 5px;
-    font-size: 0.72rem;
+  .videoCard video {
+    max-height: 260px;
   }
 }
 
@@ -132,7 +71,7 @@
     display: grid;
   }
 
-  .links {
-    grid-template-columns: 1fr;
+  .videoCard video {
+    max-height: 220px;
   }
 }
