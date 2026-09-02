@@ -23,11 +23,7 @@ export function SitePrintDialog({
   onClose: () => void;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [tone, setTone] = useState<PrintTone>(initialTone);
-
-  useEffect(() => {
-    if (open) setTone(initialTone);
-  }, [open, initialTone]);
+  const [tone, setTone] = useState<PrintTone>(() => initialTone);
 
   useEffect(() => {
     const dialog = dialogRef.current;
