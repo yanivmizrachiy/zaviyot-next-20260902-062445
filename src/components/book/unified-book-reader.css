@@ -167,3 +167,209 @@
   }
 }
 /* === ZREADER HOME V2 END === */
+
+/* === ZREADER FIT PAGE V3 START === */
+/*
+  A4 is rendered at the stable RazPages coordinate space 794x1123 and then
+  scaled as one unit. Therefore "עמוד" means the WHOLE page is visible, not
+  a cropped iframe viewport.
+*/
+.zreader__hamburger {
+  display: flex;
+  flex: none;
+}
+
+/* TOC is secondary: closed by default on desktop, drawer on mobile. */
+.zreader__layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+.zreader__toc {
+  display: none;
+}
+.zreader--toc-open .zreader__layout {
+  grid-template-columns: minmax(250px, var(--zr-toc)) minmax(0, 1fr);
+}
+.zreader--toc-open .zreader__toc {
+  display: flex;
+}
+
+/* True fit-page: the viewport itself never scrolls in single-page mode. */
+.zreader__viewport--single {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+}
+.zreader__single {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.zreader__single .zreader__sheet {
+  width: calc(794px * var(--zr-single-scale, .5));
+  height: calc(1123px * var(--zr-single-scale, .5));
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: auto;
+  flex: none;
+}
+
+/* Spread also fits fully if the user chooses it on a sufficiently wide screen. */
+.zreader__viewport--spread {
+  overflow: hidden;
+  padding: 6px;
+}
+.zreader__spread {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.zreader__spread .zreader__sheet {
+  width: calc(794px * var(--zr-spread-scale, .35));
+  height: calc(1123px * var(--zr-spread-scale, .35));
+  max-height: 100%;
+  aspect-ratio: auto;
+}
+
+/* Scroll mode keeps full page width and natural vertical scrolling. */
+.zreader__scroll-stack {
+  width: calc(794px * var(--zr-scroll-scale, .7));
+  max-width: 100%;
+}
+.zreader__scroll-stack .zreader__sheet {
+  width: calc(794px * var(--zr-scroll-scale, .7));
+  height: calc(1123px * var(--zr-scroll-scale, .7));
+  max-width: 100%;
+  aspect-ratio: auto;
+}
+
+/*
+  Critical detail: do NOT shrink the iframe viewport and crop a fixed A4 page.
+  Keep it at true A4 reference size and scale the entire iframe.
+*/
+.zreader__sheet iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: auto;
+  width: 794px;
+  height: 1123px;
+  max-width: none;
+  max-height: none;
+  border: 0;
+  transform-origin: top left;
+  background: #fff;
+}
+.zreader__single .zreader__sheet iframe {
+  transform: scale(var(--zr-single-scale, .5));
+}
+.zreader__spread .zreader__sheet iframe {
+  transform: scale(var(--zr-spread-scale, .35));
+}
+.zreader__scroll-stack .zreader__sheet iframe {
+  transform: scale(var(--zr-scroll-scale, .7));
+}
+
+/* Give the page as much vertical room as possible. */
+.zreader__header {
+  flex: none;
+}
+.zreader__bar {
+  flex: none;
+}
+.zreader__download-strip {
+  flex: none;
+}
+.zreader__bottom-nav {
+  flex: none;
+}
+
+/* On shorter laptops every pixel matters. */
+@media (max-height: 800px) and (min-width: 901px) {
+  .zreader__header {
+    min-height: 42px;
+    padding-block: 3px;
+  }
+  .zreader__search-wrap input {
+    height: 34px;
+  }
+  .zreader__mode-switch button,
+  .zreader__counter-btn {
+    min-height: 32px;
+    padding-block: 3px;
+  }
+  .zreader__bar {
+    min-height: 38px;
+    padding-block: 3px;
+  }
+  .zreader__download-strip {
+    padding-block: 3px;
+  }
+  .zreader__actions button,
+  .zreader__download-strip a {
+    min-height: 31px;
+    padding-block: 3px;
+  }
+  .zreader__bottom-nav {
+    min-height: 36px;
+    padding-block: 2px;
+  }
+}
+
+/* Mobile: TOC remains an overlay drawer, never steals page width. */
+@media (max-width: 900px) {
+  .zreader__layout,
+  .zreader--toc-open .zreader__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .zreader__toc,
+  .zreader--toc-open .zreader__toc {
+    display: flex;
+  }
+  .zreader__viewport--single {
+    padding: 4px;
+  }
+  .zreader__bar {
+    min-height: 40px;
+    padding: 4px 7px;
+  }
+  .zreader__copy span {
+    display: none;
+  }
+  .zreader__mobile-nav {
+    min-height: 45px;
+  }
+}
+
+/* Very small phones: prioritize page area over secondary controls. */
+@media (max-width: 520px) {
+  .zreader__header {
+    min-height: 42px;
+    padding: 4px 6px;
+    gap: 5px;
+  }
+  .zreader__hamburger {
+    width: 36px;
+    height: 36px;
+  }
+  .zreader__mode-switch button {
+    min-height: 32px;
+    padding-inline: 7px;
+  }
+  .zreader__bar {
+    min-height: 36px;
+  }
+  .zreader__viewport--single {
+    padding: 2px;
+  }
+}
+/* === ZREADER FIT PAGE V3 END === */

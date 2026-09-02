@@ -18,7 +18,7 @@ type PrintRequest = {
   title: string;
 };
 
-const MODE_KEY = "zaviyot-next:reader-mode";
+const MODE_KEY = "zaviyot-next:reader-mode-fit-v3";
 const PAGE_KEY = "zaviyot-next:last-page";
 const SELECTED_KEY = "zaviyot-next:selected-pages";
 const OPEN_GROUPS_KEY = "zaviyot-next:open-groups";
@@ -239,7 +239,7 @@ export function UnifiedBookReader() {
 
     const requestedMode = params.get("bookMode") as ReaderMode | null;
     const storedMode = localStorage.getItem(MODE_KEY) as ReaderMode | null;
-    const candidate = requestedMode || storedMode || (media.matches ? "single" : "spread");
+    const candidate = requestedMode || storedMode || "single";
     const initialMode: ReaderMode = media.matches && candidate === "spread" ? "single" : candidate;
 
     let active = true;
@@ -327,6 +327,63 @@ export function UnifiedBookReader() {
 
   useEffect(() => {
     if (!ready) return;
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    // A4 reference size used by the RazPages reader. We render the iframe at
+    // this stable coordinate size and scale the whole A4 page to the exact
+    // available viewport. This avoids cropping on iPhone/Android/desktop.
+    const A4_WIDTH = 794;
+    const A4_HEIGHT = 1123;
+    const SPREAD_GAP = 12;
+
+    const updateFit = () => {
+      const style = window.getComputedStyle(viewport);
+      const padX =
+        (Number.parseFloat(style.paddingLeft) || 0) +
+        (Number.parseFloat(style.paddingRight) || 0);
+      const padY =
+        (Number.parseFloat(style.paddingTop) || 0) +
+        (Number.parseFloat(style.paddingBottom) || 0);
+
+      const availableWidth = Math.max(1, viewport.clientWidth - padX);
+      const availableHeight = Math.max(1, viewport.clientHeight - padY);
+
+      const singleScale = Math.max(
+        0.1,
+        Math.min(availableWidth / A4_WIDTH, availableHeight / A4_HEIGHT),
+      );
+      const spreadScale = Math.max(
+        0.1,
+        Math.min(
+          Math.max(1, availableWidth - SPREAD_GAP) / (A4_WIDTH * 2),
+          availableHeight / A4_HEIGHT,
+        ),
+      );
+      const scrollScale = Math.max(
+        0.1,
+        Math.min(availableWidth / A4_WIDTH, 1),
+      );
+
+      viewport.style.setProperty("--zr-single-scale", String(singleScale));
+      viewport.style.setProperty("--zr-spread-scale", String(spreadScale));
+      viewport.style.setProperty("--zr-scroll-scale", String(scrollScale));
+    };
+
+    updateFit();
+    const observer = new ResizeObserver(updateFit);
+    observer.observe(viewport);
+    window.addEventListener("orientationchange", updateFit);
+    window.visualViewport?.addEventListener("resize", updateFit);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("orientationchange", updateFit);
+      window.visualViewport?.removeEventListener("resize", updateFit);
+    };
+  }, [ready, mode, tocOpen]);
+  useEffect(() => {
+    if (!ready) return;
     [page - 1, page + 1]
       .filter((target) => target >= 1 && target <= WS_TOTAL)
       .forEach((target) => {
@@ -347,7 +404,7 @@ export function UnifiedBookReader() {
   const selectedPages = [...selected].sort((a, b) => a - b);
 
   return (
-    <div className={`zreader ${selectionMode ? "zreader--selecting" : ""}`} dir="rtl">
+    <div className={`zreader ${selectionMode ? "zreader--selecting" : ""} ${tocOpen ? "zreader--toc-open" : ""}`} dir="rtl">
       <header className="zreader__header">
         <button
           className="zreader__hamburger"
