@@ -138,15 +138,19 @@ Keep current page/PDF actions consistent with RazPages.
 ## Homepage hierarchy — current required UX
 - The digital book is the primary product and MUST remain the dominant content immediately on homepage load.
 - The whole current A4 page must be visible whenever the viewport permits; never enlarge by cropping.
+- On wide laptop/desktop screens (>900px), a fresh homepage load opens the cover as a readable two-page spread so the book immediately feels open.
+- On iPhone/Android/narrow screens (<=900px), a fresh homepage load uses a single page so the A4 remains readable and complete.
 - Controls around the book must be compact. Do not let toolbars, print controls, TOC, or secondary actions steal large screen areas.
 - TOC is secondary and collapsible; on mobile it is an overlay/drawer.
-- The user must understand from the first screen that more site content exists below the book. Use a compact visual cue/peek or existing-resource access without inventing explanatory copy.
-- The existing real child/video asset may appear as a small compact preview in the first-screen ecosystem, but it must not compete with or shrink the book materially; no autoplay with sound.
+- The first viewport MUST contain a compact colored action rail immediately below the reader so users do not need to guess that more content exists.
+- The first-screen action rail links to the existing video, presentation, worksheets, accessories/aids and direct worksheet-workbook download. It must use existing labels/generic controls only and add no demo/explanatory copy.
+- The existing real child/video asset remains below the action rail as a compact destination and must not compete with or shrink the book materially; no autoplay with sound.
 - Existing presentation, video, Jerusalem panorama, aids/accessories, Finale/Arena and footer remain available below/around the reader in a secondary hierarchy.
 - Avoid giant cards, giant buttons, duplicate action rows, and unnecessary empty space.
 
 ## Iron rules — startup and visible wording
-- A plain visit to `/` or `/#worksheets` MUST open the unified reader on the real cover, page 1, in single-page mode.
+- A plain visit to `/` or `/#worksheets` MUST open the unified reader on the real cover, page 1.
+- On wide screens (>900px) that fresh visit defaults to `spread`; on narrow screens (<=900px) it defaults to `single`.
 - A plain visit MUST NOT restore the last-read page or last-read mode from localStorage. Explicit `bookPage`, `bookMode`, browser history, and the explicit `group=worksheets` navigation remain valid.
 - No visible demo text, placeholder copy, temporary copy, invented chapter names, invented subtitles, or explanatory wording may be introduced.
 - Visible page titles, TOC labels, subtitles, and content metadata must reuse wording already present in the canonical Zaviyot content. Generic reader/print controls are the only exception.
@@ -193,7 +197,7 @@ Add/maintain real browser and route tests:
 - every manifest page route resolves
 - TOC links valid
 - single/spread/scroll
-- fresh homepage starts at page 1
+- fresh homepage starts at page 1, spread on wide screens and single on narrow screens
 - deep link and popstate
 - search
 - selection persistence where allowed by the startup iron rule
@@ -203,6 +207,7 @@ Add/maintain real browser and route tests:
 - color/BW print state
 - full-A4 preview aspect and no crop
 - both prebuilt worksheet PDFs exist and are downloadable
+- first-screen action rail links remain valid
 - mobile drawer/actions
 - phone/laptop/desktop smoke
 - unrelated homepage sections still render
@@ -224,9 +229,9 @@ Before declaring complete:
 
 ## Current homepage and print UX — mandatory
 - The digital book remains the dominant first-screen product.
-- The first screen must visibly expose the existing video, presentation, worksheets and accessories without shrinking or cropping the book unnecessarily.
+- The first screen must visibly expose colored action buttons for the existing video, presentation, worksheets, accessories and worksheet-workbook download without shrinking or cropping the book unnecessarily.
 - Do not add any new visible slogan, promotional sentence, demo label, placeholder, educational wording or explanatory copy.
-- The first-screen resource dock may display only existing site labels/assets plus generic icon-only controls.
+- The first-screen action rail may display only existing site labels/assets plus generic controls.
 - Printing/PDF uses one compact action center, not multiple large duplicate action bars.
 - The print/PDF center must support current page, current chapter, all worksheets, the whole book, and manual page selection.
 - The preview must show a complete A4 page with correct aspect ratio.
