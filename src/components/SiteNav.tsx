@@ -10,6 +10,12 @@ export function SiteNav() {
   const onHome = pathname === "/";
   const inBook = pathname === "/" || pathname.startsWith("/worksheets");
 
+  const openPresentation = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!onHome) return;
+    event.preventDefault();
+    window.dispatchEvent(new CustomEvent("zaviyot:open-media", { detail: { media: "presentation" } }));
+  };
+
   return (
     <nav className="sitenav" aria-label="ניווט בעמוד">
       <div className="container sitenav__inner">
@@ -20,7 +26,11 @@ export function SiteNav() {
           </svg>
           עמוד הבית
         </Link>
-        <a className="sitenav__link" href={onHome ? "#presentation" : "/#presentation"}>
+        <a
+          className="sitenav__link"
+          href={onHome ? "/?media=presentation#worksheets" : "/?media=presentation#worksheets"}
+          onClick={openPresentation}
+        >
           מצגת
         </a>
         {onHome ? (
