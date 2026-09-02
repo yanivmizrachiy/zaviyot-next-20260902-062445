@@ -52,12 +52,23 @@ Retired items MUST NOT be restored unless the user explicitly asks for them:
 - legacy `src/components/flipbook/**`
 - legacy flipbook tests
 - `src/components/VideoSection.tsx`
+- `src/components/worksheets/WorksheetPicker.tsx`
+- `src/components/worksheets/WsBookletAllBar.tsx`
+- `src/components/worksheets/WsWorksheetBar.tsx`
+- `scripts/page-manifest.ts`
 - decorative angle-loop video/poster/Hero
 - draft route `src/app/booklet-design/page-1/page.tsx`
 - old duplicate `public/booklet/booklet-zaviyot.pdf`
 - old duplicate `scripts/build-booklet-pdf.mjs`
 - retired GveretLevin video font
 - unused duplicate portrait `public/team/ayelet-krispin.png`
+
+### Legacy URL compatibility — redirect only
+These URLs may remain so old bookmarks do not break, but they are NOT independent products or rendering engines:
+- `/worksheets/booklet` → canonical `/worksheets/print?scope=worksheets...`
+- `/worksheets/w/[k]` → the matching canonical book page, or the canonical print route for B/W.
+
+They must not contain their own reader, toolbar, worksheet registry, print renderer or PDF implementation.
 
 ## 1. Absolute safety boundary
 All implementation work happens ONLY in this project:
@@ -121,13 +132,15 @@ The top navigation remains.
 - PDF build inputs
 - direct page routes
 
-`scripts/page-manifest.ts` is only a derived health-check helper. It imports the registry and MUST NOT contain an independent page order or page registry.
-
-Canonical current counts:
+Canonical current classification:
 - 44 total book pages
-- 31 worksheet pages
+- pages 1–12 are book/content pages and are NOT worksheets
+- pages 13–43 are exactly 31 student worksheet pages
+- page 44 is the final poster and is NOT a worksheet
 
-Never regress to stale totals.
+No derived page-manifest file is kept in the repository. Tests may derive expectations directly from `registry.ts`, but must never duplicate the page order as a second source.
+
+Never regress to stale totals or label non-worksheet book pages as worksheets.
 
 ## 5. Reader behavior — RazPages parity
 Use RazPages as a READ-ONLY behavior/visual reference.
@@ -283,6 +296,7 @@ Prebuilt direct PDFs remain the fast path:
 - full book black-and-white
 
 `הורדת חוברת העבודה` is a primary first-screen action and downloads ONLY the student worksheet workbook, not summaries or other book pages.
+The worksheet workbook contains ONLY the 31 canonical worksheet pages (book pages 13–43), in canonical order. Pages 1–12 and page 44 must never enter it.
 It must be one click to a prebuilt printable PDF; do not generate the full workbook at request time and do not introduce an app installer/wizard flow.
 
 ## 12. Performance
@@ -302,7 +316,10 @@ It must be one click to a prebuilt printable PDF; do not generate the full workb
 - Root-level product requirements live ONLY in `SOURCE_OF_TRUTH.md`.
 - The unified reader is the only active digital-book engine.
 - `registry.ts` is the only page/worksheet registry.
+- `WorksheetPageRenderer.tsx` is the single canonical page-content mapper.
+- `src/app/worksheets/print/page.tsx` is the single canonical print renderer.
 - `build-static-print-pdf.mjs` is the only static-PDF build engine.
+- Legacy worksheet URLs are redirect-only compatibility routes; they must not grow independent UI or rendering logic.
 - Dead code/assets explicitly retired by the user must be deleted after dependency verification rather than kept as dormant alternatives.
 - Local run output, logs, backups and temporary artifacts must be ignored by Git and never committed as product state.
 - Do NOT delete canonical pages, worksheets, the four canonical PDFs, presentation, panorama, aids/accessories, active print infrastructure or unrelated real content.
@@ -313,6 +330,10 @@ It must be one click to a prebuilt printable PDF; do not generate the full workb
 Maintain real checks for:
 - single-source architecture and retired-path absence
 - one canonical PDF builder
+- exactly 44 canonical book pages
+- exactly 31 worksheets, limited to slots 13–43
+- pages 1–12 and page 44 are never labeled or exported as worksheets
+- legacy worksheet URLs resolve to canonical reader/print routes only
 - reader load
 - all canonical page routes
 - TOC links
