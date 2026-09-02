@@ -1,0 +1,52 @@
+name: One-shot reader effect fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/fix-reader-effect.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.14.0"
+      - name: Apply structural React effect fix
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path("src/components/book/UnifiedBookReader.tsx")
+          s = p.read_text(encoding="utf-8")
+          s = s.replace(
+            '    const applyWidth = () => setIsNarrow(media.matches);\n    applyWidth();\n    media.addEventListener("change", applyWidth);',
+            '''    const applyWidth = () => {\n      const narrow = media.matches;\n      setIsNarrow(narrow);\n      if (narrow) {\n        setModeState((current) => {\n          if (current !== "spread") return current;\n          localStorage.setItem(MODE_KEY, "single");\n          const params = new URLSearchParams(window.location.search);\n          const currentPage = clampPage(Number(params.get("bookPage")) || Number(localStorage.getItem(PAGE_KEY)) || 1);\n          writeUrl(currentPage, "single", false);\n          return "single";\n        });\n      }\n    };\n    applyWidth();\n    media.addEventListener("change", applyWidth);'''
+          )
+          old = '''    try {\n      const storedSelected = JSON.parse(localStorage.getItem(SELECTED_KEY) || "[]") as number[];\n      setSelected(new Set(storedSelected.filter((n) => n >= 1 && n <= WS_TOTAL)));\n      const groups = JSON.parse(localStorage.getItem(OPEN_GROUPS_KEY) || "[]") as string[];\n      if (groups.length) setOpenGroups(new Set(groups));\n    } catch {\n      // Corrupt local state is ignored; canonical content stays untouched.\n    }\n\n    setPage(initialPage);\n    setModeState(initialMode);\n    localStorage.setItem(PAGE_KEY, String(initialPage));\n    localStorage.setItem(MODE_KEY, initialMode);\n    writeUrl(initialPage, initialMode, false);\n    setReady(true);'''
+          new = '''    let active = true;\n    const hydrateReader = () => {\n      if (!active) return;\n      try {\n        const storedSelected = JSON.parse(localStorage.getItem(SELECTED_KEY) || "[]") as number[];\n        setSelected(new Set(storedSelected.filter((n) => n >= 1 && n <= WS_TOTAL)));\n        const groups = JSON.parse(localStorage.getItem(OPEN_GROUPS_KEY) || "[]") as string[];\n        if (groups.length) setOpenGroups(new Set(groups));\n      } catch {\n        // Corrupt local state is ignored; canonical content stays untouched.\n      }\n\n      setPage(initialPage);\n      setModeState(initialMode);\n      localStorage.setItem(PAGE_KEY, String(initialPage));\n      localStorage.setItem(MODE_KEY, initialMode);\n      writeUrl(initialPage, initialMode, false);\n      setReady(true);\n    };\n    queueMicrotask(hydrateReader);'''
+          if old not in s:
+            raise SystemExit("hydration block not found")
+          s = s.replace(old, new)
+          s = s.replace(
+            '''    return () => {\n      media.removeEventListener("change", applyWidth);\n      window.removeEventListener("popstate", onPopState);\n    };\n  }, [firstWorksheetPage, writeUrl]);\n\n  useEffect(() => {\n    if (!ready || !isNarrow || mode !== "spread") return;\n    setModeState("single");\n    localStorage.setItem(MODE_KEY, "single");\n    writeUrl(page, "single", false);\n  }, [isNarrow, mode, page, ready, writeUrl]);''',
+            '''    return () => {\n      active = false;\n      media.removeEventListener("change", applyWidth);\n      window.removeEventListener("popstate", onPopState);\n    };\n  }, [firstWorksheetPage, writeUrl]);'''
+          )
+          p.write_text(s, encoding="utf-8")
+      - name: Install
+        run: npm install --no-package-lock --no-audit --no-fund
+      - name: Verify lint and typecheck
+        run: |
+          npm run lint:ci
+          npm run typecheck
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/components/book/UnifiedBookReader.tsx
+          git commit -m "fix: avoid synchronous state updates in reader effects"
+          git push
