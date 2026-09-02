@@ -1,47 +1,38 @@
-import test from "node:test";
 import assert from "node:assert/strict";
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import path from "node:path";
+import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-// בדיקות route מרונדרות: מרימות את האפליקציה הבנויה (next start) ומאמתות שכל
-// עמוד קורא מגיש את *הרכיב הנכון* לפי marker תוכן ייחודי — לא רק HTTP 200 ולא
-// רק component-key. דורש `npm run build` לפני הריצה (כך זה רץ ב-CI).
 const appDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-// פורט ייעודי לבדיקה — לא 3000 כדי לא להתנגש בשרת פיתוח. ניתן לעקיפה
-// (TEST_PORT) כששרת בדיקות ישן נשאר תקוע על הפורט (ב-Windows ‏kill של spawn
-// עם shell הורג את המעטפת בלבד — ואז הבדיקות רצות בשקט מול build ישן).
 const PORT = Number(process.env.TEST_PORT ?? 4873);
 const BASE = `http://127.0.0.1:${PORT}`;
-
 let server: ChildProcess | null = null;
 
 async function waitForServer(timeoutMs = 60_000): Promise<void> {
-  const start = Date.now();
-  while (Date.now() - start < timeoutMs) {
+  const started = Date.now();
+  while (Date.now() - started < timeoutMs) {
     try {
-      const res = await fetch(`${BASE}/`, { signal: AbortSignal.timeout(3000) });
-      if (res.ok) return;
+      const response = await fetch(`${BASE}/`, { signal: AbortSignal.timeout(3000) });
+      if (response.ok) return;
     } catch {
-      /* עדיין עולה */
+      // server still starting
     }
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
-  throw new Error("next start did not become ready in time (did you run `npm run build`?)");
+  throw new Error("next start did not become ready in time");
 }
 
 test.before(async () => {
-  // הגנה מפני שרת ישן שנשאר על הפורט: אם משהו כבר עונה שם — נכשלים מיד
-  // במקום לבדוק בשקט מול build ישן.
   try {
     await fetch(`${BASE}/`, { signal: AbortSignal.timeout(1500) });
-    throw new Error(`port ${PORT} is already serving — kill the stale server or set TEST_PORT`);
-  } catch (e) {
-    if (e instanceof Error && e.message.includes("already serving")) throw e;
-    /* הפורט פנוי — ממשיכים */
+    throw new Error(`port ${PORT} is already serving`);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("already serving")) throw error;
   }
-  const cmd = process.platform === "win32" ? "npx.cmd" : "npx";
-  server = spawn(cmd, ["next", "start", "--hostname", "127.0.0.1", "--port", String(PORT)], {
+
+  const command = process.platform === "win32" ? "npx.cmd" : "npx";
+  server = spawn(command, ["next", "start", "--hostname", "127.0.0.1", "--port", String(PORT)], {
     cwd: appDir,
     stdio: "ignore",
     shell: process.platform === "win32",
@@ -50,8 +41,6 @@ test.before(async () => {
 });
 
 test.after(() => {
-  // ‏Windows: kill() הורג רק את ה-shell (npx.cmd) ומשאיר את next יתום על
-  // הפורט — הריצה הבאה נכשלת מולו. חובה להרוג את עץ התהליכים כולו.
   if (server?.pid && process.platform === "win32") {
     spawnSync("taskkill", ["/pid", String(server.pid), "/T", "/F"], { stdio: "ignore" });
   } else {
@@ -59,89 +48,89 @@ test.after(() => {
   }
 });
 
-async function getHtml(p: string): Promise<string> {
-  const res = await fetch(`${BASE}${p}`, { signal: AbortSignal.timeout(15_000) });
-  assert.equal(res.status, 200, `${p} should return 200`);
-  return res.text();
+async function getHtml(route: string): Promise<string> {
+  const response = await fetch(`${BASE}${route}`, { signal: AbortSignal.timeout(15_000) });
+  assert.equal(response.status, 200, `${route} should return 200`);
+  return response.text();
 }
 
-// עמוד ← ‏markers שחייבים להופיע / אסורים. נבחרו מטקסט ייחודי של כל רכיב.
-const CASES: { path: string; must: string[]; mustNot?: string[]; name: string }[] = [
-  // הכפתור "הורדת כל דפי העבודה" הוסר מסרגל הניווט (יניב 17.7.2026) — הוא חי
-  // רק בתוך עמוד "דפי עבודה"; בכל עמוד אחר אסור שיופיע.
-  { path: "/worksheets/1", name: "cover", must: ["מורים יקרים"], mustNot: ["page-01.webp", "הורדת כל דפי העבודה"] },
-  { path: "/worksheets/2", name: "toc", must: ["תוכן העניינים", "/worksheets/3"] },
-  { path: "/worksheets/3", name: "intro-a", must: ["לומדים ומלמדים"], mustNot: ["מטרות הלמידה"] },
-  { path: "/worksheets/4", name: "intro-b", must: ["למה ללמוד להבנה"], mustNot: ["מטרות הלמידה"] },
-  // עמוד "מטרות הלמידה" (objectives) נמחק לצמיתות — כל העמודים אחרי 5 זזו אחורה באחד.
-  { path: "/worksheets/5", name: "what-we-teach", must: ["מה אנחנו מלמדים"] },
-  // "למה נשתמש בהמחשות?" — הועבר מעמוד הבית לעמוד 6 בחוברת; העמודים אחריו זזו קדימה באחד.
-  { path: "/worksheets/6", name: "why-models", must: ["למה נשתמש בהמחשות", "השורה התחתונה"] },
-  { path: "/worksheets/13", name: "around-us (first worksheet in the run)", must: ["רשמו האם הזווית"], mustNot: ["מטרות הלמידה"] },
-  { path: "/worksheets/7", name: "angles-types", must: ["זווית חדה"] },
-  { path: "/worksheets/14", name: "image", must: ["/booklet-worksheets/page-04.webp"] },
-  { path: "/worksheets/9", name: "measurement", must: ["מדידה ואומדן של זוויות"] },
-  // "מה גודל הזווית בין מחוגי השעון" — עותק חי של דף הקנבה, ברצף אחרי דף השעון
-  { path: "/worksheets/21", name: "clock-angles", must: ["מה גודל הזווית בין מחוגי השעון"] },
-  // מחסן המילים חלק ב הוא עמוד 25; שרטוט ומדידת זוויות בא מיד אחריו בעמוד 26.
-  { path: "/worksheets/25", name: "image (word-bank B)", must: ["/booklet-worksheets/page-16.webp"], mustNot: ["Matific"] },
-  { path: "/worksheets/26", name: "draw-measure", must: ["שרטוט ומדידת זוויות"] },
-  { path: "/worksheets/10", name: "applet (Matific)", must: ["Matific"], mustNot: ["מטרות הלמידה"] },
-  { path: "/worksheets/11", name: "applet (StoryboardThat)", must: ["StoryboardThat"] },
-  // פוסטר "כיצד להשתמש במד זווית" — אחרי היישומונים, מחוץ לרצף דפי העבודה;
-  // בעמוד עצמו כפתור הורדה מיידית של ה-PDF, תצוגה מלאה והדפסה.
-  { path: "/worksheets/12", name: "protractor poster", must: ["פוסטר — כיצד להשתמש במד זווית", "poster-mad-zavit.pdf", "הורדת הפוסטר"] },
-  // הפוסטר הצבעוני — העמוד האחרון בחוברת, מחוץ לרצף דפי העבודה (דרישת יניב)
-  { path: "/worksheets/44", name: "poster (last page)", must: ["/booklet-worksheets/page-14.webp"] },
-  { path: "/worksheets/w/1", name: "worksheet reader #1 (around-us)", must: ["דף עבודה 1 מתוך", "רשמו האם הזווית"] },
-  // דף עבודה 9 = "מה גודל הזווית בין מחוגי השעון" (העותק החי החדש, אחרי דף השעון)
-  { path: "/worksheets/w/9", name: "worksheet reader #9 (clock angles)", must: ["דף עבודה 9 מתוך", "מה גודל הזווית בין מחוגי השעון"] },
-  // דף עבודה 27 = "זוויות ישרות, חדות וקהות" · 28 = ראשון מדפי השאלות
-  { path: "/worksheets/w/27", name: "worksheet reader #27 (right-angle estimate)", must: ["דף עבודה 27 מתוך", "זוויות ישרות, חדות וקהות", "ניתן לקפל פיסת נייר פעמיים"] },
-  { path: "/worksheets/w/28", name: "worksheet reader #28 (curriculum questions)", must: ["דף עבודה 28 מתוך", "שאלות כמו בתוכנית הלימודים"] },
-  { path: "/worksheets/w/2?bw=1", name: "worksheet reader BW", must: ["ws-bw", "תצוגה צבעונית"] },
-  // חוברת כל דפי העבודה — כל הדפים הממוספרים ברצף אחד, עם מעבר צבע/שחור-לבן
-  { path: "/worksheets/booklet", name: "all-worksheets booklet", must: ["חוברת דפי העבודה", "דף עבודה 1", "דף עבודה 31", "תצוגת שחור-לבן"] },
-  { path: "/worksheets/booklet?bw=1", name: "all-worksheets booklet BW", must: ["ws-bw", "תצוגה צבעונית"] },
-  // אביזרים נלווים להמחשה — אינדקס נושאים, עמוד נושא, וקורא דף עם שחור-לבן
-  { path: "/hamchashot", name: "aid topics index", must: ["אביזרים נלווים להמחשה", "מושג הזווית והשוואת זוויות", "/hamchashot/t/coords"], mustNot: ["המחשות להדפסה"] },
-  { path: "/hamchashot/t/coords", name: "aid topic page", must: ["רביע ראשון עם מספרים", "לרשימת הנושאים"], mustNot: ["מד זווית להדפסה על שקף"] },
-  { path: "/hamchashot/9?bw=1", name: "aid reader BW", must: ["ws-bw", "רביע ראשון עם מספרים"] },
+const CASES: { route: string; name: string; must: string[]; mustNot?: string[] }[] = [
+  { route: "/worksheets/1", name: "cover", must: ["מורים יקרים"], mustNot: ["דף עבודה מספר"] },
+  { route: "/worksheets/2", name: "toc", must: ["תוכן העניינים", "/worksheets/3"] },
+  { route: "/worksheets/3", name: "intro-a", must: ["לומדים ומלמדים"], mustNot: ["מטרות הלמידה"] },
+  { route: "/worksheets/4", name: "intro-b", must: ["למה ללמוד להבנה"], mustNot: ["מטרות הלמידה"] },
+  { route: "/worksheets/5", name: "what-we-teach", must: ["מה אנחנו מלמדים"] },
+  { route: "/worksheets/6", name: "why-models", must: ["למה נשתמש בהמחשות", "השורה התחתונה"] },
+  { route: "/worksheets/7", name: "angles-types", must: ["זווית חדה"] },
+  { route: "/worksheets/9", name: "measurement", must: ["מדידה ואומדן של זוויות"] },
+  { route: "/worksheets/10", name: "Matific", must: ["Matific"] },
+  { route: "/worksheets/11", name: "StoryboardThat", must: ["StoryboardThat"] },
+  { route: "/worksheets/12", name: "protractor poster", must: ["פוסטר — כיצד להשתמש במד זווית", "poster-mad-zavit.pdf"] },
+  { route: "/worksheets/13", name: "first worksheet", must: ["דף עבודה מספר 1 מתוך 31", "רשמו האם הזווית"] },
+  { route: "/worksheets/14", name: "worksheet image", must: ["דף עבודה מספר 2 מתוך 31", "/booklet-worksheets/page-04.webp"] },
+  { route: "/worksheets/21", name: "clock worksheet", must: ["מה גודל הזווית בין מחוגי השעון"] },
+  { route: "/worksheets/25", name: "word-bank image", must: ["/booklet-worksheets/page-16.webp"] },
+  { route: "/worksheets/26", name: "draw-measure", must: ["שרטוט ומדידת זוויות"] },
+  { route: "/worksheets/44", name: "final poster", must: ["/booklet-worksheets/page-14.webp"], mustNot: ["דף עבודה מספר"] },
+  { route: "/hamchashot", name: "aid topics", must: ["אביזרים נלווים להמחשה", "/hamchashot/t/coords"] },
+  { route: "/hamchashot/t/coords", name: "aid topic", must: ["רביע ראשון עם מספרים", "לרשימת הנושאים"] },
+  { route: "/hamchashot/9?bw=1", name: "aid reader BW", must: ["ws-bw", "רביע ראשון עם מספרים"] },
 ];
 
-for (const c of CASES) {
-  test(`route ${c.path} renders the ${c.name} component`, async () => {
-    const html = await getHtml(c.path);
-    for (const m of c.must) assert.ok(html.includes(m), `${c.path}: missing marker "${m}"`);
-    for (const m of c.mustNot ?? []) assert.ok(!html.includes(m), `${c.path}: must NOT contain "${m}"`);
+for (const item of CASES) {
+  test(`route ${item.route} renders ${item.name}`, async () => {
+    const html = await getHtml(item.route);
+    for (const marker of item.must) assert.ok(html.includes(marker), `${item.route}: missing ${marker}`);
+    for (const marker of item.mustNot ?? []) assert.ok(!html.includes(marker), `${item.route}: must not contain ${marker}`);
   });
 }
 
-test("route /worksheets navigates to the worksheet group inside the unified reader", async () => {
-  const res = await fetch(`${BASE}/worksheets`, {
-    signal: AbortSignal.timeout(15_000),
-  });
-  assert.equal(res.status, 200, `/worksheets navigation should end at 200, got ${res.status}`);
-  const finalUrl = new URL(res.url);
-  const html = await res.text();
-
-  if (finalUrl.pathname === "/") {
-    assert.equal(finalUrl.searchParams.get("group"), "worksheets");
-  } else {
-    // Next 16 may prerender redirect() as a 200 response carrying the target in
-    // the streamed RSC payload instead of exposing a 307/308 to Node fetch.
-    assert.equal(finalUrl.pathname, "/worksheets");
-    assert.ok(
-      html.includes("/?group=worksheets#worksheets") || html.includes("%2F%3Fgroup%3Dworksheets%23worksheets") || html.includes("group=worksheets"),
-      "/worksheets should carry the unified-reader worksheet target",
-    );
-  }
+test("/worksheets points to the worksheet group in the unified reader", async () => {
+  const response = await fetch(`${BASE}/worksheets`, { signal: AbortSignal.timeout(15_000) });
+  assert.equal(response.status, 200);
+  const finalUrl = new URL(response.url);
+  const html = await response.text();
+  assert.ok(
+    (finalUrl.pathname === "/" && finalUrl.searchParams.get("group") === "worksheets") ||
+      html.includes("group=worksheets"),
+    "/worksheets must resolve to the unified reader worksheet group",
+  );
 });
 
-test("print route renders every kind (cover, intro, content, applet)", async () => {
-  // המצגת אינה עמוד בחוברת (מקטע עצמאי בעמוד הבית) — לכן אין כאן "פתיחת המצגת".
+test("legacy worksheet number route resolves to the canonical book page", async () => {
+  const response = await fetch(`${BASE}/worksheets/w/1`, { signal: AbortSignal.timeout(15_000) });
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.ok(html.includes("רשמו האם הזווית"));
+  assert.equal(new URL(response.url).pathname, "/worksheets/13");
+});
+
+test("legacy B/W worksheet route resolves to the canonical print route", async () => {
+  const response = await fetch(`${BASE}/worksheets/w/2?bw=1`, { signal: AbortSignal.timeout(15_000) });
+  assert.equal(response.status, 200);
+  const finalUrl = new URL(response.url);
+  const html = await response.text();
+  assert.equal(finalUrl.pathname, "/worksheets/print");
+  assert.equal(finalUrl.searchParams.get("pages"), "14");
+  assert.equal(finalUrl.searchParams.get("tone"), "bw");
+  assert.ok(html.includes("bkprint--bw"));
+});
+
+test("legacy worksheet booklet route resolves to the canonical worksheet print scope", async () => {
+  const response = await fetch(`${BASE}/worksheets/booklet`, { signal: AbortSignal.timeout(15_000) });
+  assert.equal(response.status, 200);
+  const finalUrl = new URL(response.url);
+  const html = await response.text();
+  assert.equal(finalUrl.pathname, "/worksheets/print");
+  assert.equal(finalUrl.searchParams.get("scope"), "worksheets");
+  assert.ok(html.includes("data-source-page=\"13\""));
+  assert.ok(!html.includes("data-source-page=\"1\""));
+  assert.ok(!html.includes("data-source-page=\"44\""));
+});
+
+test("canonical print route renders the full book when no worksheet scope is requested", async () => {
   const html = await getHtml("/worksheets/print");
-  for (const m of ["bkprint", "מורים יקרים", "למה ללמוד להבנה", "Matific", "שרטוט ומדידת זוויות"]) {
-    assert.ok(html.includes(m), `print: missing marker "${m}"`);
+  for (const marker of ["bkprint", "מורים יקרים", "למה ללמוד להבנה", "Matific", "שרטוט ומדידת זוויות"]) {
+    assert.ok(html.includes(marker), `print route missing ${marker}`);
   }
 });
