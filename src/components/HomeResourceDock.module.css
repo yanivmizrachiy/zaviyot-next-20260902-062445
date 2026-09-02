@@ -72,6 +72,22 @@
   outline: none;
 }
 
+.links .primaryLink {
+  min-height: 44px;
+  background: #11203c;
+  border-color: #11203c;
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 6px 16px rgba(17, 32, 60, 0.16);
+}
+
+.links .primaryLink:hover,
+.links .primaryLink:focus-visible {
+  background: #182d51;
+  border-color: #182d51;
+  color: #fff;
+}
+
 @media (max-width: 1180px) {
   .dock {
     width: min(820px, calc(100vw - 24px));
@@ -83,6 +99,7 @@
 
   .links {
     align-content: center;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -101,7 +118,7 @@
   }
 
   .links {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .links a {
