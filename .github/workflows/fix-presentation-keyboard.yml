@@ -80,3 +80,5 @@ jobs:
           git add src/components/PresentationViewer.tsx
           git commit -m "fix: scope presentation keyboard navigation"
           git push
+
+# Triggered after workflow registration.
