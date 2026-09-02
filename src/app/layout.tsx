@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Rubik, Assistant } from "next/font/google";
 import localFont from "next/font/local";
 import { InPageTransitions } from "@/components/InPageTransitions";
+import { SiteReturnNav } from "@/components/SiteReturnNav";
 import Script from "next/script";
 import "./globals.css";
 import "./home-refinement.css";
@@ -100,6 +101,7 @@ export default function RootLayout({
           })();`}
         </Script>
         {children}
+        <SiteReturnNav />
         <InPageTransitions />
         <Script src="/reveal.js" strategy="afterInteractive" />
       </body>
