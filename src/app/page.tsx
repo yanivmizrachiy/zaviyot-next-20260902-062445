@@ -2,7 +2,6 @@ import { TopBar } from "@/components/TopBar";
 import { SiteNav } from "@/components/SiteNav";
 import { HeroSection } from "@/components/HeroSection";
 import { JerusalemPanoramaSection } from "@/components/JerusalemPanoramaSection";
-import { VideoSection } from "@/components/VideoSection";
 import { WorksheetsBookletBook } from "@/components/WorksheetsBookletBook";
 import { PresentationViewer } from "@/components/PresentationViewer";
 import { FinaleSection } from "@/components/FinaleSection";
@@ -19,7 +18,6 @@ export default function HomePage() {
         <WorksheetsBookletBook />
         <HeroSection />
         <JerusalemPanoramaSection />
-        <VideoSection />
         <PresentationViewer />
         <FinaleSection />
       </main>
