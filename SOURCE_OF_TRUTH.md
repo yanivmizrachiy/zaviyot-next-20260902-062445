@@ -58,7 +58,7 @@ Desktop reader must be no worse and not materially different in controls/graphic
 - previous/next
 - RTL keyboard semantics
 - ignore keyboard shortcuts while typing/in editable controls
-- localStorage restoration
+- localStorage restoration only for explicit navigation/history behavior; a fresh homepage visit follows the startup iron rule below
 - deep links for current page + mode
 - browser history/back-forward
 - selection mode
@@ -92,24 +92,66 @@ Also test laptop and desktop at 1280x720, 1366x768, 1440x900, 1920x1080.
 
 ## Hebrew printing UI
 Study .references/jerusalem2-print.
-Implement a polished in-site Hebrew print dialog, not English site controls:
-- title "הדפסה"
-- live A4 preview
+Implement a polished in-site Hebrew print dialog, not English site controls.
+The print experience is a compact central Print/PDF Center, not many large duplicate buttons.
+It MUST support:
+- accurate full-A4 live preview that is never narrow, cropped or distorted
+- current page
+- current chapter/group
+- all worksheets
+- entire book
+- manual page selection from the canonical 44-page manifest
+- easy select-all / clear-all and visible selected-page count
+- color / black-and-white choice
+- print action
+- PDF/download action
+- selected-page printing and selected-page PDF
+- preserve page order exactly as the canonical manifest
+- use one shared print/action engine for all scopes
+
+Allowed generic Hebrew print/control labels include:
+- "הדפסה"
+- "תצוגה מקדימה"
+- "עמוד נוכחי"
+- "פרק נוכחי"
+- "כל דפי העבודה"
+- "כל החוברת"
+- "בחירת עמודים"
 - "צבע מלא"
 - "שחור־לבן"
-- "הדפסה"
+- "PDF"
+- "בחר הכל"
+- "נקה בחירה"
 - "ביטול"
-Use one shared print/action engine for current page, group/chapter, selected pages and all worksheets.
-Browser/system print UI may still be OS-controlled after the user presses the Hebrew in-site "הדפסה" button.
+
+Browser/system print UI may still be OS-controlled after the user presses the Hebrew in-site print button.
 
 ## Very fast downloads
 Create direct static download buttons.
 Build/pre-generate:
 1. all worksheets PDF — color
 2. all worksheets PDF — black & white
-The click must not generate the PDF at request time.
+The click must not generate those full worksheet PDFs at request time.
 Use the same canonical manifest as the source for those PDFs.
 Keep current page/PDF actions consistent with RazPages.
+
+## Homepage hierarchy — current required UX
+- The digital book is the primary product and MUST remain the dominant content immediately on homepage load.
+- The whole current A4 page must be visible whenever the viewport permits; never enlarge by cropping.
+- Controls around the book must be compact. Do not let toolbars, print controls, TOC, or secondary actions steal large screen areas.
+- TOC is secondary and collapsible; on mobile it is an overlay/drawer.
+- The user must understand from the first screen that more site content exists below the book. Use a compact visual cue/peek or existing-resource access without inventing explanatory copy.
+- The existing real child/video asset may appear as a small compact preview in the first-screen ecosystem, but it must not compete with or shrink the book materially; no autoplay with sound.
+- Existing presentation, video, Jerusalem panorama, aids/accessories, Finale/Arena and footer remain available below/around the reader in a secondary hierarchy.
+- Avoid giant cards, giant buttons, duplicate action rows, and unnecessary empty space.
+
+## Iron rules — startup and visible wording
+- A plain visit to `/` or `/#worksheets` MUST open the unified reader on the real cover, page 1, in single-page mode.
+- A plain visit MUST NOT restore the last-read page or last-read mode from localStorage. Explicit `bookPage`, `bookMode`, browser history, and the explicit `group=worksheets` navigation remain valid.
+- No visible demo text, placeholder copy, temporary copy, invented chapter names, invented subtitles, or explanatory wording may be introduced.
+- Visible page titles, TOC labels, subtitles, and content metadata must reuse wording already present in the canonical Zaviyot content. Generic reader/print controls are the only exception.
+- The cover is identified in the reader using its actual visible title: `חוברת הוראת הזוויות לכיתה ז׳`; do not expose the invented label `מכתב המורה`.
+- When screen space is available, the reader must maximize the whole A4 page while keeping the complete page visible; never enlarge by cropping.
 
 ## Performance
 - minimize initial client bundle
@@ -124,6 +166,13 @@ Keep current page/PDF actions consistent with RazPages.
 - actions must feel immediate
 - preserve existing content fidelity
 
+## Repository cleanup — current rule
+- The unified reader is the only active digital-book engine.
+- Proven-unreferenced legacy flipbook implementation, its CSS, helper files and legacy-only tests should be removed from THIS NEW repo once dependency search confirms they are not used by production code.
+- Do not delete canonical page content, worksheets, PDFs, presentation, video, panorama, aids/accessories, active routes, print infrastructure or reference snapshots.
+- Do not keep dead demo/draft infrastructure merely for historical reasons when Git history already preserves it.
+- Cleanup must reduce duplication without weakening tests for the active unified reader.
+
 ## Beneficial cleanup in NEW project only
 Apply only improvements that help and do not change intended content:
 - isolate reader styles from giant global CSS where practical
@@ -134,22 +183,25 @@ Apply only improvements that help and do not change intended content:
 - preserve reduced-motion behavior
 - add video captions only if an actual caption source exists; do not invent captions
 - reduce clearly unused font loading if verified safe
-- remove old flipbook code/CSS ONLY after new reader parity and dependency checks
+- remove old flipbook code/CSS after new reader parity and dependency checks
 - remove dead duplicate worksheet-reader infrastructure ONLY when replacements are proven
 - no broad aesthetic redesign of the rest of the site
 
 ## Tests / CI
-Add real browser tests (prefer Playwright):
+Add/maintain real browser and route tests:
 - reader loads
 - every manifest page route resolves
 - TOC links valid
 - single/spread/scroll
+- fresh homepage starts at page 1
 - deep link and popstate
 - search
-- selection persistence
+- selection persistence where allowed by the startup iron rule
 - keyboard focus filtering
-- current/group/selected/all-worksheet printing flows
+- current/group/selected/all-worksheet/all-book printing flows
+- manual page selection
 - color/BW print state
+- full-A4 preview aspect and no crop
 - both prebuilt worksheet PDFs exist and are downloadable
 - mobile drawer/actions
 - phone/laptop/desktop smoke
@@ -165,14 +217,7 @@ Before declaring complete:
 - lint/typecheck/tests succeed when present
 - production build succeeds
 - old unrelated features remain
-- obsolete reader code is cleaned only after parity
+- obsolete reader code is cleaned after parity/dependency verification
 - repository is clean and maintainable
+- print/PDF center works for every required scope
 - no reference repo was modified
-
-## Iron rules — startup and visible wording
-- A plain visit to `/` or `/#worksheets` MUST open the unified reader on the real cover, page 1, in single-page mode.
-- A plain visit MUST NOT restore the last-read page or last-read mode from localStorage. Explicit `bookPage`, `bookMode`, browser history, and the explicit `group=worksheets` navigation remain valid.
-- No visible demo text, placeholder copy, temporary copy, invented chapter names, invented subtitles, or explanatory wording may be introduced.
-- Visible page titles, TOC labels, subtitles, and content metadata must reuse wording already present in the canonical Zaviyot content. Generic reader controls are the only exception.
-- The cover is identified in the reader using its actual visible title: `חוברת הוראת הזוויות לכיתה ז׳`; do not expose the invented label `מכתב המורה`.
-- When screen space is available, the reader must maximize the whole A4 page while keeping the complete page visible; never enlarge by cropping.
