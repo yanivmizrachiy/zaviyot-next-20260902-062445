@@ -1,6 +1,5 @@
 import { TopBar } from "@/components/TopBar";
 import { SiteNav } from "@/components/SiteNav";
-import { HeroSection } from "@/components/HeroSection";
 import { JerusalemPanoramaSection } from "@/components/JerusalemPanoramaSection";
 import { WorksheetsBookletBook } from "@/components/WorksheetsBookletBook";
 import { PresentationViewer } from "@/components/PresentationViewer";
@@ -16,7 +15,6 @@ export default function HomePage() {
       </div>
       <main id="main">
         <WorksheetsBookletBook />
-        <HeroSection />
         <JerusalemPanoramaSection />
         <PresentationViewer />
         <FinaleSection />
