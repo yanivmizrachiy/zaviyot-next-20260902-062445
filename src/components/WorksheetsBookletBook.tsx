@@ -1,19 +1,14 @@
 import { SectionHead } from "./SectionHead";
-import { FlipbookViewer } from "./flipbook/FlipbookViewer";
+import { UnifiedBookReader } from "./book/UnifiedBookReader";
 
-// החוברת הדיגיטלית של הזוויות — חוויית חוברת דפדוף יוקרתית ("הגאומטריה של
-// היוקרה"): במה קולנועית כהה, כריכה קשה, דפדוף תלת-ממדי אמיתי בסדר עברי,
-// שני עמודים במחשב ועמוד יחיד בנייד. כל התוכן מגיע מאותו רישום (WS_PAGES)
-// ומאותו renderer משותף כמו הקורא (/worksheets/[n]) וההדפסה (/worksheets/print),
-// כך ששום עמוד, קישור או פונקציה לא השתנו — רק חוויית הדפדוף.
+// החוברת הדיגיטלית וכל דפי העבודה מוצגים במנוע קורא אחד.
+// התוכן עצמו אינו משוכפל: הקורא נגזר ישירות מ-WS_PAGES, שהוא מקור התוכן הקיים.
 export function WorksheetsBookletBook() {
   return (
     <section className="section" id="worksheets">
-      {/* מכל מורחב לחוברת בלבד — הדפים מנצלים גם מסכים רחבים, בלי לשנות את
-          רוחב שאר המקטעים באתר */}
       <div className="container container--book">
         <SectionHead eyebrow="החוברת הדיגיטלית" title="הוראת זוויות בכיתה ז׳" />
-        <FlipbookViewer />
+        <UnifiedBookReader />
       </div>
     </section>
   );
