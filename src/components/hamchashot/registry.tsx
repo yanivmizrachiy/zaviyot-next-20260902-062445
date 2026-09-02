@@ -60,6 +60,11 @@ export const AID_DOCS: AidDocEntry[] = AID_ITEMS.map((item, i) => {
   return { ...item, n: i + 1, Fig };
 });
 
+/** מספר עמודי ה-A4 האמיתיים של פריט המחשה — משמש תצוגה מקדימה והדפסה. */
+export function aidDocPageCount(n: number) {
+  return AID_DOCS[n - 1]?.id === "equilateral-triangle-film-aid" ? 2 : 1;
+}
+
 /**
  * תצוגה מקדימה של פריט — עמוד A4 ראשון בלבד.
  * כך כרטיסי הקטלוג נשארים בגודל קבוע גם אם פריט כולל יותר מעמוד אחד.
@@ -77,7 +82,7 @@ export function AidDoc({ n }: { n: number }) {
 /** תצוגה/הדפסה מלאה של כל עמודי הפריט, ברצף אחד. */
 export function AidDocPages({ n }: { n: number }) {
   const doc = AID_DOCS[n - 1];
-  if (doc.id !== "equilateral-triangle-film-aid") return <AidDoc n={n} />;
+  if (aidDocPageCount(n) === 1) return <AidDoc n={n} />;
 
   return (
     <>
