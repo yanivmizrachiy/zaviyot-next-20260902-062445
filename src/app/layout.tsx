@@ -34,16 +34,14 @@ const gveretLevin = localFont({
   display: "swap",
 });
 
-// TODO(תוכן): כתובת האתר תתעדכן לפי דומיין ה-Vercel של פרויקט הזוויות.
-const SITE_URL = "https://zaviyot.vercel.app";
-// TODO(תוכן): התיאור זמני — יוחלף בתוכן האמיתי שיינתן.
-const SITE_DESC =
-  "יחידת לימוד מתוקשבת במתמטיקה בנושא זוויות. הדרכה במחוז ירושלים — מנח״י, בהובלת איילת קריספין.";
+const SITE_URL = "https://zaviyot-next-20260902-062445.vercel.app";
+const SITE_TITLE = "חוברת הוראת הזוויות לכיתה ז׳";
+const SITE_DESC = "לאור עדכון ת״ל לקראת תשפ״ז";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "זוויות — יחידת לימוד מתוקשבת",
+    default: SITE_TITLE,
     template: "%s · זוויות",
   },
   description: SITE_DESC,
@@ -61,8 +59,8 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "/" },
   openGraph: {
-    title: "זוויות — יחידת לימוד מתוקשבת",
-    description: "יחידת לימוד מתוקשבת במתמטיקה בנושא זוויות.",
+    title: SITE_TITLE,
+    description: SITE_DESC,
     url: SITE_URL,
     siteName: "זוויות",
     locale: "he_IL",
@@ -70,8 +68,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "זוויות — יחידת לימוד מתוקשבת",
-    description: "יחידת לימוד מתוקשבת במתמטיקה בנושא זוויות.",
+    title: SITE_TITLE,
+    description: SITE_DESC,
   },
 };
 

@@ -168,3 +168,11 @@ Before declaring complete:
 - obsolete reader code is cleaned only after parity
 - repository is clean and maintainable
 - no reference repo was modified
+
+## Iron rules — startup and visible wording
+- A plain visit to `/` or `/#worksheets` MUST open the unified reader on the real cover, page 1, in single-page mode.
+- A plain visit MUST NOT restore the last-read page or last-read mode from localStorage. Explicit `bookPage`, `bookMode`, browser history, and the explicit `group=worksheets` navigation remain valid.
+- No visible demo text, placeholder copy, temporary copy, invented chapter names, invented subtitles, or explanatory wording may be introduced.
+- Visible page titles, TOC labels, subtitles, and content metadata must reuse wording already present in the canonical Zaviyot content. Generic reader controls are the only exception.
+- The cover is identified in the reader using its actual visible title: `חוברת הוראת הזוויות לכיתה ז׳`; do not expose the invented label `מכתב המורה`.
+- When screen space is available, the reader must maximize the whole A4 page while keeping the complete page visible; never enlarge by cropping.

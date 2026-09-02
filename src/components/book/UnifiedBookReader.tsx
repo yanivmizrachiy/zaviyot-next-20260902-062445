@@ -230,16 +230,18 @@ export function UnifiedBookReader() {
     media.addEventListener("change", applyWidth);
 
     const params = new URLSearchParams(window.location.search);
-    const storedPage = Number(localStorage.getItem(PAGE_KEY));
     const requestedPage = Number(params.get("bookPage"));
     const requestedGroup = params.get("group");
+    // IRON RULE: a normal fresh visit always starts on the real cover (page 1).
+    // Explicit deep links and the worksheets navigation remain respected.
     const initialPage = requestedGroup === "worksheets"
       ? firstWorksheetPage
-      : clampPage(requestedPage || storedPage || 1);
+      : requestedPage
+        ? clampPage(requestedPage)
+        : 1;
 
     const requestedMode = params.get("bookMode") as ReaderMode | null;
-    const storedMode = localStorage.getItem(MODE_KEY) as ReaderMode | null;
-    const candidate = requestedMode || storedMode || "single";
+    const candidate = requestedMode || "single";
     const initialMode: ReaderMode = media.matches && candidate === "spread" ? "single" : candidate;
 
     let active = true;

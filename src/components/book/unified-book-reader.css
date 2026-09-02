@@ -373,3 +373,93 @@
   }
 }
 /* === ZREADER FIT PAGE V3 END === */
+
+/* === ZREADER EXPERT FIT V4 START === */
+/* Remove reserved UI height before enlarging A4. The existing fit engine then
+   recalculates the biggest whole-page scale that still fits with zero crop. */
+.hero-media-only {
+  padding-block: 24px;
+  background: var(--bg);
+}
+.hero-media-only .herovid {
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+/* Mobile/tablet: one compact toolbar row instead of two, and no duplicate title bar. */
+@media (max-width: 900px) {
+  .zreader__header {
+    min-height: 40px !important;
+    height: 40px;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    padding: 3px 6px !important;
+  }
+  .zreader__brand,
+  .zreader__mode-switch,
+  .zreader__counter-btn,
+  .zreader__stat {
+    display: none !important;
+  }
+  .zreader__hamburger {
+    width: 34px !important;
+    height: 34px !important;
+    padding: 7px !important;
+  }
+  .zreader__search-wrap {
+    order: initial !important;
+    width: auto !important;
+    max-width: none !important;
+    flex: 1 1 auto !important;
+    flex-basis: auto !important;
+  }
+  .zreader__search-wrap input {
+    height: 34px !important;
+    border-radius: 6px !important;
+  }
+  .zreader__bar {
+    display: none !important;
+  }
+  .zreader__viewport--single {
+    padding: 1px !important;
+  }
+}
+
+/* On narrow phones every available vertical pixel belongs to the page. */
+@media (max-width: 520px) {
+  .zreader__header {
+    min-height: 38px !important;
+    height: 38px;
+  }
+  .zreader__hamburger {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .zreader__search-wrap input {
+    height: 32px !important;
+  }
+  .zreader__mobile-nav {
+    min-height: 42px !important;
+  }
+  .zreader__mobile-nav button {
+    min-height: 42px !important;
+    padding-block: 6px !important;
+  }
+}
+
+/* Laptop: shave redundant bars but keep all desktop controls. */
+@media (min-width: 901px) and (max-height: 850px) {
+  .zreader__header {
+    min-height: 40px !important;
+  }
+  .zreader__bar {
+    min-height: 34px !important;
+  }
+  .zreader__download-strip {
+    padding-block: 2px !important;
+  }
+  .zreader__bottom-nav {
+    min-height: 34px !important;
+  }
+}
+/* === ZREADER EXPERT FIT V4 END === */
