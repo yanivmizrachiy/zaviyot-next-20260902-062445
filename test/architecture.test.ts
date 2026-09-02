@@ -56,6 +56,10 @@ test("presentation cannot return as a book-page variant", () => {
 });
 
 test("legacy worksheet URLs are redirect-only compatibility routes", () => {
+  const index = read("src/app/worksheets/page.tsx");
+  assert.ok(index.includes('redirect("/?group=worksheets#worksheets")'));
+  assert.doesNotMatch(index, /WS_PAGES|WORKSHEETS|worksheetContentNode|UnifiedBookReader/);
+
   const booklet = read("src/app/worksheets/booklet/page.tsx");
   assert.match(booklet, /redirect\(`\/worksheets\/print\?scope=worksheets/);
   assert.doesNotMatch(booklet, /WsBookletAllBar|worksheetContentNode|WS_PAGES/);
@@ -64,6 +68,12 @@ test("legacy worksheet URLs are redirect-only compatibility routes", () => {
   assert.match(single, /WORKSHEETS\[k - 1\]\.slot/);
   assert.match(single, /redirect\(`\/worksheets\//);
   assert.doesNotMatch(single, /WsWorksheetBar|worksheetContentNode|WS_PAGES/);
+});
+
+test("legacy resource URLs are redirect-only compatibility routes", () => {
+  const resources = read("src/app/meshaabim/[n]/page.tsx");
+  assert.ok(resources.includes('redirect(`/hamchashot/${n + 9}${sp.print === "1" ? "?print=1" : ""}`)'));
+  assert.doesNotMatch(resources, /@\/components\/|export const metadata|<main|<section/);
 });
 
 test("legacy angle-types URL redirects to the canonical book page", () => {
