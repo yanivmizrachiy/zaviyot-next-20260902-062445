@@ -13,11 +13,17 @@
 # misc
 .DS_Store
 *.pem
+*.bak
+*.tmp
 
-# debug
+# debug / local run artifacts
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+RESULTS.txt
+log-*.txt
+BUILD_FAILURES.md
 
 # local env files
 .env
@@ -30,7 +36,5 @@ next-env.d.ts
 # vercel
 .vercel
 
+# read-only local references
 .references/
-log-*.txt
-BUILD_FAILURES.md
-
