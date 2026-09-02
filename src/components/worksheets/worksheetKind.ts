@@ -7,7 +7,6 @@ import type { WsPage } from "./registry";
 export type WsComponentKey =
   | "cover"
   | "toc"
-  | "presentation"
   | "image"
   | "intro-a"
   | "intro-b"
@@ -37,8 +36,6 @@ export function worksheetComponentKey(page: WsPage): WsComponentKey {
       return "cover";
     case "toc":
       return "toc";
-    case "presentation":
-      return "presentation";
     case "image":
       return "image";
     case "content":
@@ -85,8 +82,8 @@ export function worksheetComponentKey(page: WsPage): WsComponentKey {
   }
 }
 
-// האם העמוד ניתן להדפסה/הורדה כ-PDF דרך window.print(). החלטה מפורשת לכל kind
-// (exhaustive) — kind עתידי חדש יידרש להכרעה מפורשת ולא יהיה printable כברירת מחדל.
+// כל אחד מ-44 עמודי הספר הוא עמוד A4 קנוני וניתן להדפסה.
+// המצגת אינה kind של הספר כלל; היא משאב נפרד בעמוד הראשי.
 export function isPrintableKind(page: WsPage): boolean {
   switch (page.kind) {
     case "cover":
@@ -94,9 +91,6 @@ export function isPrintableKind(page: WsPage): boolean {
     case "image":
     case "content":
       return true;
-    // המצגת מוטמעת חיה — ההורדה שלה נעשית מתוך הנגן, לא דרך window.print().
-    case "presentation":
-      return false;
     default:
       return assertNever(page);
   }
