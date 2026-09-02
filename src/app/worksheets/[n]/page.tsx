@@ -4,11 +4,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { WsReaderBar } from "@/components/worksheets/WsReaderBar";
-import { WS_TOTAL, WS_PAGES } from "@/components/worksheets/registry";
+import { WORKSHEETS, WORKSHEETS_TOTAL, WS_TOTAL, WS_PAGES } from "@/components/worksheets/registry";
 import { worksheetContentNode, isPrintablePage } from "@/components/worksheets/WorksheetPageRenderer";
 
 export const metadata: Metadata = {
-  title: "חוברת דפי העבודה — זוויות בכיתה ז׳",
+  title: "חוברת הוראת הזוויות לכיתה ז׳",
   robots: { index: false },
 };
 
@@ -25,6 +25,7 @@ export default async function WsReadPage({
   if (!Number.isInteger(n) || n < 1 || n > WS_TOTAL) notFound();
 
   const page = WS_PAGES[n - 1];
+  const worksheet = WORKSHEETS.find((entry) => entry.slot === n);
   const embedded = sp.reader === "1";
   const node = worksheetContentNode(page, {
     slot: n,
@@ -38,7 +39,13 @@ export default async function WsReadPage({
       style={embedded ? { minHeight: "297mm", padding: 0, background: "#fff" } : undefined}
     >
       {!embedded && (
-        <WsReaderBar n={n} total={WS_TOTAL} autoPrint={isPrintablePage(page) && sp.print === "1"} />
+        <WsReaderBar
+          n={n}
+          total={WS_TOTAL}
+          worksheetNumber={worksheet?.num}
+          worksheetTotal={worksheet ? WORKSHEETS_TOTAL : undefined}
+          autoPrint={isPrintablePage(page) && sp.print === "1"}
+        />
       )}
       <div
         className="ws-page__sheets"
