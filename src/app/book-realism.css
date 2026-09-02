@@ -1,0 +1,160 @@
+/*
+  Subtle physical-book treatment for the unified reader.
+  Visual layer only: no geometry, page data, navigation or print behavior changes.
+*/
+
+.zreader__viewport--single,
+.zreader__viewport--spread {
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255,255,255,.92) 0, rgba(247,249,252,.88) 44%, rgba(228,233,240,.9) 100%);
+}
+
+.zreader__sheet {
+  border: 1px solid rgba(91, 105, 125, .20);
+  background: #fff;
+}
+
+/* A single page should still feel like a thin physical booklet, not a flat iframe. */
+.zreader__single .zreader__sheet {
+  border-radius: 5px 7px 7px 5px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.95) inset,
+    1px 2px 0 rgba(214,220,229,.95),
+    2px 4px 0 rgba(236,239,244,.96),
+    0 10px 30px rgba(15,23,42,.16);
+}
+
+.zreader__single .zreader__sheet::after,
+.zreader__scroll-stack .zreader__sheet::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.45),
+    inset -5px 0 9px rgba(15,23,42,.025);
+}
+
+/* Desktop spread: two pages become one open booklet with a restrained centre gutter. */
+.zreader__spread {
+  position: relative;
+  gap: 2px !important;
+  isolation: isolate;
+}
+
+.zreader__spread .zreader__sheet {
+  box-shadow: 0 9px 28px rgba(15,23,42,.15);
+}
+
+/* First child is the right-hand page in the RTL spread. */
+.zreader__spread .zreader__sheet:first-child {
+  border-radius: 2px 7px 7px 2px;
+  box-shadow:
+    7px 9px 24px rgba(15,23,42,.12),
+    inset 7px 0 12px rgba(15,23,42,.035);
+}
+
+.zreader__spread .zreader__sheet:nth-child(2) {
+  border-radius: 7px 2px 2px 7px;
+  box-shadow:
+    -7px 9px 24px rgba(15,23,42,.12),
+    inset -7px 0 12px rgba(15,23,42,.035);
+}
+
+.zreader__spread .zreader__sheet::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.zreader__spread .zreader__sheet:first-child::after {
+  background: linear-gradient(to right, rgba(10,18,33,.11) 0, rgba(10,18,33,.04) 2.5%, rgba(255,255,255,0) 8%);
+}
+
+.zreader__spread .zreader__sheet:nth-child(2)::after {
+  background: linear-gradient(to left, rgba(10,18,33,.11) 0, rgba(10,18,33,.04) 2.5%, rgba(255,255,255,0) 8%);
+}
+
+.zreader__spread::after {
+  content: "";
+  position: absolute;
+  top: 1.2%;
+  bottom: 1.2%;
+  left: 50%;
+  width: 12px;
+  transform: translateX(-50%);
+  z-index: 7;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    rgba(15,23,42,0),
+    rgba(15,23,42,.09) 38%,
+    rgba(255,255,255,.60) 50%,
+    rgba(15,23,42,.08) 62%,
+    rgba(15,23,42,0)
+  );
+  filter: blur(.2px);
+}
+
+/* Continuous reading remains paper-like but clearly separated page by page. */
+.zreader__scroll-stack {
+  gap: 18px;
+}
+
+.zreader__scroll-stack .zreader__sheet {
+  border-radius: 5px;
+  box-shadow:
+    1px 2px 0 rgba(220,225,233,.9),
+    0 8px 22px rgba(15,23,42,.12);
+}
+
+/* Navigation visually belongs to the book rather than looking like a detached app bar. */
+.zreader__bottom-nav {
+  background: linear-gradient(#fff, #fafbfc);
+  box-shadow: 0 -1px 0 rgba(15,23,42,.025);
+}
+
+.zreader__bottom-nav button {
+  border-color: #cfd7e2;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15,23,42,.05);
+}
+
+.zreader__bottom-nav button:not(:disabled):active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* Phone/tablet: preserve maximum reading area and avoid fake-spread decoration. */
+@media (max-width: 900px) {
+  .zreader__viewport--single {
+    background: #edf1f6;
+  }
+
+  .zreader__single .zreader__sheet {
+    border-radius: 3px;
+    box-shadow:
+      1px 2px 0 rgba(222,227,234,.95),
+      0 5px 16px rgba(15,23,42,.13);
+  }
+
+  .zreader__single .zreader__sheet::after {
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.35);
+  }
+}
+
+@media (max-width: 430px) {
+  .zreader__single .zreader__sheet {
+    box-shadow: 0 3px 10px rgba(15,23,42,.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zreader__bottom-nav button {
+    transition: none !important;
+  }
+}
