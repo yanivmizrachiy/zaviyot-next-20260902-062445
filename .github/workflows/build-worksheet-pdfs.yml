@@ -9,7 +9,6 @@ on:
       - "src/app/worksheets/**"
       - "src/app/api/book-pdf/**"
       - "scripts/build-static-print-pdf.mjs"
-      - "scripts/build-booklet-pdf.mjs"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/build-worksheet-pdfs.yml"
