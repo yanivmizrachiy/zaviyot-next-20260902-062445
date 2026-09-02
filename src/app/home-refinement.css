@@ -1,0 +1,161 @@
+/* Homepage refinement: compact secondary sections + dark site-themed print center. */
+
+/* Keep the book dominant; make the remaining homepage modules practical, not oversized. */
+.hero-media-only {
+  padding-block: 12px !important;
+}
+.hero-media-only .herovid {
+  width: min(680px, 92vw);
+  margin-inline: auto;
+}
+
+.jpan {
+  padding-block: 14px !important;
+}
+.jpan > .container {
+  max-width: 960px;
+}
+
+#presentation {
+  padding-block: 20px !important;
+}
+#presentation > .container {
+  max-width: 980px;
+}
+#presentation .section__head {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+}
+#presentation .pdfframe {
+  width: min(900px, 100%);
+  margin-inline: auto;
+}
+
+.finale {
+  margin-top: 20px !important;
+  padding-block: 28px !important;
+}
+.finale__frame {
+  width: min(520px, 82vw);
+  margin-inline: auto;
+}
+
+/* Professional in-site print/PDF center. The browser's native print window remains OS/browser controlled. */
+.zreader__print-card {
+  width: min(1060px, 96vw) !important;
+  max-height: 94dvh !important;
+  overflow: hidden !important;
+  background: #11203c !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 14px !important;
+  padding: 16px !important;
+  box-shadow: 0 30px 90px rgba(2, 6, 23, 0.46) !important;
+}
+.zreader__print-copy {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16) !important;
+}
+.zreader__print-copy h3,
+.zreader__print-preview-pane > strong,
+.zreader__print-selection-head strong,
+.zreader__print-tone legend {
+  color: #fff !important;
+}
+.zreader__print-copy p,
+.zreader__print-selection-head span {
+  color: #cbd5e1 !important;
+}
+.zreader__print-layout {
+  grid-template-columns: minmax(340px, 430px) minmax(0, 1fr) !important;
+  gap: 18px !important;
+}
+.zreader__print-preview {
+  --zp: .5 !important;
+  background: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.34) !important;
+}
+.zreader__print-controls {
+  scrollbar-color: #64748b transparent;
+}
+.zreader__print-scope button,
+.zreader__print-selection-head button,
+.zreader__print-page-grid button,
+.zreader__print-actions button {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.zreader__print-scope button,
+.zreader__print-selection-head button {
+  background: #182a49 !important;
+  color: #fff !important;
+}
+.zreader__print-scope button:hover,
+.zreader__print-selection-head button:hover {
+  background: #21385f !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+.zreader__print-page-grid {
+  background: #0d1a30 !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+.zreader__print-page-grid button {
+  background: #fff !important;
+  color: #11203c !important;
+}
+.zreader__print-page-grid button.is-active {
+  background: #2f6feb !important;
+  color: #fff !important;
+  border-color: #7fb0ff !important;
+}
+.zreader__print-tone {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+}
+.zreader__print-tone label {
+  color: #fff !important;
+}
+.zreader__print-tone input {
+  accent-color: #7fb0ff;
+}
+.zreader__print-actions button {
+  background: transparent !important;
+  color: #fff !important;
+}
+.zreader__print-actions button.primary {
+  background: #fff !important;
+  color: #11203c !important;
+  border-color: #fff !important;
+}
+.zreader__print-actions button:disabled {
+  opacity: .45 !important;
+}
+
+@media (max-width: 760px) {
+  .hero-media-only .herovid,
+  .jpan > .container,
+  #presentation > .container {
+    width: 100%;
+  }
+  .finale__frame {
+    width: min(460px, 88vw);
+  }
+  .zreader__print-card {
+    width: min(96vw, 600px) !important;
+    max-height: 95dvh !important;
+    overflow: auto !important;
+    padding: 10px !important;
+  }
+  .zreader__print-layout {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .zreader__print-preview {
+    --zp: .28 !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .zreader__print-preview {
+    --zp: .24 !important;
+  }
+}
