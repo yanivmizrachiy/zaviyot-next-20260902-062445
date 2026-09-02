@@ -37,7 +37,6 @@ function workbookPdfHref(tone: PrintTone) {
     : "/booklet-worksheets/zaviyot-worksheets.pdf";
 }
 
-
 function isEditableTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
   return (
@@ -68,7 +67,6 @@ export function UnifiedBookReader() {
   const [isNarrow, setIsNarrow] = useState(false);
   const [tocOpen, setTocOpen] = useState(false);
   const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
-  const [counterOpen, setCounterOpen] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [openGroups, setOpenGroups] = useState<Set<string>>(
@@ -119,11 +117,14 @@ export function UnifiedBookReader() {
   const navigateTo = useCallback(
     (nextPage: number, push = true, scrollIntoView = mode === "scroll") => {
       const safe = clampPage(nextPage);
+      const nextMode: ReaderMode = safe === 1 && mode === "spread" ? "single" : mode;
       setPage(safe);
+      if (nextMode !== mode) setModeState(nextMode);
       localStorage.setItem(PAGE_KEY, String(safe));
-      writeUrl(safe, mode, push);
+      localStorage.setItem(MODE_KEY, nextMode);
+      writeUrl(safe, nextMode, push);
       if (isNarrow) setTocOpen(false);
-      if (scrollIntoView) {
+      if (scrollIntoView && nextMode === "scroll") {
         requestAnimationFrame(() => {
           const node = viewportRef.current?.querySelector<HTMLElement>(`[data-book-page="${safe}"]`);
           node?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -136,6 +137,19 @@ export function UnifiedBookReader() {
   const setMode = useCallback(
     (requested: ReaderMode) => {
       const next: ReaderMode = isNarrow && requested === "spread" ? "single" : requested;
+
+      // A physical booklet never shows the cover as half of an open spread.
+      // Choosing spread from the cover opens the first real inside spread: pages 2–3.
+      if (next === "spread" && page === 1 && !isNarrow) {
+        setPage(2);
+        setModeState("spread");
+        localStorage.setItem(PAGE_KEY, "2");
+        localStorage.setItem(MODE_KEY, "spread");
+        writeUrl(2, "spread", true);
+        setMobileActionsOpen(false);
+        return;
+      }
+
       setModeState(next);
       localStorage.setItem(MODE_KEY, next);
       writeUrl(page, next, true);
@@ -146,10 +160,30 @@ export function UnifiedBookReader() {
 
   const step = useCallback(
     (direction: -1 | 1) => {
+      // Fresh opening: cover first, then open naturally to pages 2–3 on a wide screen.
+      if (direction === 1 && page === 1 && mode === "single" && !isNarrow) {
+        setPage(2);
+        setModeState("spread");
+        localStorage.setItem(PAGE_KEY, "2");
+        localStorage.setItem(MODE_KEY, "spread");
+        writeUrl(2, "spread", true);
+        return;
+      }
+
+      // Closing the first inside spread returns to the single cover.
+      if (direction === -1 && mode === "spread" && !isNarrow && page <= 3) {
+        setPage(1);
+        setModeState("single");
+        localStorage.setItem(PAGE_KEY, "1");
+        localStorage.setItem(MODE_KEY, "single");
+        writeUrl(1, "single", true);
+        return;
+      }
+
       const amount = mode === "spread" && !isNarrow ? 2 : 1;
       navigateTo(page + direction * amount, true, mode === "scroll");
     },
-    [isNarrow, mode, navigateTo, page],
+    [isNarrow, mode, navigateTo, page, writeUrl],
   );
 
   const toggleSelection = useCallback(
@@ -241,7 +275,6 @@ export function UnifiedBookReader() {
     setPrintRequest(null);
   }, [printRequest, printTone, worksheetSlots]);
 
-
   useEffect(() => {
     const media = window.matchMedia("(max-width: 900px)");
     const applyWidth = () => {
@@ -264,7 +297,7 @@ export function UnifiedBookReader() {
     const params = new URLSearchParams(window.location.search);
     const requestedPage = Number(params.get("bookPage"));
     const requestedGroup = params.get("group");
-    // IRON RULE: a normal fresh visit always starts on the real cover (page 1).
+    // A normal fresh visit always starts on the real cover (page 1), single-page.
     // Explicit deep links and the worksheets navigation remain respected.
     const initialPage = requestedGroup === "worksheets"
       ? firstWorksheetPage
@@ -274,7 +307,11 @@ export function UnifiedBookReader() {
 
     const requestedMode = params.get("bookMode") as ReaderMode | null;
     const candidate = requestedMode || "single";
-    const initialMode: ReaderMode = media.matches && candidate === "spread" ? "single" : candidate;
+    const initialMode: ReaderMode = initialPage === 1
+      ? "single"
+      : media.matches && candidate === "spread"
+        ? "single"
+        : candidate;
 
     let active = true;
     const hydrateReader = () => {
@@ -304,7 +341,7 @@ export function UnifiedBookReader() {
       const requested = nextParams.get("bookMode") as ReaderMode | null;
       const nextMode: ReaderMode = requested === "spread" || requested === "scroll" ? requested : "single";
       setPage(nextPage);
-      setModeState(media.matches && nextMode === "spread" ? "single" : nextMode);
+      setModeState(nextPage === 1 ? "single" : media.matches && nextMode === "spread" ? "single" : nextMode);
       suppressHistoryRef.current = false;
     };
     window.addEventListener("popstate", onPopState);
@@ -416,6 +453,7 @@ export function UnifiedBookReader() {
       window.visualViewport?.removeEventListener("resize", updateFit);
     };
   }, [ready, mode, tocOpen]);
+
   useEffect(() => {
     if (!ready) return;
     [page - 1, page + 1]
@@ -434,7 +472,8 @@ export function UnifiedBookReader() {
     return <div className="zreader zreader--loading" aria-label="החוברת הדיגיטלית" />;
   }
 
-  const spreadStart = page % 2 === 0 ? Math.max(1, page - 1) : page;
+  // Page 1 is a cover. Open-book spreads begin at 2–3, then 4–5, 6–7, ...
+  const spreadStart = page <= 1 ? 1 : page % 2 === 0 ? page : page - 1;
   const selectedPages = [...selected].sort((a, b) => a - b);
 
   return (
@@ -497,17 +536,7 @@ export function UnifiedBookReader() {
           <button type="button" className={mode === "scroll" ? "is-active" : ""} onClick={() => setMode("scroll")}>גלילה</button>
         </div>
 
-        <button type="button" className="zreader__counter-btn" onClick={() => setCounterOpen((value) => !value)} aria-expanded={counterOpen}>לוח מונים</button>
         <span className="zreader__stat">{WS_TOTAL} עמודים · {WORKSHEETS.length} דפי עבודה</span>
-
-        {counterOpen && (
-          <div className="zreader__counter-popover">
-            <strong>לוח מונים</strong>
-            <span>עמוד {page} מתוך {WS_TOTAL}</span>
-            <span>{WORKSHEETS.length} דפי עבודה</span>
-            <span>{selected.size} עמודים נבחרו</span>
-          </div>
-        )}
       </header>
 
       <div className="zreader__layout">
@@ -591,12 +620,12 @@ export function UnifiedBookReader() {
 
           <div className={`zreader__viewport zreader__viewport--${mode}`} ref={viewportRef}>
             {mode === "single" && (
-              <div className="zreader__single"><Sheet page={page} /></div>
+              <div className="zreader__single"><Sheet key={`single-${page}`} page={page} /></div>
             )}
             {mode === "spread" && (
               <div className="zreader__spread">
-                <Sheet page={spreadStart} />
-                {spreadStart + 1 <= WS_TOTAL && <Sheet page={spreadStart + 1} />}
+                <Sheet key={`spread-${spreadStart}`} page={spreadStart} />
+                {spreadStart + 1 <= WS_TOTAL && <Sheet key={`spread-${spreadStart + 1}`} page={spreadStart + 1} />}
               </div>
             )}
             {mode === "scroll" && (
