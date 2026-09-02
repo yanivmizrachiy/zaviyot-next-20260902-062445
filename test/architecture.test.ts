@@ -66,6 +66,14 @@ test("legacy worksheet URLs are redirect-only compatibility routes", () => {
   assert.doesNotMatch(single, /WsWorksheetBar|worksheetContentNode|WS_PAGES/);
 });
 
+test("legacy angle-types URL redirects to the canonical book page", () => {
+  const route = read("src/app/sugei-zaviyot/page.tsx");
+  assert.match(route, /WS_PAGES\.findIndex/);
+  assert.match(route, /content === "angles-types"/);
+  assert.match(route, /redirect\(`\/worksheets\/\$\{slot\}`\)/);
+  assert.doesNotMatch(route, /AnglesTypesSheet|ws-sheet|worksheetContentNode/);
+});
+
 test("one canonical PDF builder remains", () => {
   assert.ok(exists("scripts/build-static-print-pdf.mjs"));
   const workflow = read(".github/workflows/build-worksheet-pdfs.yml");
