@@ -11,7 +11,8 @@ export function SiteReturnNav() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setEmbedded(window.self !== window.top || params.get("reader") === "1");
+    const nextEmbedded = window.self !== window.top || params.get("reader") === "1";
+    queueMicrotask(() => setEmbedded(nextEmbedded));
   }, [pathname]);
 
   if (pathname === "/" || embedded || pathname.startsWith("/worksheets/print")) {
