@@ -3,24 +3,57 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { WS_PAGES, WS_TOTAL, TOC_ENTRIES, WS_GROUPS, TOC_GROUPS, wsGroupOf, WORKSHEETS, WORKSHEETS_TOTAL } from "../src/components/worksheets/registry.ts";
-import { worksheetComponentKey, isPrintableKind, type WsComponentKey } from "../src/components/worksheets/worksheetKind.ts";
+import {
+  WS_PAGES,
+  WS_TOTAL,
+  TOC_ENTRIES,
+  WS_GROUPS,
+  TOC_GROUPS,
+  wsGroupOf,
+  WORKSHEETS,
+  WORKSHEETS_TOTAL,
+} from "../src/components/worksheets/registry.ts";
+import {
+  worksheetComponentKey,
+  isPrintableKind,
+  type WsComponentKey,
+} from "../src/components/worksheets/worksheetKind.ts";
 
 const publicDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "public");
 
-test("WS_TOTAL is in sync with WS_PAGES length", () => {
-  assert.equal(WS_TOTAL, WS_PAGES.length);
+test("canonical book has exactly 44 pages", () => {
+  assert.equal(WS_TOTAL, 44);
+  assert.equal(WS_PAGES.length, 44);
 });
 
-test("every page maps to a component key without throwing (exhaustive)", () => {
+test("canonical worksheet set is exactly book pages 13-43", () => {
+  assert.equal(WORKSHEETS_TOTAL, 31);
+  assert.equal(WORKSHEETS.length, 31);
+  assert.deepEqual(
+    WORKSHEETS.map((worksheet) => worksheet.slot),
+    Array.from({ length: 31 }, (_, index) => index + 13),
+  );
+
+  WS_PAGES.forEach((page, index) => {
+    const slot = index + 1;
+    assert.equal(Boolean(page.worksheet), slot >= 13 && slot <= 43, `wrong worksheet classification at page ${slot}`);
+  });
+});
+
+test("page 44 is the final poster and not a worksheet", () => {
+  const finalPage = WS_PAGES[43];
+  assert.ok(finalPage, "page 44 missing");
+  assert.equal(Boolean(finalPage.worksheet), false);
+});
+
+test("every page maps to one canonical component key", () => {
   for (const page of WS_PAGES) {
     const key = worksheetComponentKey(page);
     assert.ok(typeof key === "string" && key.length > 0, `bad key for ${page.title}`);
   }
 });
 
-test("content pages map to their own component — not a silent ObjectivesSheet fallback", () => {
-  // הבאג שתוקן: intro-a / intro-b / applet הוצגו כ-ObjectivesSheet.
+test("content pages map to their exact renderer", () => {
   const expected: Record<string, WsComponentKey> = {
     "intro-a": "intro-a",
     "intro-b": "intro-b",
@@ -40,147 +73,119 @@ test("content pages map to their own component — not a silent ObjectivesSheet 
     "angle7-3": "angle7-3",
     "angle7-4": "angle7-4",
   };
+
   for (const page of WS_PAGES) {
-    if (page.kind !== "content" || !page.content) continue;
+    if (page.kind !== "content") continue;
     assert.equal(
       worksheetComponentKey(page),
       expected[page.content],
-      `content "${page.content}" mapped to the wrong component`
+      `content "${page.content}" mapped to the wrong component`,
     );
   }
 });
 
-test("cover / toc / image map to the right keys", () => {
-  const cover = WS_PAGES.find((p) => p.kind === "cover");
-  const toc = WS_PAGES.find((p) => p.kind === "toc");
-  const img = WS_PAGES.find((p) => p.kind === "image");
+test("cover, toc and image pages map correctly", () => {
+  const cover = WS_PAGES.find((page) => page.kind === "cover");
+  const toc = WS_PAGES.find((page) => page.kind === "toc");
+  const image = WS_PAGES.find((page) => page.kind === "image");
   assert.ok(cover && worksheetComponentKey(cover) === "cover", "cover page missing/mismapped");
   assert.ok(toc && worksheetComponentKey(toc) === "toc", "toc page missing/mismapped");
-  assert.ok(img && worksheetComponentKey(img) === "image", "image page missing/mismapped");
+  assert.ok(image && worksheetComponentKey(image) === "image", "image page missing/mismapped");
 });
 
-test("the presentation is NOT a booklet page (it lives as its own section on the homepage)", () => {
-  // דרישת יניב: המצגת הוצאה מתוך החוברת ומוצגת כמקטע עצמאי מתחת לה.
-  assert.equal(
-    WS_PAGES.find((p) => p.kind === "presentation"),
-    undefined,
-    "presentation page must not exist inside the booklet"
-  );
-});
-
-test("every image page's img file exists in /public", () => {
+test("every image page points to a real unique source asset", () => {
+  const imageNumbers: number[] = [];
   for (const page of WS_PAGES) {
     if (page.kind !== "image") continue;
-    assert.ok(typeof page.img === "number", `image page "${page.title}" has no img number`);
+    imageNumbers.push(page.img);
     const file = path.join(publicDir, "booklet-worksheets", `page-${String(page.img).padStart(2, "0")}.webp`);
     assert.ok(fs.existsSync(file), `missing image asset: ${file}`);
   }
+  assert.equal(new Set(imageNumbers).size, imageNumbers.length, "duplicate img numbers in registry");
 });
 
-test("no duplicate img numbers", () => {
-  const imgs = WS_PAGES.filter((p) => p.kind === "image").map((p) => p.img);
-  assert.equal(new Set(imgs).size, imgs.length, "duplicate img numbers in registry");
+test("presentation is a separate homepage resource, not book-page metadata", () => {
+  const presentation = path.join(publicDir, "presentation", "geometria-kdam-hesekit.pdf");
+  assert.ok(fs.existsSync(presentation), `missing presentation asset: ${presentation}`);
 });
 
-test("every presentationSrc points to an existing file", () => {
-  for (const page of WS_PAGES) {
-    if (page.kind !== "presentation" || !page.presentationSrc) continue;
-    const file = path.join(publicDir, page.presentationSrc.replace(/^\//, ""));
-    assert.ok(fs.existsSync(file), `missing presentation asset: ${file}`);
-  }
-});
-
-test("table of contents is in sync with toc-marked pages", () => {
-  const marked = WS_PAGES.map((p, i) => (p.toc ? i + 1 : null)).filter((n): n is number => n !== null);
-  const tocPages = TOC_ENTRIES.map((e) => e.page);
+test("table of contents is derived from toc-marked pages", () => {
+  const marked = WS_PAGES
+    .map((page, index) => (page.toc ? index + 1 : null))
+    .filter((page): page is number => page !== null);
+  const tocPages = TOC_ENTRIES.map((entry) => entry.page);
   assert.deepEqual(tocPages, marked, "TOC_ENTRIES order/pages differ from toc-marked pages");
-  for (const e of TOC_ENTRIES) {
-    assert.ok(e.page >= 1 && e.page <= WS_TOTAL, `TOC entry page ${e.page} out of range`);
-    assert.ok(WS_PAGES[e.page - 1].toc, `TOC entry points to a non-toc page (${e.page})`);
+
+  for (const entry of TOC_ENTRIES) {
+    assert.ok(entry.page >= 1 && entry.page <= WS_TOTAL, `TOC entry page ${entry.page} out of range`);
+    assert.ok(WS_PAGES[entry.page - 1].toc, `TOC entry points to a non-toc page (${entry.page})`);
   }
 });
 
-test("booklet groups cover every page exactly once, in order", () => {
-  // השערים נגזרים מסימוני groupStart — חייבים לכסות את כל החוברת ברצף, בלי חורים.
+test("book groups cover all 44 pages once and in order", () => {
   assert.ok(WS_GROUPS.length >= 2, "expected at least two groups");
   assert.equal(WS_GROUPS[0].from, 1, "first group must start at page 1");
-  assert.equal(WS_GROUPS[WS_GROUPS.length - 1].to, WS_TOTAL, "last group must end at the last page");
-  for (let i = 1; i < WS_GROUPS.length; i++) {
-    assert.equal(WS_GROUPS[i].from, WS_GROUPS[i - 1].to + 1, `gap/overlap between groups ${i - 1} and ${i}`);
-  }
-  for (let p = 1; p <= WS_TOTAL; p++) {
-    assert.ok(wsGroupOf(p), `page ${p} belongs to no group`);
-  }
-});
+  assert.equal(WS_GROUPS[WS_GROUPS.length - 1].to, WS_TOTAL, "last group must end at page 44");
 
-test("grouped TOC keeps every entry once with continuous global ordinals", () => {
-  const flat = TOC_GROUPS.flatMap((g) => g.entries);
-  assert.equal(flat.length, TOC_ENTRIES.length, "grouped TOC lost/duplicated entries");
-  flat.forEach((e, i) => {
-    assert.equal(e.ordinal, i + 1, `ordinal of "${e.label}" is not continuous`);
-    assert.equal(e.page, TOC_ENTRIES[i].page, `entry order differs from flat TOC at ${i}`);
-  });
-  for (const g of TOC_GROUPS) {
-    assert.ok(g.entries.length > 0, `group "${g.title}" has no TOC entries`);
-  }
-});
-
-test("WORKSHEETS: numbering starts at 1, continuous, no duplicates", () => {
-  // דרישת יניב: דף עבודה 1..N — בלי דילוגים, בלי כפילויות, והמספור נגזר
-  // אוטומטית מהרישום (לא נכתב ידנית).
-  assert.equal(WORKSHEETS_TOTAL, WORKSHEETS.length);
-  assert.ok(WORKSHEETS.length > 0, "no worksheets derived from the registry");
-  WORKSHEETS.forEach((w, i) => assert.equal(w.num, i + 1, `worksheet #${i + 1} has num ${w.num}`));
-  const ids = WORKSHEETS.map((w) => w.id);
-  assert.equal(new Set(ids).size, ids.length, "duplicate worksheet ids");
-});
-
-test("WORKSHEETS: numbering follows booklet order — one after another, no jumps", () => {
-  // דרישת יניב (17.7.2026): המספור עוקב אחר סדר החוברת בלבד — דף עבודה 1 הוא
-  // הראשון ברצף, וכל מספר עוקב שייך לעמוד מאוחר יותר (worksheetOrder הוסר).
-  for (let i = 1; i < WORKSHEETS.length; i++) {
-    assert.ok(
-      WORKSHEETS[i].slot > WORKSHEETS[i - 1].slot,
-      `worksheet #${i + 1} (slot ${WORKSHEETS[i].slot}) is out of booklet order vs #${i} (slot ${WORKSHEETS[i - 1].slot})`
+  for (let index = 1; index < WS_GROUPS.length; index += 1) {
+    assert.equal(
+      WS_GROUPS[index].from,
+      WS_GROUPS[index - 1].to + 1,
+      `gap/overlap between groups ${index - 1} and ${index}`,
     );
   }
-});
 
-test("WORKSHEETS: every entry mirrors a worksheet-marked, printable booklet page", () => {
-  const markedCount = WS_PAGES.filter((p) => p.worksheet).length;
-  assert.equal(markedCount, WORKSHEETS.length, "worksheet-marked pages missing from WORKSHEETS");
-  for (const w of WORKSHEETS) {
-    const page = WS_PAGES[w.slot - 1];
-    assert.ok(page?.worksheet, `slot ${w.slot} is not worksheet-marked`);
-    assert.equal(page.title, w.title, `title mismatch at slot ${w.slot}`);
-    assert.ok(isPrintableKind(page), `worksheet ${w.num} is not printable`);
-    assert.ok(page.kind === "image" || page.kind === "content", `worksheet ${w.num} has kind ${page.kind}`);
-    if (page.kind === "image") assert.ok(w.thumb, `image worksheet ${w.num} has no thumb`);
+  for (let page = 1; page <= WS_TOTAL; page += 1) {
+    assert.ok(wsGroupOf(page), `page ${page} belongs to no group`);
   }
 });
 
-test("the two applet pages share one open spread — Matific right (even), StoryboardThat left (odd)", () => {
-  // דרישת יניב (17.7.2026): בחוברת הפתוחה שני היישומונים זה לצד זה — עמוד
-  // זוגי (ימין בספר עברי) ומיד אחריו האי-זוגי (שמאל) — ולא בתוך דפי העבודה.
-  const applet = WS_PAGES.findIndex((p) => p.kind === "content" && p.content === "applet") + 1;
-  const maker = WS_PAGES.findIndex((p) => p.kind === "content" && p.content === "applet-maker") + 1;
-  assert.ok(applet > 0 && maker > 0, "applet pages missing from the registry");
-  assert.equal(maker, applet + 1, "applet pages must be adjacent");
-  assert.equal(applet % 2, 0, `applet page ${applet} must be even (right side of the open spread)`);
-  const between = WS_PAGES.slice(applet - 1, maker); // שני עמודי הזוג עצמם
-  assert.ok(between.every((p) => !p.worksheet), "applet pages must not be worksheet-marked");
+test("grouped TOC preserves every entry and global order", () => {
+  const flat = TOC_GROUPS.flatMap((group) => group.entries);
+  assert.equal(flat.length, TOC_ENTRIES.length, "grouped TOC lost/duplicated entries");
+  flat.forEach((entry, index) => {
+    assert.equal(entry.ordinal, index + 1, `ordinal of "${entry.label}" is not continuous`);
+    assert.equal(entry.page, TOC_ENTRIES[index].page, `entry order differs at index ${index}`);
+  });
+  for (const group of TOC_GROUPS) {
+    assert.ok(group.entries.length > 0, `group "${group.title}" has no TOC entries`);
+  }
 });
 
-test("WORKSHEETS: structural pages are never worksheets", () => {
-  for (const p of WS_PAGES) {
-    if (p.kind === "cover" || p.kind === "toc" || p.kind === "presentation") {
-      assert.ok(!p.worksheet, `structural page "${p.title}" must not be worksheet-marked`);
+test("worksheet numbering is continuous and mirrors canonical order", () => {
+  WORKSHEETS.forEach((worksheet, index) => {
+    assert.equal(worksheet.num, index + 1, `worksheet #${index + 1} has num ${worksheet.num}`);
+    assert.equal(worksheet.slot, index + 13, `worksheet #${index + 1} is at wrong book page`);
+    const page = WS_PAGES[worksheet.slot - 1];
+    assert.ok(page.worksheet, `slot ${worksheet.slot} is not worksheet-marked`);
+    assert.equal(page.title, worksheet.title, `title mismatch at slot ${worksheet.slot}`);
+    assert.ok(page.kind === "image" || page.kind === "content", `worksheet ${worksheet.num} has invalid kind`);
+    assert.ok(isPrintableKind(page), `worksheet ${worksheet.num} is not printable`);
+    if (page.kind === "image") assert.ok(worksheet.thumb, `image worksheet ${worksheet.num} has no thumb`);
+  });
+
+  assert.equal(new Set(WORKSHEETS.map((worksheet) => worksheet.id)).size, WORKSHEETS.length, "duplicate worksheet ids");
+});
+
+test("the two applet pages share one open spread and are not worksheets", () => {
+  const applet = WS_PAGES.findIndex((page) => page.kind === "content" && page.content === "applet") + 1;
+  const maker = WS_PAGES.findIndex((page) => page.kind === "content" && page.content === "applet-maker") + 1;
+  assert.ok(applet > 0 && maker > 0, "applet pages missing from registry");
+  assert.equal(maker, applet + 1, "applet pages must be adjacent");
+  assert.equal(applet % 2, 0, `applet page ${applet} must be even`);
+  assert.ok(WS_PAGES.slice(applet - 1, maker).every((page) => !page.worksheet), "applet pages must not be worksheets");
+});
+
+test("structural pages are never worksheets", () => {
+  for (const page of WS_PAGES) {
+    if (page.kind === "cover" || page.kind === "toc") {
+      assert.equal(Boolean(page.worksheet), false, `structural page "${page.title}" must not be a worksheet`);
     }
   }
 });
 
-test("only the presentation page is non-printable", () => {
+test("all 44 canonical book pages are printable", () => {
   for (const page of WS_PAGES) {
-    assert.equal(isPrintableKind(page), page.kind !== "presentation", `printable mismatch for ${page.title}`);
+    assert.equal(isPrintableKind(page), true, `page is unexpectedly non-printable: ${page.title}`);
   }
 });
