@@ -1,19 +1,10 @@
-// עמוד "סוגי זוויות" — הדף שנפתח מקישור "סוגי זוויות" בחוברת. A4 אמיתי, ממורכז,
-// בשפת העיצוב של החוברת (ws-sheet), בדיוק כמו שאר עמודי הקריאה.
-import type { Metadata } from "next";
-import { AnglesTypesSheet } from "@/components/worksheets/AnglesTypesSheet";
+// תאימות לאחור בלבד: המסלול הישן אינו מרנדר עוד עותק נוסף של תוכן הספר.
+// מיקומו הקנוני של "סוגי זוויות" נגזר מה-registry ומפנה לקורא המאוחד.
+import { redirect } from "next/navigation";
+import { WS_PAGES } from "@/components/worksheets/registry";
 
-export const metadata: Metadata = {
-  title: "סוגי זוויות — זוויות בכיתה ז׳",
-  robots: { index: false },
-};
-
-export default function SugeiZaviyotPage() {
-  return (
-    <div className="ws-page">
-      <div className="ws-page__sheets">
-        <AnglesTypesSheet />
-      </div>
-    </div>
-  );
+export default function SugeiZaviyotRedirect() {
+  const slot = WS_PAGES.findIndex((page) => page.kind === "content" && page.content === "angles-types") + 1;
+  if (slot < 1) redirect("/worksheets");
+  redirect(`/worksheets/${slot}`);
 }
