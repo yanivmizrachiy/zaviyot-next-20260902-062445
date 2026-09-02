@@ -1,8 +1,11 @@
 .dock {
   direction: rtl;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  width: min(1080px, 100%);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
   min-width: 0;
   padding: 8px;
   background: #f8fafc;
@@ -26,38 +29,45 @@
 }
 
 .videoMeta {
-  display: grid;
-  gap: 5px;
-  padding: 8px 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
   background: #11203c;
   color: #fff;
-  font-size: 11px;
-  line-height: 1.35;
+  font-size: 10px;
+  line-height: 1.3;
 }
 
 .videoMeta span {
+  min-width: 0;
   font-weight: 700;
 }
 
 .videoMeta a {
+  flex: none;
   color: #fff;
   text-decoration: underline;
   text-underline-offset: 2px;
+  white-space: nowrap;
 }
 
 .links {
   display: grid;
-  gap: 6px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  align-content: center;
 }
 
 .links a {
-  min-height: 38px;
+  min-height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 8px;
+  padding: 7px 9px;
   border: 1px solid #dce3ec;
-  border-radius: 6px;
+  border-radius: 7px;
   background: #fff;
   color: #11203c;
   text-decoration: none;
@@ -73,12 +83,11 @@
 }
 
 .links .primaryLink {
-  min-height: 44px;
   background: #11203c;
   border-color: #11203c;
   color: #fff;
   font-weight: 800;
-  box-shadow: 0 6px 16px rgba(17, 32, 60, 0.16);
+  box-shadow: 0 4px 12px rgba(17, 32, 60, 0.14);
 }
 
 .links .primaryLink:hover,
@@ -88,18 +97,9 @@
   color: #fff;
 }
 
-@media (max-width: 1180px) {
-  .dock {
-    width: min(820px, calc(100vw - 24px));
-    margin-inline: auto;
-    display: grid;
-    grid-template-columns: minmax(250px, 320px) minmax(0, 1fr);
-    align-items: stretch;
-  }
-
+@media (min-width: 1181px) {
   .links {
-    align-content: center;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -107,9 +107,8 @@
   .dock {
     width: 100%;
     grid-template-columns: 1fr;
-    border-radius: 0;
-    border-inline: 0;
-    padding: 8px;
+    border-radius: 8px;
+    padding: 7px;
   }
 
   .videoCard {
@@ -122,13 +121,17 @@
   }
 
   .links a {
-    min-height: 44px;
+    min-height: 42px;
     padding-inline: 5px;
     font-size: 0.72rem;
   }
 }
 
 @media (max-width: 430px) {
+  .videoMeta {
+    display: grid;
+  }
+
   .links {
     grid-template-columns: 1fr;
   }
