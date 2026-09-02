@@ -9,7 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "node --experimental-strip-types --test test/architecture.test.ts test/worksheets.test.ts test/sitemap.test.ts test/print-ready.test.ts test/aids.test.ts test/unified-reader.test.ts",
+    "test": "node --experimental-strip-types --test test/architecture.test.ts test/page-classification.test.ts test/worksheets.test.ts test/sitemap.test.ts test/print-ready.test.ts test/aids.test.ts test/unified-reader.test.ts",
     "typecheck": "tsc --noEmit",
     "lint:ci": "eslint . --max-warnings=0",
     "check": "npm run lint:ci && npm run typecheck && npm test && npm run build && npm run test:routes",
