@@ -2,238 +2,257 @@
 
 This file is authoritative and MUST NOT be contradicted.
 
-## Absolute safety boundary
+## 1. Absolute safety boundary
+All implementation work happens ONLY in this project:
+- `yanivmizrachiy/zaviyot-next-20260902-062445`
+- Vercel project `prj_nNLdB3ec30mUsyYVse6cUT7Ib7Hm`
+- production `https://zaviyot-next-20260902-062445.vercel.app`
+
 NEVER write, commit, push, merge, deploy, delete, rename or modify anything in:
-- yanivmizrachiy/misparim
-- yanivmizrachiy/razpages
-- yanivmizrachiy/jerusalem2
-- the existing zaviyot.vercel.app project/deployment
+- `yanivmizrachiy/misparim`
+- the original `misparim/zaviyot`
+- `yanivmizrachiy/razpages`
+- `yanivmizrachiy/jerusalem2`
+- the existing `https://zaviyot.vercel.app` project/deployment
 
-Those three repositories are REFERENCES ONLY.
-All implementation work happens ONLY in this new project.
+Those repositories/projects are REFERENCES ONLY.
 
-Source snapshots used:
-- misparim: e577e0cdf2673757997fc61a6dc7ebe0aaa0a879
-- razpages: d6ce709db13493ebc51b02a2d0d10e6acd5656d3
-- jerusalem2: 89d779b1d5b3b4160f469b4e56079af1fe8a3649
+Reference snapshots used:
+- misparim: `e577e0cdf2673757997fc61a6dc7ebe0aaa0a879`
+- razpages: `d6ce709db13493ebc51b02a2d0d10e6acd5656d3`
+- jerusalem2: `89d779b1d5b3b4160f469b4e56079af1fe8a3649`
 
-## Content integrity
+## 2. Content integrity — iron rule
 - Do not invent, rewrite, improve, paraphrase or add educational wording.
-- Do not add demo text or placeholder copy.
-- Every visible content string must come from the existing Zaviyot source unless it is a generic reader/control label already present in RazPages or the Hebrew print UI reference.
-- Preserve the existing Zaviyot homepage and all unrelated sections: TopBar, SiteNav, Hero, Jerusalem panorama, both videos, presentation, Finale/Arena, footer, hamchashot/accessories and existing valid routes.
-- Do not redesign unrelated sections.
-- Technical improvements outside the reader are allowed only when clearly beneficial and behavior-preserving.
+- Do not add demo text, placeholder copy, temporary copy, slogans or explanatory marketing text.
+- Visible content strings must come from existing Zaviyot content unless they are generic reader/print/navigation controls already established in the site/reference UI.
+- The cover is identified by its real visible title: `חוברת הוראת הזוויות לכיתה ז׳`.
+- Do not expose the invented label `מכתב המורה`.
+- Preserve existing real content and valid routes unless the user explicitly removes something.
 
-## Main product change
-Replace the current custom 3D flipbook experience and the separate worksheet experience with ONE digital-book system.
-The book must contain ALL existing digital-booklet pages AND ALL worksheet pages, in their current canonical order and wording.
+### Current video rule — explicit user decision
+The original Zaviyot `public/video` folder contained exactly two MP4 assets:
+1. `zaviyot-race-lamillion.mp4` — the real embedded `המירוץ למיליון` video.
+2. `zaviyot-angles-loop.mp4` — the decorative angle-loop animation.
 
-The top navigation items remain. "החוברת הדיגיטלית" opens the book. "דפי עבודה" remains visible and must jump directly to the worksheet group inside the SAME book, not a second data source.
+The user explicitly removed the decorative angle-loop animation on 2026-09-02.
+Therefore:
+- `zaviyot-race-lamillion.mp4` and its real poster remain the ONLY homepage video experience.
+- `zaviyot-angles-loop.mp4`, its poster, `HeroAngleVideo`, and the angle-loop Hero must NOT be restored.
+- Do not create a second copy of the race video elsewhere on the homepage.
 
-## One source of truth
-Create one canonical typed book manifest derived from/refactoring the existing WS_PAGES semantics.
-From that one manifest derive:
+## 3. Main product architecture
+The site is a DIGITAL BOOK site with teaching resources around it.
+The custom legacy 3D flipbook is retired.
+The active book engine is `UnifiedBookReader`.
+
+The book contains ALL canonical digital-booklet and worksheet pages in one reading order.
+The top navigation remains.
+- `החוברת הדיגיטלית` opens/jumps to the unified book.
+- `דפי עבודה` jumps directly to the worksheet group inside the SAME reader/data source.
+- There is no second worksheet registry.
+
+## 4. One canonical book source
+`src/components/worksheets/registry.ts` / the canonical typed manifest is the single data source for:
 - reading order
 - hierarchical TOC
 - search index
 - groups/chapters
-- worksheet-only view/filter
+- worksheet-only access
 - worksheet numbering
 - print selections
 - PDF build inputs
 - direct page routes
-No duplicate page registries. No duplicate manually maintained worksheet list.
 
-## RazPages parity — required
-Use .references/razpages as the behavior and visual reference.
-Desktop reader must be no worse and not materially different in controls/graphics/behavior:
+Canonical current counts:
+- 44 total book pages
+- 31 worksheet pages
+
+Never regress to stale totals.
+
+## 5. Reader behavior — RazPages parity
+Use RazPages as a READ-ONLY behavior/visual reference.
+The reader must support:
 - RTL
-- right-side hierarchical TOC
+- hierarchical TOC
 - global search
-- single-page mode: "עמוד"
-- two-page spread mode: "כפולה"
-- continuous scroll mode: "גלילה"
+- `עמוד`
+- `כפולה`
+- `גלילה`
 - current-page title/meta
 - previous/next
-- RTL keyboard semantics
-- ignore keyboard shortcuts while typing/in editable controls
-- localStorage restoration only for explicit navigation/history behavior; a fresh homepage visit follows the startup iron rule below
-- deep links for current page + mode
+- RTL keyboard navigation
+- ignoring keyboard shortcuts while typing/editing
+- deep links for page + mode
 - browser history/back-forward
 - selection mode
-- print current
-- PDF/current save workflow
+- print current/group/selected
+- PDF current/group/selected
 - open current page
-- print chapter/group
-- print/PDF selected
 - clear selection
 - lazy loading in scroll
-- preload adjacent pages
-- A4 scaling
+- adjacent-page preload/prefetch only
+- whole-A4 fit without cropping
 - responsive resizing without unnecessary reloads
 
-Do not copy unrelated RazPages content. Copy/port the reader technology and behavior.
+## 6. Startup behavior
+A normal fresh homepage visit always starts on the REAL cover, page 1.
+It must NOT restore the last-read page from localStorage.
 
-## Mobile — first-class, not squeezed desktop
-Use the RazPages mobile implementation as a behavioral reference.
-On phone:
-- dedicated mobile shell/controls
+Responsive default mode:
+- width > 900px: `spread` (two-page book opening)
+- width <= 900px: `single`
+
+Explicit `bookPage`, `bookMode`, browser history and explicit `group=worksheets` navigation remain valid.
+
+## 7. Mobile is first-class
+Phone UI must not be squeezed desktop UI.
+On iPhone/Android/narrow screens:
+- default single page
+- complete A4 visible whenever possible
 - TOC as drawer/panel
 - large touch targets
-- single page as default
+- compact Hebrew actions sheet
 - continuous scroll available
-- spread only when viewport/orientation genuinely supports readable pages
-- actions available in a compact Hebrew actions sheet
-- fast zoom/fit behavior where useful
-- no horizontal accidental page overflow
-- tested at 360x800, 390x844, 412x915
-Also test laptop and desktop at 1280x720, 1366x768, 1440x900, 1920x1080.
+- no accidental horizontal page overflow
+- use safe-area aware controls
 
-## Hebrew printing UI
-Study .references/jerusalem2-print.
-Implement a polished in-site Hebrew print dialog, not English site controls.
-The print experience is a compact central Print/PDF Center, not many large duplicate buttons.
+Required phone QA:
+- 360x800
+- 390x844
+- 412x915
+
+Required laptop/desktop QA:
+- 1280x720
+- 1366x768
+- 1440x900
+- 1920x1080
+
+## 8. Homepage hierarchy
+- The digital book is the dominant first-screen product.
+- The whole A4 page/spread must be maximized without cropping.
+- Reader chrome must remain compact.
+- TOC is secondary/collapsible; mobile TOC is an overlay/drawer.
+- Users must understand from the first viewport that additional resources exist; they must not need to guess that scrolling is possible.
+- A compact colored action rail sits immediately below the reader in the first-screen ecosystem.
+- Action rail labels use only existing site labels/generic controls:
+  - `סרטון`
+  - `מצגת`
+  - `דפי עבודה`
+  - `אביזרים נלווים להמחשה`
+  - `הורדת חוברת העבודה`
+- Buttons must be compact, consistent, accessible and professional; avoid giant pills, excessive roundness, cartoon styling and unnecessary empty space.
+- The embedded race video remains a compact destination below the action rail and must not shrink the book materially.
+- Presentation, Jerusalem panorama, aids/accessories, Finale/Arena and footer remain secondary content below.
+
+## 9. Return navigation — iron rule
+Every action that moves the user away from the main book experience must leave an obvious route back.
+
+On the homepage:
+- the sticky site navigation remains available while scrolling to video/presentation and includes the path back to `החוברת הדיגיטלית` / `עמוד הבית`.
+
+On separate internal routes:
+- expose a compact persistent return control for `עמוד הבית` and `החוברת הדיגיטלית`.
+- the return control must be responsive and safe-area aware.
+- NEVER render the return control inside reader iframes (`reader=1`).
+- NEVER render it in the print route/output.
+
+## 10. Printing / PDF — Hebrew Print Center
+Use one compact central Hebrew Print/PDF Center, not many large duplicate action bars.
 It MUST support:
-- accurate full-A4 live preview that is never narrow, cropped or distorted
+- accurate complete A4 preview, never narrow/cropped/distorted
 - current page
 - current chapter/group
 - all worksheets
-- entire book
-- manual page selection from the canonical 44-page manifest
-- easy select-all / clear-all and visible selected-page count
-- color / black-and-white choice
-- print action
-- PDF/download action
-- selected-page printing and selected-page PDF
-- preserve page order exactly as the canonical manifest
-- use one shared print/action engine for all scopes
-
-Allowed generic Hebrew print/control labels include:
-- "הדפסה"
-- "תצוגה מקדימה"
-- "עמוד נוכחי"
-- "פרק נוכחי"
-- "כל דפי העבודה"
-- "כל החוברת"
-- "בחירת עמודים"
-- "צבע מלא"
-- "שחור־לבן"
-- "PDF"
-- "בחר הכל"
-- "נקה בחירה"
-- "ביטול"
-
-Browser/system print UI may still be OS-controlled after the user presses the Hebrew in-site print button.
-
-## Very fast downloads
-Create direct static download buttons.
-Build/pre-generate:
-1. all worksheets PDF — color
-2. all worksheets PDF — black & white
-The click must not generate those full worksheet PDFs at request time.
-Use the same canonical manifest as the source for those PDFs.
-Keep current page/PDF actions consistent with RazPages.
-
-## Homepage hierarchy — current required UX
-- The digital book is the primary product and MUST remain the dominant content immediately on homepage load.
-- The whole current A4 page must be visible whenever the viewport permits; never enlarge by cropping.
-- On wide laptop/desktop screens (>900px), a fresh homepage load opens the cover as a readable two-page spread so the book immediately feels open.
-- On iPhone/Android/narrow screens (<=900px), a fresh homepage load uses a single page so the A4 remains readable and complete.
-- Controls around the book must be compact. Do not let toolbars, print controls, TOC, or secondary actions steal large screen areas.
-- TOC is secondary and collapsible; on mobile it is an overlay/drawer.
-- The first viewport MUST contain a compact colored action rail immediately below the reader so users do not need to guess that more content exists.
-- The first-screen action rail links to the existing video, presentation, worksheets, accessories/aids and direct worksheet-workbook download. It must use existing labels/generic controls only and add no demo/explanatory copy.
-- The existing real child/video asset remains below the action rail as a compact destination and must not compete with or shrink the book materially; no autoplay with sound.
-- Existing presentation, video, Jerusalem panorama, aids/accessories, Finale/Arena and footer remain available below/around the reader in a secondary hierarchy.
-- Avoid giant cards, giant buttons, duplicate action rows, and unnecessary empty space.
-
-## Iron rules — startup and visible wording
-- A plain visit to `/` or `/#worksheets` MUST open the unified reader on the real cover, page 1.
-- On wide screens (>900px) that fresh visit defaults to `spread`; on narrow screens (<=900px) it defaults to `single`.
-- A plain visit MUST NOT restore the last-read page or last-read mode from localStorage. Explicit `bookPage`, `bookMode`, browser history, and the explicit `group=worksheets` navigation remain valid.
-- No visible demo text, placeholder copy, temporary copy, invented chapter names, invented subtitles, or explanatory wording may be introduced.
-- Visible page titles, TOC labels, subtitles, and content metadata must reuse wording already present in the canonical Zaviyot content. Generic reader/print controls are the only exception.
-- The cover is identified in the reader using its actual visible title: `חוברת הוראת הזוויות לכיתה ז׳`; do not expose the invented label `מכתב המורה`.
-- When screen space is available, the reader must maximize the whole A4 page while keeping the complete page visible; never enlarge by cropping.
-
-## Performance
-- minimize initial client bundle
-- page routes should be stable, same-origin and reader-friendly
-- do not import/render the whole workbook into the initial client bundle
-- lazy-load scroll pages
-- preload only adjacent pages
-- avoid duplicate fonts
-- keep large unrelated video from blocking reader startup
-- use static/CDN assets appropriately
-- no unnecessary re-render/reload on mode switches
-- actions must feel immediate
-- preserve existing content fidelity
-
-## Repository cleanup — current rule
-- The unified reader is the only active digital-book engine.
-- Proven-unreferenced legacy flipbook implementation, its CSS, helper files and legacy-only tests should be removed from THIS NEW repo once dependency search confirms they are not used by production code.
-- Do not delete canonical page content, worksheets, PDFs, presentation, video, panorama, aids/accessories, active routes, print infrastructure or reference snapshots.
-- Do not keep dead demo/draft infrastructure merely for historical reasons when Git history already preserves it.
-- Cleanup must reduce duplication without weakening tests for the active unified reader.
-
-## Beneficial cleanup in NEW project only
-Apply only improvements that help and do not change intended content:
-- isolate reader styles from giant global CSS where practical
-- centralize site URL/metadata config
-- correct keyboard-event scope problems
-- add Hebrew/custom not-found, error and loading states without inventing educational copy
-- improve accessible focus states
-- preserve reduced-motion behavior
-- add video captions only if an actual caption source exists; do not invent captions
-- reduce clearly unused font loading if verified safe
-- remove old flipbook code/CSS after new reader parity and dependency checks
-- remove dead duplicate worksheet-reader infrastructure ONLY when replacements are proven
-- no broad aesthetic redesign of the rest of the site
-
-## Tests / CI
-Add/maintain real browser and route tests:
-- reader loads
-- every manifest page route resolves
-- TOC links valid
-- single/spread/scroll
-- fresh homepage starts at page 1, spread on wide screens and single on narrow screens
-- deep link and popstate
-- search
-- selection persistence where allowed by the startup iron rule
-- keyboard focus filtering
-- current/group/selected/all-worksheet/all-book printing flows
+- entire 44-page book
 - manual page selection
-- color/BW print state
-- full-A4 preview aspect and no crop
-- both prebuilt worksheet PDFs exist and are downloadable
-- first-screen action rail links remain valid
+- selected-page count
+- select all / clear selection
+- color
+- black-and-white
+- print
+- PDF/download
+- selected-page PDF
+- canonical page order
+
+Allowed generic controls include:
+- `הדפסה`
+- `תצוגה מקדימה`
+- `עמוד נוכחי`
+- `פרק נוכחי`
+- `כל דפי העבודה`
+- `כל החוברת`
+- `בחירת עמודים`
+- `צבע מלא`
+- `שחור־לבן`
+- `PDF`
+- `בחר הכל`
+- `נקה בחירה`
+- `ביטול`
+
+The final OS/browser print dialog may be system-controlled after the in-site Hebrew action.
+
+## 11. Fast workbook downloads
+Prebuilt direct PDFs remain the fast path:
+- worksheet workbook color
+- worksheet workbook black-and-white
+- full book color
+- full book black-and-white
+
+`הורדת חוברת העבודה` downloads ONLY the student worksheet workbook, not summaries or other book pages.
+The click must not generate the full worksheet workbook at request time.
+
+## 12. Performance
+- minimize initial client bundle
+- do not render/import the entire workbook into the first client bundle
+- keep the 69MB race video from blocking reader startup (`preload=none`/lazy behavior)
+- lazy-load scroll pages
+- preload/prefetch only adjacent pages
+- use static/CDN assets where appropriate
+- no unnecessary page reloads on mode changes
+- no duplicate video rendering
+- actions must feel immediate
+
+## 13. Repository cleanup
+- The unified reader is the only active digital-book engine.
+- Legacy flipbook-only code/tests may be removed after dependency verification.
+- Dead code/assets explicitly retired by the user should not remain merely to be accidentally restored.
+- Do NOT delete canonical pages, worksheets, PDFs, presentation, panorama, aids/accessories, active print infrastructure or unrelated real content.
+- Git history is the archive; production code should remain maintainable and non-duplicated.
+
+## 14. Tests / CI
+Maintain real checks for:
+- reader load
+- all canonical page routes
+- TOC links
+- single/spread/scroll
+- fresh homepage starts page 1
+- responsive spread desktop / single mobile
+- deep links + popstate
+- search
+- selection
+- keyboard focus filtering
+- current/group/selected/all-worksheet/all-book print/PDF
+- manual page selection
+- color/BW
+- full-A4 preview/no crop
+- prebuilt PDFs downloadable
+- action rail links valid
+- internal-page return navigation
+- return navigation hidden in reader iframe and print
 - mobile drawer/actions
 - phone/laptop/desktop smoke
-- unrelated homepage sections still render
 - no console errors on key routes
 
-CI must run on pull requests AND push to main.
+CI must run on pull requests and push to main.
 Do not weaken tests to make them pass.
 
-## Completion standard
-Before declaring complete:
-- npm install/ci succeeds
-- lint/typecheck/tests succeed when present
+## 15. Completion standard
+Do not claim 100% complete until:
+- install/CI succeeds
+- lint/typecheck/tests pass when present
 - production build succeeds
-- old unrelated features remain
-- obsolete reader code is cleaned after parity/dependency verification
-- repository is clean and maintainable
-- print/PDF center works for every required scope
-- no reference repo was modified
-
-## Current homepage and print UX — mandatory
-- The digital book remains the dominant first-screen product.
-- The first screen must visibly expose colored action buttons for the existing video, presentation, worksheets, accessories and worksheet-workbook download without shrinking or cropping the book unnecessarily.
-- Do not add any new visible slogan, promotional sentence, demo label, placeholder, educational wording or explanatory copy.
-- The first-screen action rail may display only existing site labels/assets plus generic controls.
-- Printing/PDF uses one compact action center, not multiple large duplicate action bars.
-- The print/PDF center must support current page, current chapter, all worksheets, the whole book, and manual page selection.
-- The preview must show a complete A4 page with correct aspect ratio.
-- Color and black-white must work for print and PDF.
-- Arbitrary selected-page PDF downloads are generated from prebuilt full-book color/BW PDFs; all-workbook and all-worksheet PDFs stay static for speed.
+- required live routes return successfully
+- critical UI is checked at the required phone/laptop/desktop viewport matrix
+- no reference repo/project was modified
+- production points to the intended new Zaviyot project
