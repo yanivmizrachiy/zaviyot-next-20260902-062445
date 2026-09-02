@@ -180,15 +180,30 @@ export function PresentationViewer({
     [num]
   );
 
-  // ניווט במקלדת — הבא = שמאלה ב-RTL, הקודם = ימינה
+  // ניווט במקלדת — פועל רק כשהמצגת בפוקוס או במסך מלא,
+  // כדי לא להתנגש עם מנוע הספר או עם שדות קלט אחרים בעמוד.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") go(1);
-      else if (e.key === "ArrowRight") go(-1);
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      const target = e.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable || target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT")
+      ) return;
+      const stage = stageRef.current;
+      const focusedInStage = Boolean(stage && document.activeElement && stage.contains(document.activeElement));
+      if (!max && !focusedInStage) return;
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        go(1);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        go(-1);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go]);
+  }, [go, max]);
 
   // מסך מלא בתוך האתר — יציאה ב-Esc, נעילת גלילת הרקע
   useEffect(() => {
@@ -224,7 +239,7 @@ export function PresentationViewer({
           </div>
 
           <div className="slideshow">
-            <div className="slideshow__stage" ref={stageRef}>
+            <div className="slideshow__stage" ref={stageRef} tabIndex={0} onPointerDown={() => stageRef.current?.focus()}>
               {error ? (
                 <div className="pdfviewer__status" role="alert" style={{ padding: 24, textAlign: "center" }}>
                   לא הצלחנו להציג את המצגת כאן.{" "}
