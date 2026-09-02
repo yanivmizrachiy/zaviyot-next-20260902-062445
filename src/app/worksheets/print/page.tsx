@@ -40,7 +40,6 @@ export default async function BookletPrintPage({
         const page = WS_PAGES[n - 1];
         const node = worksheetContentNode(page, {
           slot: n,
-          presentation: "link",
           tocHrefFor: (target) => `#bk-page-${target}`,
         });
         return (
