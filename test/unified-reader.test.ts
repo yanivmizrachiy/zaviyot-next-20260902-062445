@@ -21,10 +21,20 @@ test("unified reader derives content from the canonical worksheet registry", () 
   assert.match(reader, /כפולה/);
   assert.match(reader, /גלילה/);
   assert.match(reader, /תוכן העניינים/);
-  assert.match(reader, /לוח מונים/);
+  assert.doesNotMatch(reader, /לוח מונים/);
   assert.match(reader, /צבע מלא/);
   assert.match(reader, /שחור־לבן/);
   assert.match(reader, /zaviyot-worksheets-bw\.pdf/);
+});
+
+test("book opens as a single cover and then as real inside spreads on wide screens", () => {
+  const reader = read("src/components/book/UnifiedBookReader.tsx");
+  const layout = read("src/app/layout.tsx");
+  assert.match(reader, /direction === 1 && page === 1 && mode === "single" && !isNarrow/);
+  assert.match(reader, /direction === -1 && mode === "spread" && !isNarrow && page <= 3/);
+  assert.match(reader, /const spreadStart = page <= 1 \? 1 : page % 2 === 0 \? page : page - 1/);
+  assert.match(reader, /initialPage === 1\s*\? "single"/);
+  assert.doesNotMatch(layout, /zaviyot-responsive-reader-default/);
 });
 
 test("worksheet route points to the worksheet group inside the same book", () => {
