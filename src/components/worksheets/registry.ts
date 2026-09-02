@@ -24,7 +24,6 @@ export type WsPage =
   | (WsPageBase & { kind: "cover" })
   | (WsPageBase & { kind: "toc" })
   | (WsPageBase & { kind: "image"; img: number })
-  | (WsPageBase & { kind: "presentation"; presentationSrc: string; downloadName: string })
   | (WsPageBase & { kind: "content"; content: WsContentId });
 
 export const WS_PAGES: WsPage[] = [
