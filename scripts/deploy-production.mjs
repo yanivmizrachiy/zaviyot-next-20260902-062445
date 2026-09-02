@@ -2,13 +2,16 @@ import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 
-const EXPECTED_PROJECT_ID = "prj_vBueQ0MqpZWsK5dZt8hOBleIqnYi";
+const EXPECTED_PACKAGE_NAME = "zaviyot";
+const EXPECTED_PROJECT_ID = "prj_nNLdB3ec30mUsyYVse6cUT7Ib7Hm";
 const EXPECTED_ORG_ID = "team_lvylZaui6gt5QxzzssXTIKma";
-const EXPECTED_PROJECT_NAME = "zaviyot";
-const PRODUCTION_URL = "https://zaviyot.vercel.app";
+const EXPECTED_PROJECT_NAME = "zaviyot-next-20260902-062445";
+const EXPECTED_SCOPE = "yanivs-projects-322b2b37";
+const PRODUCTION_URL = "https://zaviyot-next-20260902-062445.vercel.app";
+const LOG_PREFIX = "[deploy:zaviyot-next]";
 
 function fail(message) {
-  console.error(`\n[deploy:zaviyot] STOP: ${message}\n`);
+  console.error(`\n${LOG_PREFIX} STOP: ${message}\n`);
   process.exit(1);
 }
 
@@ -50,14 +53,14 @@ async function verifyProduction(path, expectedText) {
       lastStatus = response.status;
       if (response.status === 200) {
         if (!expectedText) {
-          console.log(`[deploy:zaviyot] אימות חי עבר: 200 ${url}`);
+          console.log(`${LOG_PREFIX} אימות חי עבר: 200 ${url}`);
           return;
         }
 
         const body = await response.text();
         lastMissingText = !body.includes(expectedText);
         if (!lastMissingText) {
-          console.log(`[deploy:zaviyot] אימות חי עבר: 200 ${url} + טקסט צפוי`);
+          console.log(`${LOG_PREFIX} אימות חי עבר: 200 ${url} + טקסט צפוי`);
           return;
         }
       }
@@ -80,11 +83,11 @@ async function verifyProduction(path, expectedText) {
 
 const cwd = process.cwd();
 const pkgPath = resolve(cwd, "package.json");
-if (!existsSync(pkgPath)) fail("package.json לא נמצא. יש להריץ את הפקודה מתוך zaviyot/ בלבד.");
+if (!existsSync(pkgPath)) fail("package.json לא נמצא. יש להריץ את הפקודה מתוך שורש zaviyot-next בלבד.");
 
 const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
-if (pkg.name !== EXPECTED_PROJECT_NAME || !pkg.dependencies?.next) {
-  fail("זה אינו שורש אפליקציית zaviyot או ש-Next.js חסר. הפריסה בוטלה לפני פנייה ל-Vercel.");
+if (pkg.name !== EXPECTED_PACKAGE_NAME || !pkg.dependencies?.next) {
+  fail("זה אינו שורש אפליקציית Zaviyot Next או ש-Next.js חסר. הפריסה בוטלה לפני פנייה ל-Vercel.");
 }
 
 const major = Number(process.versions.node.split(".")[0]);
@@ -94,8 +97,8 @@ if (major !== 22) {
 
 const vercelProjectPath = resolve(cwd, ".vercel", "project.json");
 if (!existsSync(vercelProjectPath)) {
-  console.log("[deploy:zaviyot] קישור Vercel מקומי חסר — מקשר לפרויקט הקיים...");
-  run("npx", ["vercel", "link", "--yes", "--project", EXPECTED_PROJECT_NAME, "--scope", "yanivs-projects-322b2b37"]);
+  console.log(`${LOG_PREFIX} קישור Vercel מקומי חסר — מקשר רק לפרויקט החדש המאושר...`);
+  run("npx", ["vercel", "link", "--yes", "--project", EXPECTED_PROJECT_NAME, "--scope", EXPECTED_SCOPE]);
 }
 
 if (!existsSync(vercelProjectPath)) fail("Vercel link לא יצר .vercel/project.json.");
@@ -106,16 +109,16 @@ if (linked.projectId !== EXPECTED_PROJECT_ID || linked.orgId !== EXPECTED_ORG_ID
 
 const verifyPath = getVerifyPath();
 const verifyText = getVerifyText();
-console.log(`[deploy:zaviyot] נתיב אימות לאחר הפריסה: ${verifyPath}`);
-if (verifyText) console.log(`[deploy:zaviyot] נדרש גם טקסט אימות: ${verifyText}`);
+console.log(`${LOG_PREFIX} נתיב אימות לאחר הפריסה: ${verifyPath}`);
+if (verifyText) console.log(`${LOG_PREFIX} נדרש גם טקסט אימות: ${verifyText}`);
 
-console.log("[deploy:zaviyot] 1/3 בדיקות מלאות...");
+console.log(`${LOG_PREFIX} 1/3 בדיקות מלאות...`);
 run("npm", ["run", "check"]);
 
-console.log("[deploy:zaviyot] 2/3 פריסת Production מלאה מהשורש הנכון...");
+console.log(`${LOG_PREFIX} 2/3 פריסת Production מלאה לפרויקט החדש בלבד...`);
 run("npx", ["vercel", "--prod", "--yes"]);
 
-console.log("[deploy:zaviyot] 3/3 אימות Production alias...");
+console.log(`${LOG_PREFIX} 3/3 אימות Production alias...`);
 await verifyProduction(verifyPath, verifyText);
 
-console.log(`[deploy:zaviyot] הושלם ואומת: ${new URL(verifyPath, PRODUCTION_URL)}`);
+console.log(`${LOG_PREFIX} הושלם ואומת: ${new URL(verifyPath, PRODUCTION_URL)}`);
