@@ -128,13 +128,12 @@ Required laptop/desktop QA:
 - 1440x900
 - 1920x1080
 
-## 8. Homepage hierarchy
+## 8. Homepage hierarchy and media actions
 - The digital book is the dominant first-screen product.
 - The whole A4 page/spread must be maximized without cropping.
 - Reader chrome must remain compact.
 - TOC is secondary/collapsible; mobile TOC is an overlay/drawer.
-- Users must understand from the first viewport that additional resources exist; they must not need to guess that scrolling is possible.
-- A compact colored action rail sits immediately below the reader in the first-screen ecosystem.
+- A compact colored action rail sits immediately below the reader so users do not need to guess that more content exists.
 - Action rail labels use only existing site labels/generic controls:
   - `סרטון`
   - `מצגת`
@@ -142,15 +141,20 @@ Required laptop/desktop QA:
   - `אביזרים נלווים להמחשה`
   - `הורדת חוברת העבודה`
 - Buttons must be compact, consistent, accessible and professional; avoid giant pills, excessive roundness, cartoon styling and unnecessary empty space.
-- The embedded race video remains a compact destination below the action rail and must not shrink the book materially.
-- Presentation, Jerusalem panorama, aids/accessories, Finale/Arena and footer remain secondary content below.
+- `סרטון` opens the real `המירוץ למיליון` video IMMEDIATELY in one compact modal above the current page.
+- `מצגת` opens the existing presentation IMMEDIATELY in the same compact modal system.
+- There is NO countdown, no timer board, no splash screen, no interstitial, no 1.5-second waiting state and no decorative pre-animation.
+- The media modal must have an obvious `סגירה` control, close on Escape and return the user to the same book position.
+- The media modal must be responsive and must not become an oversized full-page media block on desktop or phone.
+- Do NOT keep a second inline copy of the race video below the action rail.
+- Do NOT keep a second giant standalone presentation embed below the book. The modal is the single homepage destination for the presentation.
+- The top navigation `מצגת` action opens the same presentation modal; on internal routes it returns to the homepage and opens that modal.
+- Jerusalem panorama, aids/accessories, Finale/Arena and footer may remain as secondary content below the book.
 
 ## 9. Return navigation — iron rule
 Every action that moves the user away from the main book experience must leave an obvious route back.
 
-On the homepage:
-- the sticky site navigation remains available while scrolling to video/presentation and includes the path back to `החוברת הדיגיטלית` / `עמוד הבית`.
-
+Homepage media actions use a modal, so closing the modal returns directly to the same book position.
 On separate internal routes:
 - expose a compact persistent return control for `עמוד הבית` and `החוברת הדיגיטלית`.
 - the return control must be responsive and safe-area aware.
@@ -199,18 +203,19 @@ Prebuilt direct PDFs remain the fast path:
 - full book color
 - full book black-and-white
 
-`הורדת חוברת העבודה` downloads ONLY the student worksheet workbook, not summaries or other book pages.
-The click must not generate the full worksheet workbook at request time.
+`הורדת חוברת העבודה` is a primary first-screen action and downloads ONLY the student worksheet workbook, not summaries or other book pages.
+It must be one click to a prebuilt printable PDF; do not generate the full workbook at request time and do not introduce an app installer/wizard flow.
 
 ## 12. Performance
 - minimize initial client bundle
 - do not render/import the entire workbook into the first client bundle
-- keep the 69MB race video from blocking reader startup (`preload=none`/lazy behavior)
+- do not load the 69MB race video until the user opens the video modal
 - lazy-load scroll pages
 - preload/prefetch only adjacent pages
 - use static/CDN assets where appropriate
 - no unnecessary page reloads on mode changes
 - no duplicate video rendering
+- no duplicate presentation rendering
 - actions must feel immediate
 
 ## 13. Repository cleanup
@@ -237,7 +242,11 @@ Maintain real checks for:
 - color/BW
 - full-A4 preview/no crop
 - prebuilt PDFs downloadable
-- action rail links valid
+- action rail links/actions valid
+- video modal opens immediately and closes cleanly
+- presentation modal opens immediately from action rail and top navigation
+- no countdown/interstitial media UI
+- no duplicate inline video/presentation blocks
 - internal-page return navigation
 - return navigation hidden in reader iframe and print
 - mobile drawer/actions
