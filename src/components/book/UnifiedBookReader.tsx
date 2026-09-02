@@ -37,9 +37,6 @@ function workbookPdfHref(tone: PrintTone) {
     : "/booklet-worksheets/zaviyot-worksheets.pdf";
 }
 
-function workbookPrintHref(tone: PrintTone) {
-  return `/worksheets/print?scope=worksheets&tone=${tone}&print=1`;
-}
 
 function isEditableTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;
@@ -185,7 +182,7 @@ export function UnifiedBookReader() {
   }, []);
 
   const runPrint = useCallback(() => {
-    if (!printRequest) return;
+    if (!printRequest?.pages.length) return;
     const params = new URLSearchParams({
       pages: printRequest.pages.join(","),
       tone: printTone,
@@ -195,20 +192,55 @@ export function UnifiedBookReader() {
     setPrintRequest(null);
   }, [printRequest, printTone]);
 
-  const downloadHtml = useCallback(async () => {
-    const response = await fetch(pageHref(page), { credentials: "same-origin" });
-    if (!response.ok) return;
-    const html = await response.text();
-    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
+  const setPrintPages = useCallback((pages: number[], title: string) => {
+    setPrintRequest({
+      pages: [...new Set(pages)].filter((n) => n >= 1 && n <= WS_TOTAL).sort((a, b) => a - b),
+      title,
+    });
+  }, []);
+
+  const togglePrintPage = useCallback((targetPage: number) => {
+    setPrintRequest((current) => {
+      const base = current ?? { pages: [], title: "בחירת עמודים" };
+      const next = new Set(base.pages);
+      if (next.has(targetPage)) next.delete(targetPage);
+      else next.add(targetPage);
+      return { pages: [...next].sort((a, b) => a - b), title: "בחירת עמודים" };
+    });
+  }, []);
+
+  const runPdf = useCallback(() => {
+    if (!printRequest?.pages.length) return;
+    const pages = printRequest.pages;
+    const allBook = pages.length === WS_TOTAL && pages.every((value, index) => value === index + 1);
+    const allWorksheets =
+      pages.length === worksheetSlots.length &&
+      pages.every((value, index) => value === worksheetSlots[index]);
+
+    let href: string;
+    if (allWorksheets) {
+      href = workbookPdfHref(printTone);
+    } else if (allBook) {
+      href = printTone === "bw"
+        ? "/booklet/hoveret-zaviyot-bw.pdf"
+        : "/booklet/hoveret-zaviyot.pdf";
+    } else {
+      const params = new URLSearchParams({
+        pages: pages.join(","),
+        tone: printTone,
+      });
+      href = `/api/book-pdf?${params.toString()}`;
+    }
+
     const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = `זוויות-עמוד-${page}.html`;
+    anchor.href = href;
+    anchor.download = "zaviyot.pdf";
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
-    URL.revokeObjectURL(url);
-  }, [page]);
+    setPrintRequest(null);
+  }, [printRequest, printTone, worksheetSlots]);
+
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 900px)");
@@ -539,19 +571,9 @@ export function UnifiedBookReader() {
               <span>{currentGroup.title} · עמוד {page} מתוך {WS_TOTAL}</span>
             </div>
             <div className="zreader__actions zreader__actions--desktop">
-              <button type="button" className="primary" onClick={() => openPrint([page], WS_PAGES[page - 1].title)}>🖨 הדפסה</button>
-              <button type="button" onClick={() => openPrint([page], WS_PAGES[page - 1].title)}>⬇ PDF</button>
-              <button type="button" onClick={downloadHtml}>HTML</button>
-              <button type="button" onClick={() => window.open(`/worksheets/${page}`, "_blank", "noopener,noreferrer")}>↗ פתח</button>
-              <button type="button" onClick={() => openPrint(Array.from({ length: currentGroup.to - currentGroup.from + 1 }, (_, index) => currentGroup.from + index), currentGroup.title)}>🖨 פרק</button>
+              <button type="button" className="primary" onClick={() => openPrint([page], "עמוד נוכחי")}>הדפסה / PDF</button>
+              <button type="button" onClick={() => window.open(`/worksheets/${page}`, "_blank", "noopener,noreferrer")}>פתח</button>
             </div>
-          </div>
-
-          <div className="zreader__download-strip" aria-label="פעולות לכל דפי העבודה">
-            <a className="zreader__quick-print" href={workbookPrintHref("color")} target="_blank" rel="noopener noreferrer" aria-label="הדפסת כל דפי העבודה בצבע">🖨 הדפסת כל דפי העבודה — צבע</a>
-            <a className="zreader__quick-print" href={workbookPrintHref("bw")} target="_blank" rel="noopener noreferrer" aria-label="הדפסת כל דפי העבודה בשחור־לבן">🖨 הדפסת כל דפי העבודה — שחור־לבן</a>
-            <a href={workbookPdfHref("color")} download>⬇ PDF צבע</a>
-            <a href={workbookPdfHref("bw")} download>⬇ PDF שחור־לבן</a>
           </div>
 
           {selectionMode && (
@@ -609,14 +631,8 @@ export function UnifiedBookReader() {
               <button type="button" className={mode === "single" ? "is-active" : ""} onClick={() => setMode("single")}>עמוד</button>
               <button type="button" className={mode === "scroll" ? "is-active" : ""} onClick={() => setMode("scroll")}>גלילה</button>
             </div>
-            <button type="button" onClick={() => openPrint([page], WS_PAGES[page - 1].title)}>🖨 הדפסה / PDF</button>
-            <button type="button" onClick={downloadHtml}>HTML</button>
-            <button type="button" onClick={() => window.open(`/worksheets/${page}`, "_blank", "noopener,noreferrer")}>↗ פתח</button>
-            <button type="button" onClick={() => openPrint(Array.from({ length: currentGroup.to - currentGroup.from + 1 }, (_, index) => currentGroup.from + index), currentGroup.title)}>🖨 פרק</button>
-            <a href={workbookPrintHref("color")} target="_blank" rel="noopener noreferrer">🖨 כל דפי העבודה — צבע</a>
-            <a href={workbookPrintHref("bw")} target="_blank" rel="noopener noreferrer">🖨 כל דפי העבודה — שחור־לבן</a>
-            <a href={workbookPdfHref("color")} download>⬇ PDF צבע</a>
-            <a href={workbookPdfHref("bw")} download>⬇ PDF שחור־לבן</a>
+            <button type="button" onClick={() => openPrint([page], "עמוד נוכחי")}>הדפסה / PDF</button>
+            <button type="button" onClick={() => window.open(`/worksheets/${page}`, "_blank", "noopener,noreferrer")}>פתח</button>
           </section>
         </div>
       )}
@@ -626,20 +642,75 @@ export function UnifiedBookReader() {
           <button className="zreader__print-scrim" type="button" aria-label="ביטול" onClick={() => setPrintRequest(null)} />
           <section className="zreader__print-card">
             <div className="zreader__print-copy">
-              <h3 id="zreader-print-title">הדפסה</h3>
-              <p>{printRequest.title}</p>
+              <h3 id="zreader-print-title">הדפסה / PDF</h3>
+              <p>{printRequest.pages.length} עמודים</p>
             </div>
-            <div className={`zreader__print-preview ${printTone === "bw" ? "is-bw" : ""}`}>
-              <iframe src={pageHref(printRequest.pages[0])} title="תצוגה מקדימה" />
-            </div>
-            <fieldset>
-              <legend>צבע</legend>
-              <label><input type="radio" name="zreader-tone" checked={printTone === "color"} onChange={() => setPrintTone("color")} /> צבע מלא</label>
-              <label><input type="radio" name="zreader-tone" checked={printTone === "bw"} onChange={() => setPrintTone("bw")} /> שחור־לבן</label>
-            </fieldset>
-            <div className="zreader__print-actions">
-              <button type="button" className="primary" onClick={runPrint}>הדפסה</button>
-              <button type="button" onClick={() => setPrintRequest(null)}>ביטול</button>
+
+            <div className="zreader__print-layout">
+              <div className="zreader__print-preview-pane">
+                <div className={`zreader__print-preview ${printTone === "bw" ? "is-bw" : ""}`}>
+                  <iframe src={pageHref(printRequest.pages[0] ?? page)} title="תצוגה מקדימה" />
+                </div>
+              </div>
+
+              <div className="zreader__print-controls">
+                <div className="zreader__print-scope">
+                  <button type="button" onClick={() => setPrintPages([page], "עמוד נוכחי")}>עמוד נוכחי</button>
+                  <button
+                    type="button"
+                    onClick={() => setPrintPages(
+                      Array.from({ length: currentGroup.to - currentGroup.from + 1 }, (_, index) => currentGroup.from + index),
+                      "פרק נוכחי",
+                    )}
+                  >
+                    פרק נוכחי
+                  </button>
+                  <button type="button" onClick={() => setPrintPages(worksheetSlots, "כל דפי העבודה")}>כל דפי העבודה</button>
+                  <button type="button" onClick={() => setPrintPages(Array.from({ length: WS_TOTAL }, (_, index) => index + 1), "כל החוברת")}>
+                    כל החוברת
+                  </button>
+                </div>
+
+                <div className="zreader__print-selection-head">
+                  <strong>בחירת עמודים</strong>
+                  <span>{printRequest.pages.length} נבחרו</span>
+                  <button type="button" onClick={() => setPrintPages(Array.from({ length: WS_TOTAL }, (_, index) => index + 1), "כל החוברת")}>
+                    בחר הכל
+                  </button>
+                  <button type="button" onClick={() => setPrintPages([], "בחירת עמודים")}>נקה בחירה</button>
+                </div>
+
+                <div className="zreader__print-page-grid" aria-label="בחירת עמודים">
+                  {WS_PAGES.map((item, index) => {
+                    const targetPage = index + 1;
+                    const active = printRequest.pages.includes(targetPage);
+                    return (
+                      <button
+                        type="button"
+                        key={targetPage}
+                        className={active ? "is-active" : ""}
+                        aria-pressed={active}
+                        title={item.title}
+                        onClick={() => togglePrintPage(targetPage)}
+                      >
+                        {targetPage}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <fieldset className="zreader__print-tone">
+                  <legend>צבע</legend>
+                  <label><input type="radio" name="zreader-tone" checked={printTone === "color"} onChange={() => setPrintTone("color")} /> צבע מלא</label>
+                  <label><input type="radio" name="zreader-tone" checked={printTone === "bw"} onChange={() => setPrintTone("bw")} /> שחור־לבן</label>
+                </fieldset>
+
+                <div className="zreader__print-actions">
+                  <button type="button" className="primary" disabled={!printRequest.pages.length} onClick={runPrint}>הדפסה</button>
+                  <button type="button" className="primary" disabled={!printRequest.pages.length} onClick={runPdf}>PDF</button>
+                  <button type="button" onClick={() => setPrintRequest(null)}>ביטול</button>
+                </div>
+              </div>
             </div>
           </section>
         </div>

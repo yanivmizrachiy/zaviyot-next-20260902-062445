@@ -13,7 +13,7 @@ export function SiteFooter() {
             height={52}
             sizes="52px"
           />
-          <span>זוויות — יחידת לימוד מתוקשבת</span>
+          <span>חוברת הוראת הזוויות לכיתה ז׳</span>
         </span>
         <span>האתר מנוהל ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים</span>
       </div>

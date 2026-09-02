@@ -221,3 +221,14 @@ Before declaring complete:
 - repository is clean and maintainable
 - print/PDF center works for every required scope
 - no reference repo was modified
+
+## Current homepage and print UX — mandatory
+- The digital book remains the dominant first-screen product.
+- The first screen must visibly expose the existing video, presentation, worksheets and accessories without shrinking or cropping the book unnecessarily.
+- Do not add any new visible slogan, promotional sentence, demo label, placeholder, educational wording or explanatory copy.
+- The first-screen resource dock may display only existing site labels/assets plus generic icon-only controls.
+- Printing/PDF uses one compact action center, not multiple large duplicate action bars.
+- The print/PDF center must support current page, current chapter, all worksheets, the whole book, and manual page selection.
+- The preview must show a complete A4 page with correct aspect ratio.
+- Color and black-white must work for print and PDF.
+- Arbitrary selected-page PDF downloads are generated from prebuilt full-book color/BW PDFs; all-workbook and all-worksheet PDFs stay static for speed.

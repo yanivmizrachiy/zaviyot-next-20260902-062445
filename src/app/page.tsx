@@ -8,12 +8,13 @@ import { PresentationViewer } from "@/components/PresentationViewer";
 import { FinaleSection } from "@/components/FinaleSection";
 import { SiteFooter } from "@/components/SiteFooter";
 
-// HOME V2: הספר הוא המוצר הראשי. כל התוכן הקיים נשמר, אך משני לספר.
 export default function HomePage() {
   return (
     <>
-      <TopBar />
-      <SiteNav />
+      <div className="home-chrome">
+        <TopBar />
+        <SiteNav />
+      </div>
       <main id="main">
         <WorksheetsBookletBook />
         <HeroSection />

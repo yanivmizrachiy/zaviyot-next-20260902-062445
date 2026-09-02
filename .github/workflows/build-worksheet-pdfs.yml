@@ -7,7 +7,9 @@ on:
       - "src/components/worksheets/**"
       - "src/components/book/**"
       - "src/app/worksheets/**"
+      - "src/app/api/book-pdf/**"
       - "scripts/build-static-print-pdf.mjs"
+      - "scripts/build-booklet-pdf.mjs"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/build-worksheet-pdfs.yml"
@@ -57,18 +59,32 @@ jobs:
           PDF_PATH: /worksheets/print?scope=worksheets&tone=bw
           PDF_PORT: "4877"
         run: node scripts/build-static-print-pdf.mjs
-      - name: Verify both PDFs
+      - name: Build color full-book PDF
+        env:
+          PDF_OUT: public/booklet/hoveret-zaviyot.pdf
+          PDF_PATH: /worksheets/print?tone=color
+          PDF_PORT: "4878"
+        run: node scripts/build-static-print-pdf.mjs
+      - name: Build black-white full-book PDF
+        env:
+          PDF_OUT: public/booklet/hoveret-zaviyot-bw.pdf
+          PDF_PATH: /worksheets/print?tone=bw
+          PDF_PORT: "4879"
+        run: node scripts/build-static-print-pdf.mjs
+      - name: Verify generated PDFs
         shell: bash
         run: |
           test -s public/booklet-worksheets/zaviyot-worksheets.pdf
           test -s public/booklet-worksheets/zaviyot-worksheets-bw.pdf
-          ls -lh public/booklet-worksheets/zaviyot-worksheets*.pdf
+          test -s public/booklet/hoveret-zaviyot.pdf
+          test -s public/booklet/hoveret-zaviyot-bw.pdf
+          ls -lh public/booklet-worksheets/zaviyot-worksheets*.pdf public/booklet/hoveret-zaviyot*.pdf
       - name: Commit generated PDFs
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/booklet-worksheets/zaviyot-worksheets.pdf public/booklet-worksheets/zaviyot-worksheets-bw.pdf
+          git add public/booklet-worksheets/zaviyot-worksheets.pdf public/booklet-worksheets/zaviyot-worksheets-bw.pdf public/booklet/hoveret-zaviyot.pdf public/booklet/hoveret-zaviyot-bw.pdf
           if git diff --cached --quiet; then
             echo "PDFs unchanged"
           else
