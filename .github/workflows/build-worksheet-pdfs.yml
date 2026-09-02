@@ -16,10 +16,15 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: worksheet-pdfs-main
+  cancel-in-progress: true
+
 jobs:
   pdfs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,9 +33,18 @@ jobs:
           cache: npm
       - name: Install dependencies without mutating the lockfile
         run: npm install --no-package-lock --no-audit --no-fund
-      - run: npm run build
+      - name: Production build
+        run: npm run build
       - name: Find Chrome
-        run: echo "CHROME_PATH=$(which google-chrome || which chromium || which chromium-browser)" >> "$GITHUB_ENV"
+        shell: bash
+        run: |
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
+          if [ -z "$CHROME" ]; then
+            echo "Chrome/Chromium was not found on the runner" >&2
+            exit 1
+          fi
+          echo "CHROME_PATH=$CHROME" >> "$GITHUB_ENV"
+          echo "Using Chrome: $CHROME"
       - name: Build color worksheet PDF
         env:
           PDF_OUT: public/booklet-worksheets/zaviyot-worksheets.pdf
@@ -43,6 +57,12 @@ jobs:
           PDF_PATH: /worksheets/print?scope=worksheets&tone=bw
           PDF_PORT: "4877"
         run: node scripts/build-static-print-pdf.mjs
+      - name: Verify both PDFs
+        shell: bash
+        run: |
+          test -s public/booklet-worksheets/zaviyot-worksheets.pdf
+          test -s public/booklet-worksheets/zaviyot-worksheets-bw.pdf
+          ls -lh public/booklet-worksheets/zaviyot-worksheets*.pdf
       - name: Commit generated PDFs
         shell: bash
         run: |
