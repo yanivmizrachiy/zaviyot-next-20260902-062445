@@ -1,10 +1,7 @@
-import Link from "next/link";
-import { ACCESSORIES_INDEX_HREF } from "@/lib/accessoriesItems";
 import styles from "./HomeResourceDock.module.css";
 
 const VIDEO_URL = "/video/zaviyot-race-lamillion.mp4";
 const POSTER_URL = "/video/zaviyot-race-poster.jpg";
-const WORKSHEETS_PDF = "/booklet-worksheets/zaviyot-worksheets.pdf";
 
 export function HomeResourceDock() {
   return (
@@ -24,15 +21,6 @@ export function HomeResourceDock() {
           </a>
         </div>
       </div>
-
-      <nav className={styles.links} aria-label="ניווט למשאבים">
-        <a className={styles.primaryLink} href={WORKSHEETS_PDF} download="חוברת העבודה - זוויות.pdf">
-          הורדת חוברת העבודה
-        </a>
-        <a href="#presentation">מצגת</a>
-        <Link href="/?group=worksheets#worksheets">דפי עבודה</Link>
-        <Link href={ACCESSORIES_INDEX_HREF}>אביזרים נלווים להמחשה</Link>
-      </nav>
     </aside>
   );
 }
