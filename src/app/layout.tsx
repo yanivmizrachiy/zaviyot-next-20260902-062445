@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Rubik, Assistant } from "next/font/google";
-import localFont from "next/font/local";
 import { InPageTransitions } from "@/components/InPageTransitions";
 import { SiteReturnNav } from "@/components/SiteReturnNav";
 import Script from "next/script";
@@ -8,10 +7,6 @@ import "./globals.css";
 import "./home-refinement.css";
 import "./book-realism.css";
 
-// עיצוב בהשראת Oak National Academy: גופן גיאומטרי-מעוגל אחד לכל האתר
-// (Oak משתמשים ב-Lexend בלבד; Lexend לא תומך בעברית, לכן Rubik — קרוב לו
-// באופי — הוא הגופן היחיד כאן. globals.css מכוון גם את --font-assistant
-// לאותו גופן, כך שאין עוד שימוש בגופן שני.
 const rubik = Rubik({
   subsets: ["hebrew", "latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
@@ -19,21 +14,10 @@ const rubik = Rubik({
   display: "swap",
 });
 
-// מערכת עיצוב אחידה: Assistant לגוף הטקסט (זהה ל«מספרים מכוונים»), Rubik לכותרות.
 const assistant = Assistant({
   subsets: ["hebrew", "latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-assistant",
-  display: "swap",
-});
-
-// גופן כתב-יד עברי עגול "Gveret Levin" (AlefAlefAlef, רישיון OFL) — מאורח
-// עצמית (הקובץ ב-src/fonts) כי הגופן אינו ברשימת next/font/google של Next.
-// לשימוש נקודתי בלבד: כותרת-ההשראה מעל סרטון "המירוץ למיליון". לא מחליף את
-// גופן האתר.
-const gveretLevin = localFont({
-  src: "../fonts/GveretLevin-Regular.ttf",
-  variable: "--font-gveret",
   display: "swap",
 });
 
@@ -88,7 +72,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="he" dir="rtl" className={`${rubik.variable} ${assistant.variable} ${gveretLevin.variable}`}>
+    <html lang="he" dir="rtl" className={`${rubik.variable} ${assistant.variable}`}>
       <body className="site-numbers">
         {children}
         <SiteReturnNav />
