@@ -1,35 +1,20 @@
 .stage {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  gap: 10px;
-  align-items: stretch;
-  direction: ltr;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
 }
 
 .reader {
-  grid-column: 2;
+  grid-column: 1;
+  grid-row: 1;
   min-width: 0;
   direction: rtl;
 }
 
 .dock {
   grid-column: 1;
+  grid-row: 2;
   min-width: 0;
   direction: rtl;
-}
-
-@media (max-width: 1180px) {
-  .stage {
-    grid-template-columns: 1fr;
-  }
-
-  .reader {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .dock {
-    grid-column: 1;
-    grid-row: 2;
-  }
 }
