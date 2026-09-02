@@ -208,7 +208,20 @@ export function UnifiedBookReader() {
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 900px)");
-    const applyWidth = () => setIsNarrow(media.matches);
+    const applyWidth = () => {
+      const narrow = media.matches;
+      setIsNarrow(narrow);
+      if (narrow) {
+        setModeState((current) => {
+          if (current !== "spread") return current;
+          localStorage.setItem(MODE_KEY, "single");
+          const params = new URLSearchParams(window.location.search);
+          const currentPage = clampPage(Number(params.get("bookPage")) || Number(localStorage.getItem(PAGE_KEY)) || 1);
+          writeUrl(currentPage, "single", false);
+          return "single";
+        });
+      }
+    };
     applyWidth();
     media.addEventListener("change", applyWidth);
 
@@ -225,21 +238,26 @@ export function UnifiedBookReader() {
     const candidate = requestedMode || storedMode || (media.matches ? "single" : "spread");
     const initialMode: ReaderMode = media.matches && candidate === "spread" ? "single" : candidate;
 
-    try {
-      const storedSelected = JSON.parse(localStorage.getItem(SELECTED_KEY) || "[]") as number[];
-      setSelected(new Set(storedSelected.filter((n) => n >= 1 && n <= WS_TOTAL)));
-      const groups = JSON.parse(localStorage.getItem(OPEN_GROUPS_KEY) || "[]") as string[];
-      if (groups.length) setOpenGroups(new Set(groups));
-    } catch {
-      // Corrupt local state is ignored; canonical content stays untouched.
-    }
+    let active = true;
+    const hydrateReader = () => {
+      if (!active) return;
+      try {
+        const storedSelected = JSON.parse(localStorage.getItem(SELECTED_KEY) || "[]") as number[];
+        setSelected(new Set(storedSelected.filter((n) => n >= 1 && n <= WS_TOTAL)));
+        const groups = JSON.parse(localStorage.getItem(OPEN_GROUPS_KEY) || "[]") as string[];
+        if (groups.length) setOpenGroups(new Set(groups));
+      } catch {
+        // Corrupt local state is ignored; canonical content stays untouched.
+      }
 
-    setPage(initialPage);
-    setModeState(initialMode);
-    localStorage.setItem(PAGE_KEY, String(initialPage));
-    localStorage.setItem(MODE_KEY, initialMode);
-    writeUrl(initialPage, initialMode, false);
-    setReady(true);
+      setPage(initialPage);
+      setModeState(initialMode);
+      localStorage.setItem(PAGE_KEY, String(initialPage));
+      localStorage.setItem(MODE_KEY, initialMode);
+      writeUrl(initialPage, initialMode, false);
+      setReady(true);
+    };
+    queueMicrotask(hydrateReader);
 
     const onPopState = () => {
       suppressHistoryRef.current = true;
@@ -254,17 +272,11 @@ export function UnifiedBookReader() {
     window.addEventListener("popstate", onPopState);
 
     return () => {
+      active = false;
       media.removeEventListener("change", applyWidth);
       window.removeEventListener("popstate", onPopState);
     };
   }, [firstWorksheetPage, writeUrl]);
-
-  useEffect(() => {
-    if (!ready || !isNarrow || mode !== "spread") return;
-    setModeState("single");
-    localStorage.setItem(MODE_KEY, "single");
-    writeUrl(page, "single", false);
-  }, [isNarrow, mode, page, ready, writeUrl]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
