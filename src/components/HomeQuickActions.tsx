@@ -11,16 +11,35 @@ const VIDEO_URL = "/video/zaviyot-race-lamillion.mp4";
 const POSTER_URL = "/video/zaviyot-race-poster.jpg";
 
 type Media = "video" | "presentation" | null;
+type MediaEvent = CustomEvent<{ media?: Exclude<Media, null> }>;
 
 export function HomeQuickActions() {
   const [media, setMedia] = useState<Media>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const requested = params.get("media");
+    if (requested === "video" || requested === "presentation") {
+      setMedia(requested);
+      params.delete("media");
+      const query = params.toString();
+      history.replaceState(history.state, "", `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`);
+    }
+
+    const onOpen = (event: Event) => {
+      const requestedMedia = (event as MediaEvent).detail?.media;
+      if (requestedMedia === "video" || requestedMedia === "presentation") setMedia(requestedMedia);
+    };
+    window.addEventListener("zaviyot:open-media", onOpen);
+    return () => window.removeEventListener("zaviyot:open-media", onOpen);
+  }, []);
+
+  useEffect(() => {
     if (!media) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    closeRef.current?.focus();
+    requestAnimationFrame(() => closeRef.current?.focus());
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setMedia(null);
     };
