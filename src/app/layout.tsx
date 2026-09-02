@@ -90,17 +90,6 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl" className={`${rubik.variable} ${assistant.variable} ${gveretLevin.variable}`}>
       <body className="site-numbers">
-        <Script id="zaviyot-responsive-reader-default" strategy="beforeInteractive">
-          {`(() => {
-            if (location.pathname !== "/") return;
-            const url = new URL(location.href);
-            if (url.searchParams.has("bookMode") || url.searchParams.has("group")) return;
-            if (window.innerWidth > 900) {
-              url.searchParams.set("bookMode", "spread");
-              history.replaceState(history.state, "", url);
-            }
-          })();`}
-        </Script>
         {children}
         <SiteReturnNav />
         <InPageTransitions />
