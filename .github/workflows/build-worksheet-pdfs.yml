@@ -1,0 +1,54 @@
+name: Build worksheet PDFs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "scripts/build-static-print-pdf.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/build-worksheet-pdfs.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  pdfs:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.14.0"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Find Chrome
+        run: echo "CHROME_PATH=$(which google-chrome || which chromium || which chromium-browser)" >> "$GITHUB_ENV"
+      - name: Build color worksheet PDF
+        env:
+          PDF_OUT: public/booklet-worksheets/zaviyot-worksheets.pdf
+          PDF_PATH: /worksheets/print?scope=worksheets&tone=color
+          PDF_PORT: "4876"
+        run: node scripts/build-static-print-pdf.mjs
+      - name: Build black-white worksheet PDF
+        env:
+          PDF_OUT: public/booklet-worksheets/zaviyot-worksheets-bw.pdf
+          PDF_PATH: /worksheets/print?scope=worksheets&tone=bw
+          PDF_PORT: "4877"
+        run: node scripts/build-static-print-pdf.mjs
+      - name: Commit generated PDFs
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/booklet-worksheets/zaviyot-worksheets.pdf public/booklet-worksheets/zaviyot-worksheets-bw.pdf
+          if git diff --cached --quiet; then
+            echo "PDFs unchanged"
+          else
+            git commit -m "chore: refresh worksheet PDFs [skip ci]"
+            git push
+          fi
