@@ -11,23 +11,37 @@ test("repository has one authoritative product truth", () => {
   assert.equal(exists("claude-implementation.log"), false);
 });
 
-test("canonical book data comes from registry", () => {
+test("canonical book data comes only from registry", () => {
   assert.ok(exists("src/components/worksheets/registry.ts"));
-  const manifest = read("scripts/page-manifest.ts");
-  assert.match(manifest, /from ["']\.\.\/src\/components\/worksheets\/registry\.ts["']/);
+  assert.equal(exists("scripts/page-manifest.ts"), false);
   assert.equal(exists("src/components/flipbook"), false);
 });
 
 test("retired duplicate product paths stay deleted", () => {
   [
     "src/components/VideoSection.tsx",
+    "src/components/worksheets/WorksheetPicker.tsx",
+    "src/components/worksheets/WsBookletAllBar.tsx",
+    "src/components/worksheets/WsWorksheetBar.tsx",
     "src/app/booklet-design/page-1/page.tsx",
+    "scripts/page-manifest.ts",
     "scripts/build-booklet-pdf.mjs",
     "public/booklet/booklet-zaviyot.pdf",
     "src/fonts/GveretLevin-Regular.ttf",
     "public/team/ayelet-krispin.png",
     "public/video/zaviyot-angles-loop.mp4",
   ].forEach((path) => assert.equal(exists(path), false, `${path} must stay retired`));
+});
+
+test("legacy worksheet URLs are redirect-only compatibility routes", () => {
+  const booklet = read("src/app/worksheets/booklet/page.tsx");
+  assert.match(booklet, /redirect\(`\/worksheets\/print\?scope=worksheets/);
+  assert.doesNotMatch(booklet, /WsBookletAllBar|worksheetContentNode|WS_PAGES/);
+
+  const single = read("src/app/worksheets/w/[k]/page.tsx");
+  assert.match(single, /WORKSHEETS\[k - 1\]\.slot/);
+  assert.match(single, /redirect\(`\/worksheets\//);
+  assert.doesNotMatch(single, /WsWorksheetBar|worksheetContentNode|WS_PAGES/);
 });
 
 test("one canonical PDF builder remains", () => {
