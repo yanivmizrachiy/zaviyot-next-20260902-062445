@@ -4,7 +4,9 @@ on:
   push:
     branches: [main]
     paths:
-      - "src/**"
+      - "src/components/worksheets/**"
+      - "src/components/book/**"
+      - "src/app/worksheets/**"
       - "scripts/build-static-print-pdf.mjs"
       - "package.json"
       - "package-lock.json"
