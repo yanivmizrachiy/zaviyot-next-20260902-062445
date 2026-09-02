@@ -13,6 +13,8 @@ const out = path.resolve(appDir, outRel);
 const port = Number(process.env.PDF_PORT || 4876);
 const targetUrl = `http://127.0.0.1:${port}${pagePath}`;
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 function commandPath(command) {
   if (process.platform === "win32") return null;
   const result = spawnSync("which", [command], { encoding: "utf8" });
@@ -40,9 +42,35 @@ async function waitFor(url, timeout = 60000) {
       const response = await fetch(url, { signal: AbortSignal.timeout(2500) });
       if (response.ok) return;
     } catch {}
-    await new Promise((resolve) => setTimeout(resolve, 350));
+    await sleep(350);
   }
   throw new Error(`server not ready: ${url}`);
+}
+
+async function stopProcess(child) {
+  if (!child || child.exitCode !== null) return;
+  const exited = new Promise((resolve) => child.once("exit", resolve));
+  child.kill();
+  await Promise.race([exited, sleep(2500)]);
+  if (child.exitCode === null) {
+    try { child.kill("SIGKILL"); } catch {}
+    await Promise.race([exited, sleep(1000)]);
+  }
+}
+
+async function removeProfile(profile) {
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    try {
+      fs.rmSync(profile, { recursive: true, force: true, maxRetries: 2, retryDelay: 150 });
+      return;
+    } catch (error) {
+      if (attempt === 11) {
+        console.warn(`[pdf] cleanup warning: ${error instanceof Error ? error.message : String(error)}`);
+        return;
+      }
+      await sleep(250);
+    }
+  }
 }
 
 function makeCdp(ws) {
@@ -80,6 +108,7 @@ const server = spawn(isWindows ? "npx.cmd" : "npx", ["next", "start", "--hostnam
 });
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), "zaviyot-static-pdf-"));
 let browser;
+let browserSocket;
 try {
   await waitFor(`http://127.0.0.1:${port}/`);
   const html = await (await fetch(targetUrl)).text();
@@ -100,12 +129,12 @@ try {
   const started = Date.now();
   while (!fs.existsSync(portFile)) {
     if (Date.now() - started > 30000) throw new Error("Chrome DevTools port was not created");
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await sleep(150);
   }
   const [debugPort, browserPath] = fs.readFileSync(portFile, "utf8").trim().split("\n");
-  const ws = new WebSocket(`ws://127.0.0.1:${debugPort}${browserPath}`);
-  await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
-  const cdp = makeCdp(ws);
+  browserSocket = new WebSocket(`ws://127.0.0.1:${debugPort}${browserPath}`);
+  await new Promise((resolve, reject) => { browserSocket.onopen = resolve; browserSocket.onerror = reject; });
+  const cdp = makeCdp(browserSocket);
   const { targetId } = await cdp.send("Target.createTarget", { url: "about:blank" });
   const { sessionId } = await cdp.send("Target.attachToTarget", { targetId, flatten: true });
   await cdp.send("Page.enable", {}, sessionId);
@@ -119,7 +148,7 @@ try {
     expression: "Promise.all([document.fonts.ready,...[...document.images].map(i=>i.complete?true:new Promise(r=>{i.onload=i.onerror=r}))])",
     awaitPromise: true,
   }, sessionId);
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  await sleep(500);
 
   const { data } = await cdp.send("Page.printToPDF", {
     printBackground: true,
@@ -129,7 +158,6 @@ try {
   }, sessionId);
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, Buffer.from(data, "base64"));
-  ws.close();
 
   const document = await PDFDocument.load(fs.readFileSync(out));
   let count = document.getPageCount();
@@ -144,8 +172,14 @@ try {
     throw new Error(`PDF is not A4: ${first.width}x${first.height}`);
   }
   console.log(JSON.stringify({ out: outRel, pages: count, bytes: fs.statSync(out).size, source: pagePath }));
+
+  try { await cdp.send("Browser.close"); } catch {}
+  try { browserSocket.close(); } catch {}
+  await stopProcess(browser);
+  browser = undefined;
 } finally {
-  if (browser && !browser.killed) browser.kill();
-  if (!server.killed) server.kill();
-  fs.rmSync(profile, { recursive: true, force: true });
+  try { browserSocket?.close(); } catch {}
+  await stopProcess(browser);
+  await stopProcess(server);
+  await removeProfile(profile);
 }
