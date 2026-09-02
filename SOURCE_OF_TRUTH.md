@@ -95,15 +95,23 @@ The reader must support:
 - whole-A4 fit without cropping
 - responsive resizing without unnecessary reloads
 
-## 6. Startup behavior
-A normal fresh homepage visit always starts on the REAL cover, page 1.
-It must NOT restore the last-read page from localStorage.
+## 6. Startup and real-book opening behavior
+A normal fresh homepage visit ALWAYS starts on the REAL cover, page 1, as ONE single page on every device.
+It must NOT restore the last-read page or last-read mode from localStorage for that fresh visit.
 
-Responsive default mode:
-- width > 900px: `spread` (two-page book opening)
-- width <= 900px: `single`
+The cover is not half of a spread.
+On a sufficiently wide viewport (>900px):
+- the first `הבא` from page 1 opens the booklet naturally to pages 2–3 in `spread` mode;
+- subsequent spreads are 4–5, 6–7, and so on;
+- `הקודם` from the first inside spread closes back to page 1 in `single` mode;
+- explicitly choosing `כפולה` while on the cover also opens pages 2–3.
 
-Explicit `bookPage`, `bookMode`, browser history and explicit `group=worksheets` navigation remain valid.
+On iPhone/Android/narrow viewports (<=900px):
+- the cover starts single;
+- `הבא` continues page-by-page in single mode so pages stay readable and complete;
+- spread is not forced into a viewport where two A4 pages would become impractically small.
+
+Explicit `bookPage`, `bookMode`, browser history and explicit `group=worksheets` navigation remain valid, but page 1 itself must never render as half of a spread.
 
 ## 7. Mobile is first-class
 Phone UI must not be squeezed desktop UI.
@@ -150,6 +158,13 @@ Required laptop/desktop QA:
 - Do NOT keep a second giant standalone presentation embed below the book. The modal is the single homepage destination for the presentation.
 - The top navigation `מצגת` action opens the same presentation modal; on internal routes it returns to the homepage and opens that modal.
 - Jerusalem panorama, aids/accessories, Finale/Arena and footer may remain as secondary content below the book.
+
+### Physical-book feel — visual only
+- The reader may use subtle paper depth, restrained page-edge shadows and a quiet center gutter in spread mode.
+- The visual treatment must remain lightweight and must not change page geometry, canonical content, printing, accessibility or fit-to-page behavior.
+- Do NOT reintroduce the retired fake 3D flipbook.
+- Do NOT use heavy page-turn animation that harms performance or readability.
+- Respect `prefers-reduced-motion`.
 
 ## 9. Return navigation — iron rule
 Every action that moves the user away from the main book experience must leave an obvious route back.
@@ -231,8 +246,10 @@ Maintain real checks for:
 - all canonical page routes
 - TOC links
 - single/spread/scroll
-- fresh homepage starts page 1
-- responsive spread desktop / single mobile
+- fresh homepage starts page 1 in single mode on every viewport
+- first next opens pages 2–3 as a spread on wide screens
+- first spread previous returns to single cover
+- narrow screens remain single after next
 - deep links + popstate
 - search
 - selection
