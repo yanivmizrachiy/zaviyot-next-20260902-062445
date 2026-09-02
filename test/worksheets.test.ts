@@ -104,6 +104,18 @@ test("every image page points to a real unique source asset", () => {
   assert.equal(new Set(imageNumbers).size, imageNumbers.length, "duplicate img numbers in registry");
 });
 
+test("booklet image directory contains no orphaned page assets", () => {
+  const referenced = WS_PAGES
+    .filter((page): page is Extract<(typeof WS_PAGES)[number], { kind: "image" }> => page.kind === "image")
+    .map((page) => `page-${String(page.img).padStart(2, "0")}.webp`)
+    .sort();
+  const actual = fs
+    .readdirSync(path.join(publicDir, "booklet-worksheets"))
+    .filter((name) => /^page-\d{2}\.webp$/.test(name))
+    .sort();
+  assert.deepEqual(actual, referenced, "orphaned or missing booklet page image assets");
+});
+
 test("presentation is a separate homepage resource, not book-page metadata", () => {
   const presentation = path.join(publicDir, "presentation", "geometria-kdam-hesekit.pdf");
   assert.ok(fs.existsSync(presentation), `missing presentation asset: ${presentation}`);
