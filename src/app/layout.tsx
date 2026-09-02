@@ -6,6 +6,7 @@ import { SiteReturnNav } from "@/components/SiteReturnNav";
 import Script from "next/script";
 import "./globals.css";
 import "./home-refinement.css";
+import "./book-realism.css";
 
 // עיצוב בהשראת Oak National Academy: גופן גיאומטרי-מעוגל אחד לכל האתר
 // (Oak משתמשים ב-Lexend בלבד; Lexend לא תומך בעברית, לכן Rubik — קרוב לו
