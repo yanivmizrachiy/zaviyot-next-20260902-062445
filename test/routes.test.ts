@@ -83,9 +83,9 @@ const CASES: { path: string; must: string[]; mustNot?: string[]; name: string }[
   { path: "/worksheets/9", name: "measurement", must: ["מדידה ואומדן של זוויות"] },
   // "מה גודל הזווית בין מחוגי השעון" — עותק חי של דף הקנבה, ברצף אחרי דף השעון
   { path: "/worksheets/21", name: "clock-angles", must: ["מה גודל הזווית בין מחוגי השעון"] },
-  { path: "/worksheets/25", name: "draw-measure", must: ["שרטוט ומדידת זוויות"] },
-  // "מחסן המילים — חלק ב" (page-16) — בתוך רצף דפי העבודה, ישירות אחרי שרטוט ומדידה.
-  { path: "/worksheets/26", name: "image (word-bank B)", must: ["/booklet-worksheets/page-16.webp"], mustNot: ["Matific"] },
+  // מחסן המילים חלק ב הוא עמוד 25; שרטוט ומדידת זוויות בא מיד אחריו בעמוד 26.
+  { path: "/worksheets/25", name: "image (word-bank B)", must: ["/booklet-worksheets/page-16.webp"], mustNot: ["Matific"] },
+  { path: "/worksheets/26", name: "draw-measure", must: ["שרטוט ומדידת זוויות"] },
   { path: "/worksheets/10", name: "applet (Matific)", must: ["Matific"], mustNot: ["מטרות הלמידה"] },
   { path: "/worksheets/11", name: "applet (StoryboardThat)", must: ["StoryboardThat"] },
   // פוסטר "כיצד להשתמש במד זווית" — אחרי היישומונים, מחוץ לרצף דפי העבודה;
@@ -93,9 +93,6 @@ const CASES: { path: string; must: string[]; mustNot?: string[]; name: string }[
   { path: "/worksheets/12", name: "protractor poster", must: ["פוסטר — כיצד להשתמש במד זווית", "poster-mad-zavit.pdf", "הורדת הפוסטר"] },
   // הפוסטר הצבעוני — העמוד האחרון בחוברת, מחוץ לרצף דפי העבודה (דרישת יניב)
   { path: "/worksheets/44", name: "poster (last page)", must: ["/booklet-worksheets/page-14.webp"] },
-  // עמוד "דפי עבודה" + הקורא — המספור רץ לפי סדר החוברת בלבד (דרישת יניב
-  // 17.7.2026): דף עבודה 1 = "זוויות סביבנו" (הראשון ברצף), אחד אחרי השני.
-  { path: "/worksheets", name: "worksheets index", must: ["דפי עבודה", "דף עבודה 1", "/worksheets/w/1", "הורדת כל דפי העבודה", "/worksheets/booklet"] },
   { path: "/worksheets/w/1", name: "worksheet reader #1 (around-us)", must: ["דף עבודה 1 מתוך", "רשמו האם הזווית"] },
   // דף עבודה 9 = "מה גודל הזווית בין מחוגי השעון" (העותק החי החדש, אחרי דף השעון)
   { path: "/worksheets/w/9", name: "worksheet reader #9 (clock angles)", must: ["דף עבודה 9 מתוך", "מה גודל הזווית בין מחוגי השעון"] },
@@ -119,6 +116,20 @@ for (const c of CASES) {
     for (const m of c.mustNot ?? []) assert.ok(!html.includes(m), `${c.path}: must NOT contain "${m}"`);
   });
 }
+
+test("route /worksheets redirects to the worksheet group inside the unified reader", async () => {
+  const res = await fetch(`${BASE}/worksheets`, {
+    redirect: "manual",
+    signal: AbortSignal.timeout(15_000),
+  });
+  assert.ok([307, 308].includes(res.status), `/worksheets should redirect, got ${res.status}`);
+  const location = res.headers.get("location");
+  assert.ok(location, "/worksheets should include a Location header");
+  const target = new URL(location, BASE);
+  assert.equal(target.pathname, "/");
+  assert.equal(target.searchParams.get("group"), "worksheets");
+  assert.equal(target.hash, "#worksheets");
+});
 
 test("print route renders every kind (cover, intro, content, applet)", async () => {
   // המצגת אינה עמוד בחוברת (מקטע עצמאי בעמוד הבית) — לכן אין כאן "פתיחת המצגת".
