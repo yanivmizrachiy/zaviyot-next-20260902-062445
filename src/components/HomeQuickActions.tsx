@@ -61,15 +61,24 @@ export function HomeQuickActions() {
       </nav>
 
       {media ? (
-        <div className={styles.mediaOverlay} role="presentation" onMouseDown={(event) => {
-          if (event.target === event.currentTarget) setMedia(null);
-        }}>
-          <section className={styles.mediaDialog} role="dialog" aria-modal="true" aria-label={media === "video" ? "סרטון" : "מצגת"}>
+        <div
+          className={styles.mediaOverlay}
+          role="presentation"
+          onPointerDown={(event) => {
+            if (event.target === event.currentTarget) setMedia(null);
+          }}
+        >
+          <section
+            className={`${styles.mediaDialog} ${media === "presentation" ? styles.mediaDialogPresentation : styles.mediaDialogVideo}`}
+            role="dialog"
+            aria-modal="true"
+            aria-label={media === "video" ? "סרטון" : "מצגת"}
+          >
             <div className={styles.mediaBar}>
               <strong>{media === "video" ? "סרטון" : "מצגת"}</strong>
               <button ref={closeRef} type="button" onClick={() => setMedia(null)} aria-label="סגירה">סגירה</button>
             </div>
-            <div className={styles.mediaBody}>
+            <div className={`${styles.mediaBody} ${media === "presentation" ? styles.mediaBodyPresentation : styles.mediaBodyVideo}`}>
               {media === "video" ? (
                 <video className={styles.modalVideo} controls autoPlay playsInline preload="metadata" poster={POSTER_URL}>
                   <source src={VIDEO_URL} type="video/mp4" />
