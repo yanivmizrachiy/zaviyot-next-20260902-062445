@@ -6,6 +6,7 @@ import Script from "next/script";
 import "./globals.css";
 import "./home-refinement.css";
 import "./book-realism.css";
+import "./responsive-fixes.css";
 
 const rubik = Rubik({
   subsets: ["hebrew", "latin"],
