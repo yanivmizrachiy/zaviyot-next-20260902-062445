@@ -34,6 +34,7 @@
 .actions a,
 .actions button {
   min-height: 44px;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,6 +51,7 @@
   cursor: pointer;
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.08);
   transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+  overflow-wrap: anywhere;
 }
 
 .actions a:hover,
@@ -179,38 +181,44 @@
 }
 
 @media (max-width: 900px) {
+  .stage {
+    gap: 6px;
+  }
+
   .reader :global(.zreader) {
-    height: calc(100dvh - 154px);
-    min-height: 500px;
+    height: clamp(360px, calc(100dvh - 260px), 620px);
+    min-height: 0;
   }
 
   .actions {
-    display: flex;
-    gap: 6px;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    scroll-snap-type: inline mandatory;
-    scrollbar-width: thin;
-    padding: 6px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+    overflow: visible;
+    padding: 5px;
+    padding-bottom: max(5px, env(safe-area-inset-bottom));
     border-radius: 7px;
   }
 
   .actions a,
   .actions button {
-    flex: 0 0 auto;
-    min-width: 128px;
-    min-height: 44px;
-    scroll-snap-align: start;
-    font-size: 0.75rem;
+    min-width: 0;
+    min-height: 42px;
+    padding: 6px 5px;
+    font-size: 0.73rem;
+    line-height: 1.18;
   }
 
-  .actionAccessories,
+  .actionAccessories {
+    grid-column: span 1;
+  }
+
   .actionDownload {
-    min-width: 168px !important;
+    grid-column: span 2;
   }
 
   .mediaOverlay {
-    padding: 10px;
+    padding: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom));
     align-items: center;
   }
 
@@ -228,23 +236,19 @@
 
 @media (max-width: 430px) {
   .reader :global(.zreader) {
-    height: calc(100dvh - 148px);
-    min-height: 470px;
+    height: clamp(340px, calc(100dvh - 250px), 560px);
+    min-height: 0;
   }
 
   .actions a,
   .actions button {
-    min-width: 118px;
-    min-height: 44px;
-    font-size: 0.72rem;
+    min-width: 0;
+    min-height: 40px;
+    padding: 5px 4px;
+    font-size: 0.69rem;
   }
 
-  .actionAccessories,
-  .actionDownload {
-    min-width: 158px !important;
-  }
-
-  .mediaOverlay { padding: 6px; }
+  .mediaOverlay { padding: max(6px, env(safe-area-inset-top)) 6px max(6px, env(safe-area-inset-bottom)); }
   .mediaDialog { width: 100%; max-height: 92dvh; }
   .mediaBody { padding: 6px; }
   .modalPresentation { height: 70dvh; min-height: 300px; }
