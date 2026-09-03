@@ -1,19 +1,27 @@
 /*
  * Cross-device responsive hardening.
  * Imported last from layout.tsx so these rules are the final authority for
- * viewport chrome (top bar + sticky navigation) without changing print styles.
+ * viewport chrome and interactive viewers without changing print geometry.
  */
 
 html,
 body {
   max-width: 100%;
+  overflow-x: hidden;
   overflow-x: clip;
+}
+
+main,
+section,
+.container {
+  min-width: 0;
 }
 
 img,
 video,
 iframe,
-svg {
+svg,
+canvas {
   max-width: 100%;
 }
 
@@ -26,10 +34,7 @@ svg {
     padding-inline: clamp(10px, 3.2vw, 16px);
   }
 
-  /*
-   * Mobile header: logo and copy occupy separate grid cells.
-   * This structurally prevents the logo from ever covering the title.
-   */
+  /* Mobile header: logo and copy occupy separate grid cells. */
   .topbar__inner {
     --logo-s: clamp(58px, 15vw, 76px);
     display: grid !important;
@@ -111,6 +116,82 @@ svg {
     scroll-snap-align: start;
   }
 
+  /* Generic presentation viewer hardening. The modal and standalone/fullscreen
+     versions share these controls, so no phone-specific layout can crop them. */
+  .pdfframe,
+  .slideshow,
+  .slideshow__stage {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .pdfframe__bar {
+    min-width: 0;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    padding: 6px 8px !important;
+  }
+
+  .pdfframe__title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: clamp(0.72rem, 2.5vw, 0.84rem) !important;
+  }
+
+  .pdfframe__acts {
+    flex: 0 0 auto;
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+  }
+
+  .pdfframe__acts a,
+  .pdfframe__acts button {
+    min-height: 38px;
+    padding: 5px 8px !important;
+    white-space: nowrap;
+    font-size: clamp(0.68rem, 2.3vw, 0.78rem) !important;
+  }
+
+  .slideshow {
+    min-height: 0;
+  }
+
+  .slideshow__stage {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .slideshow__bar {
+    gap: 6px !important;
+    padding: 6px 8px max(6px, env(safe-area-inset-bottom)) !important;
+  }
+
+  .slidebtn {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 40px;
+    padding: 6px 8px !important;
+    white-space: nowrap;
+  }
+
+  .slideshow__count {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: clamp(0.66rem, 2.3vw, 0.76rem) !important;
+  }
+
+  .pdfframe--max {
+    width: 100% !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    padding-top: env(safe-area-inset-top);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+  }
+
   /* Reader controls must remain above iOS/Android safe areas. */
   .zreader__mobile-nav {
     padding-bottom: env(safe-area-inset-bottom);
@@ -145,6 +226,19 @@ svg {
   .accnav__btn {
     padding-inline: 8px !important;
   }
+
+  .pdfframe__bar {
+    padding-inline: 6px !important;
+  }
+
+  .pdfframe__acts a,
+  .pdfframe__acts button {
+    padding-inline: 6px !important;
+  }
+
+  .slideshow__bar {
+    padding-inline: 6px !important;
+  }
 }
 
 @media (orientation: landscape) and (max-height: 520px) and (max-width: 950px) {
@@ -160,6 +254,25 @@ svg {
   .topbar__year,
   .topbar__credit {
     font-size: 0.65rem !important;
+  }
+
+  .pdfframe__bar {
+    padding-block: 3px !important;
+  }
+
+  .pdfframe__acts a,
+  .pdfframe__acts button {
+    min-height: 32px;
+    padding-block: 3px !important;
+  }
+
+  .slideshow__bar {
+    padding-block: 3px max(3px, env(safe-area-inset-bottom)) !important;
+  }
+
+  .slidebtn {
+    min-height: 34px;
+    padding-block: 3px !important;
   }
 }
 
