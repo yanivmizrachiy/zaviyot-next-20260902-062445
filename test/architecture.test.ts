@@ -120,3 +120,29 @@ test("only the approved homepage video assets remain", () => {
     "public/video must contain only the approved race video and poster",
   );
 });
+
+test("cross-device responsive layer stays last and presentation remains phone-safe", () => {
+  const layout = read("src/app/layout.tsx");
+  const responsive = read("src/app/responsive-fixes.css");
+  const homeActions = read("src/components/HomeQuickActions.tsx");
+  const homeStage = read("src/components/HomeBookStage.module.css");
+
+  const globalIndex = layout.indexOf('import "./globals.css"');
+  const refinementIndex = layout.indexOf('import "./home-refinement.css"');
+  const realismIndex = layout.indexOf('import "./book-realism.css"');
+  const responsiveIndex = layout.indexOf('import "./responsive-fixes.css"');
+  assert.ok(globalIndex >= 0 && refinementIndex > globalIndex && realismIndex > refinementIndex && responsiveIndex > realismIndex);
+
+  assert.match(homeActions, /mediaDialogPresentation/);
+  assert.match(homeActions, /onPointerDown/);
+  assert.match(homeStage, /\.mediaDialogPresentation\s*\{[\s\S]*?height:\s*100dvh/);
+  assert.match(homeStage, /\.modalPresentation\s+:global\(\.slideshow__stage\)[\s\S]*?aspect-ratio:\s*auto\s*!important/);
+  assert.match(homeStage, /orientation:\s*landscape/);
+  assert.match(homeStage, /grid-template-columns:\s*repeat\(5,/);
+
+  assert.match(responsive, /\.pdfframe--max\s*\{[\s\S]*?height:\s*100dvh\s*!important/);
+  assert.match(responsive, /safe-area-inset-top/);
+  assert.match(responsive, /safe-area-inset-bottom/);
+  assert.match(responsive, /\.slideshow__stage\s*\{[\s\S]*?overflow:\s*hidden/);
+  assert.match(responsive, /\.slidebtn\s*\{[\s\S]*?min-height:\s*40px/);
+});
