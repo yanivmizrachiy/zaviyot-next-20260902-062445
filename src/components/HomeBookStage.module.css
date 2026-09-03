@@ -85,10 +85,12 @@
   padding: 18px;
   background: rgba(7, 15, 29, 0.72);
   backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 .mediaDialog {
   width: min(900px, 94vw);
+  max-width: 100%;
   max-height: min(82dvh, 760px);
   overflow: hidden;
   display: grid;
@@ -97,6 +99,11 @@
   border: 1px solid #31425f;
   border-radius: 10px;
   box-shadow: 0 28px 80px rgba(4, 12, 27, 0.38);
+}
+
+.mediaDialogPresentation,
+.mediaDialogVideo {
+  min-width: 0;
 }
 
 .mediaBar {
@@ -111,10 +118,12 @@
 }
 
 .mediaBar strong {
+  min-width: 0;
   font-size: .86rem;
 }
 
 .mediaBar button {
+  flex: none;
   min-height: 34px;
   padding: 5px 12px;
   border: 1px solid rgba(255,255,255,.28);
@@ -127,16 +136,27 @@
 }
 
 .mediaBody {
+  min-width: 0;
   min-height: 0;
   display: grid;
   place-items: center;
   padding: 10px;
+  overflow: hidden;
   background: #eef2f7;
+}
+
+.mediaBodyVideo {
+  overflow: auto;
+}
+
+.mediaBodyPresentation {
+  min-height: 0;
 }
 
 .modalVideo {
   display: block;
   width: min(760px, 100%);
+  height: auto;
   max-height: calc(82dvh - 86px);
   aspect-ratio: 16 / 9;
   object-fit: contain;
@@ -145,24 +165,52 @@
 }
 
 .modalPresentation {
+  display: flex;
   width: min(820px, 100%);
   height: min(68dvh, 600px);
-  min-height: 360px;
+  min-width: 0;
+  min-height: 0;
+  max-height: 100%;
 }
 
+/* The embedded PDF viewer must fill the modal by flex layout, not by brittle
+   fixed-height subtraction. This keeps the slide stage valid at every ratio. */
 .modalPresentation :global(.pdfframe) {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100%;
   height: 100%;
+  min-width: 0;
+  min-height: 0;
   max-height: 100%;
   margin: 0;
 }
 
+.modalPresentation :global(.pdfframe__bar) {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
 .modalPresentation :global(.slideshow) {
-  height: calc(100% - 42px);
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  height: auto !important;
 }
 
 .modalPresentation :global(.slideshow__stage) {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
   min-height: 0 !important;
-  height: calc(100% - 46px) !important;
+  height: auto !important;
+  aspect-ratio: auto !important;
+  overflow: hidden;
+}
+
+.modalPresentation :global(.slideshow__bar) {
+  flex: 0 0 auto;
 }
 
 @media (min-width: 901px) and (max-height: 760px) {
@@ -218,19 +266,71 @@
   }
 
   .mediaOverlay {
-    padding: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom));
+    padding: 0;
     align-items: center;
   }
 
-  .mediaDialog {
-    width: min(100%, 720px);
-    max-height: 88dvh;
+  .mediaDialogVideo {
+    width: min(calc(100% - 20px), 720px);
+    max-height: calc(100dvh - max(20px, env(safe-area-inset-top)) - max(20px, env(safe-area-inset-bottom)));
     border-radius: 8px;
   }
 
+  /* Presentation is intentionally viewport-filling on phones/tablets. The
+     slide itself still uses contain sizing, so nothing is cropped. */
+  .mediaDialogPresentation {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .mediaDialogPresentation .mediaBar {
+    min-height: 46px;
+    padding-top: max(7px, env(safe-area-inset-top));
+    padding-inline: max(10px, env(safe-area-inset-left)) max(10px, env(safe-area-inset-right));
+  }
+
+  .mediaBodyPresentation {
+    padding: 0;
+    overflow: hidden;
+  }
+
   .modalPresentation {
-    height: 66dvh;
-    min-height: 320px;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .modalPresentation :global(.pdfframe) {
+    border-inline: 0;
+    border-bottom: 0;
+    border-radius: 0;
+  }
+
+  .modalPresentation :global(.pdfframe__bar) {
+    min-height: 40px;
+    padding: 4px max(8px, env(safe-area-inset-right)) 4px max(8px, env(safe-area-inset-left));
+  }
+
+  .modalPresentation :global(.pdfframe__title) {
+    display: none;
+  }
+
+  .modalPresentation :global(.pdfframe__acts) {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+  }
+
+  .modalPresentation :global(.slideshow__bar) {
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+
+  .mediaBodyVideo {
+    padding: 8px;
   }
 }
 
@@ -248,8 +348,57 @@
     font-size: 0.69rem;
   }
 
-  .mediaOverlay { padding: max(6px, env(safe-area-inset-top)) 6px max(6px, env(safe-area-inset-bottom)); }
-  .mediaDialog { width: 100%; max-height: 92dvh; }
-  .mediaBody { padding: 6px; }
-  .modalPresentation { height: 70dvh; min-height: 300px; }
+  .mediaDialogVideo {
+    width: calc(100% - 12px);
+  }
+
+  .mediaBodyVideo {
+    padding: 6px;
+  }
+}
+
+/* Short landscape phones need a shallower reader and a single-row action rail
+   so the primary controls remain reachable without vertical hunting. */
+@media (orientation: landscape) and (max-height: 520px) and (max-width: 950px) {
+  .reader :global(.zreader) {
+    height: clamp(210px, calc(100dvh - 165px), 340px);
+    min-height: 0;
+  }
+
+  .actions {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .actions a,
+  .actions button {
+    min-height: 38px;
+    padding: 4px;
+    font-size: 0.66rem;
+  }
+
+  .actionAccessories,
+  .actionDownload {
+    grid-column: auto;
+  }
+
+  .mediaDialogPresentation {
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  .mediaDialogPresentation .mediaBar {
+    min-height: 38px;
+    padding-block: max(4px, env(safe-area-inset-top)) 4px;
+  }
+
+  .modalPresentation :global(.pdfframe__bar) {
+    min-height: 34px;
+    padding-block: 2px;
+  }
+
+  .modalPresentation :global(.slideshow__bar) {
+    padding-block: 4px max(4px, env(safe-area-inset-bottom));
+  }
 }
