@@ -134,3 +134,27 @@ test("canonical print route renders the full book when no worksheet scope is req
     assert.ok(html.includes(marker), `print route missing ${marker}`);
   }
 });
+
+const DOWNLOADS = [
+  { route: "/booklet-worksheets/zaviyot-worksheets.pdf", type: "application/pdf" },
+  { route: "/booklet-worksheets/zaviyot-worksheets-bw.pdf", type: "application/pdf" },
+  { route: "/booklet/hoveret-zaviyot.pdf", type: "application/pdf" },
+  { route: "/booklet/hoveret-zaviyot-bw.pdf", type: "application/pdf" },
+  { route: "/presentation/geometria-kdam-hesekit.pdf", type: "application/pdf" },
+  { route: "/video/zaviyot-race-lamillion.mp4", type: "video/mp4" },
+  { route: "/video/zaviyot-race-poster.jpg", type: "image/jpeg" },
+];
+
+for (const item of DOWNLOADS) {
+  test(`canonical download ${item.route} is directly reachable`, async () => {
+    const response = await fetch(`${BASE}${item.route}`, {
+      method: "HEAD",
+      signal: AbortSignal.timeout(15_000),
+    });
+    assert.equal(response.status, 200, `${item.route} should return 200`);
+    assert.ok(
+      (response.headers.get("content-type") ?? "").toLowerCase().includes(item.type),
+      `${item.route} should return ${item.type}`,
+    );
+  });
+}

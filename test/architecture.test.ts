@@ -91,6 +91,23 @@ test("one canonical PDF builder remains", () => {
   assert.doesNotMatch(workflow, /build-booklet-pdf/);
 });
 
+test("canonical downloadable artifacts exist and are real files", () => {
+  const artifacts = [
+    "public/booklet-worksheets/zaviyot-worksheets.pdf",
+    "public/booklet-worksheets/zaviyot-worksheets-bw.pdf",
+    "public/booklet/hoveret-zaviyot.pdf",
+    "public/booklet/hoveret-zaviyot-bw.pdf",
+    "public/presentation/geometria-kdam-hesekit.pdf",
+    "public/video/zaviyot-race-lamillion.mp4",
+    "public/video/zaviyot-race-poster.jpg",
+  ];
+
+  for (const path of artifacts) {
+    assert.ok(exists(path), `missing canonical artifact: ${path}`);
+    assert.ok(fs.statSync(path).size > 1024, `canonical artifact is unexpectedly empty: ${path}`);
+  }
+});
+
 test("production configuration is locked to the new Zaviyot project", () => {
   const deploy = read("scripts/deploy-production.mjs");
   const sitemap = read("src/app/sitemap.ts");
@@ -121,7 +138,8 @@ test("only the approved homepage video assets remain", () => {
   );
 });
 
-test("cross-device responsive layer stays last and presentation remains phone-safe", () => {
+test("cross-device responsive layer obeys source truth", () => {
+  const truth = read("SOURCE_OF_TRUTH.md");
   const layout = read("src/app/layout.tsx");
   const responsive = read("src/app/responsive-fixes.css");
   const homeActions = read("src/components/HomeQuickActions.tsx");
@@ -133,9 +151,13 @@ test("cross-device responsive layer stays last and presentation remains phone-sa
   const responsiveIndex = layout.indexOf('import "./responsive-fixes.css"');
   assert.ok(globalIndex >= 0 && refinementIndex > globalIndex && realismIndex > refinementIndex && responsiveIndex > realismIndex);
 
+  assert.match(truth, /must not become an oversized full-page media block on desktop or phone/);
   assert.match(homeActions, /mediaDialogPresentation/);
   assert.match(homeActions, /onPointerDown/);
-  assert.match(homeStage, /\.mediaDialogPresentation\s*\{[\s\S]*?height:\s*100dvh/);
+  assert.match(homeActions, /download="זוויות - המירוץ למיליון\.mp4"/);
+  assert.match(homeStage, /\.mediaDialogPresentation\s*\{[^}]*width:\s*min\(/);
+  assert.match(homeStage, /\.mediaDialogPresentation\s*\{[^}]*height:\s*min\(/);
+  assert.doesNotMatch(homeStage, /\.mediaDialogPresentation\s*\{[^}]*height:\s*100dvh/);
   assert.match(homeStage, /\.modalPresentation\s+:global\(\.slideshow__stage\)[\s\S]*?aspect-ratio:\s*auto\s*!important/);
   assert.match(homeStage, /orientation:\s*landscape/);
   assert.match(homeStage, /grid-template-columns:\s*repeat\(5,/);

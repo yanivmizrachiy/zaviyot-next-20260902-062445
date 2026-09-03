@@ -122,17 +122,37 @@
   font-size: .86rem;
 }
 
-.mediaBar button {
+.mediaBarActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   flex: none;
+}
+
+.mediaBarActions a,
+.mediaBarActions button {
   min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 5px 12px;
   border: 1px solid rgba(255,255,255,.28);
   border-radius: 6px;
   background: rgba(255,255,255,.08);
   color: #fff;
+  text-decoration: none;
   font: inherit;
   font-weight: 800;
   cursor: pointer;
+}
+
+.mediaBarActions a:hover,
+.mediaBarActions a:focus-visible,
+.mediaBarActions button:hover,
+.mediaBarActions button:focus-visible {
+  background: rgba(255,255,255,.16);
+  outline: 2px solid rgba(255,255,255,.42);
+  outline-offset: 1px;
 }
 
 .mediaBody {
@@ -266,31 +286,28 @@
   }
 
   .mediaOverlay {
-    padding: 0;
+    padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
     align-items: center;
   }
 
   .mediaDialogVideo {
-    width: min(calc(100% - 20px), 720px);
+    width: min(calc(100% - 4px), 720px);
     max-height: calc(100dvh - max(20px, env(safe-area-inset-top)) - max(20px, env(safe-area-inset-bottom)));
     border-radius: 8px;
   }
 
-  /* Presentation is intentionally viewport-filling on phones/tablets. The
-     slide itself still uses contain sizing, so nothing is cropped. */
+  /* Phone/tablet presentation remains a compact modal. Explicit fullscreen is
+     available inside PresentationViewer and is the only path to 100dvh. */
   .mediaDialogPresentation {
-    width: 100%;
-    height: 100dvh;
-    max-height: 100dvh;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
+    width: min(900px, calc(100% - 4px));
+    height: min(86dvh, 720px);
+    max-height: calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    border-radius: 8px;
   }
 
   .mediaDialogPresentation .mediaBar {
-    min-height: 46px;
-    padding-top: max(7px, env(safe-area-inset-top));
-    padding-inline: max(10px, env(safe-area-inset-left)) max(10px, env(safe-area-inset-right));
+    min-height: 44px;
+    padding-inline: 9px;
   }
 
   .mediaBodyPresentation {
@@ -312,7 +329,7 @@
 
   .modalPresentation :global(.pdfframe__bar) {
     min-height: 40px;
-    padding: 4px max(8px, env(safe-area-inset-right)) 4px max(8px, env(safe-area-inset-left));
+    padding: 4px 8px;
   }
 
   .modalPresentation :global(.pdfframe__title) {
@@ -349,7 +366,18 @@
   }
 
   .mediaDialogVideo {
-    width: calc(100% - 12px);
+    width: calc(100% - 2px);
+  }
+
+  .mediaDialogPresentation {
+    width: calc(100% - 2px);
+    height: min(84dvh, 680px);
+  }
+
+  .mediaBarActions a,
+  .mediaBarActions button {
+    min-height: 36px;
+    padding-inline: 9px;
   }
 
   .mediaBodyVideo {
@@ -357,8 +385,8 @@
   }
 }
 
-/* Short landscape phones need a shallower reader and a single-row action rail
-   so the primary controls remain reachable without vertical hunting. */
+/* Short landscape phones keep the modal inset and compact; fullscreen remains
+   an explicit user action in the presentation viewer. */
 @media (orientation: landscape) and (max-height: 520px) and (max-width: 950px) {
   .reader :global(.zreader) {
     height: clamp(210px, calc(100dvh - 165px), 340px);
@@ -384,13 +412,14 @@
   }
 
   .mediaDialogPresentation {
-    height: 100dvh;
-    max-height: 100dvh;
+    width: calc(100% - 8px);
+    height: min(90dvh, 460px);
+    max-height: calc(100dvh - 8px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   }
 
   .mediaDialogPresentation .mediaBar {
     min-height: 38px;
-    padding-block: max(4px, env(safe-area-inset-top)) 4px;
+    padding-block: 4px;
   }
 
   .modalPresentation :global(.pdfframe__bar) {

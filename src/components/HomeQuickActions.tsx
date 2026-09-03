@@ -76,7 +76,12 @@ export function HomeQuickActions() {
           >
             <div className={styles.mediaBar}>
               <strong>{media === "video" ? "סרטון" : "מצגת"}</strong>
-              <button ref={closeRef} type="button" onClick={() => setMedia(null)} aria-label="סגירה">סגירה</button>
+              <div className={styles.mediaBarActions}>
+                {media === "video" ? (
+                  <a href={VIDEO_URL} download="זוויות - המירוץ למיליון.mp4">הורדה</a>
+                ) : null}
+                <button ref={closeRef} type="button" onClick={() => setMedia(null)} aria-label="סגירה">סגירה</button>
+              </div>
             </div>
             <div className={`${styles.mediaBody} ${media === "presentation" ? styles.mediaBodyPresentation : styles.mediaBodyVideo}`}>
               {media === "video" ? (
