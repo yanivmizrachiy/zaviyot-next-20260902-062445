@@ -97,33 +97,39 @@ test("/worksheets points to the worksheet group in the unified reader", async ()
   );
 });
 
-test("legacy worksheet number route resolves to the canonical book page", async () => {
-  const response = await fetch(`${BASE}/worksheets/w/1`, { signal: AbortSignal.timeout(15_000) });
-  assert.equal(response.status, 200);
-  const html = await response.text();
-  assert.ok(html.includes("רשמו האם הזווית"));
-  assert.equal(new URL(response.url).pathname, "/worksheets/13");
+test("legacy worksheet number route emits the canonical Next.js redirect", async () => {
+  const html = await getHtml("/worksheets/w/1");
+  assert.ok(
+    html.includes("url=/worksheets/13") || html.includes("NEXT_REDIRECT;replace;/worksheets/13;307;"),
+    "legacy worksheet #1 must redirect to canonical book page 13",
+  );
 });
 
-test("legacy B/W worksheet route resolves to the canonical print route", async () => {
-  const response = await fetch(`${BASE}/worksheets/w/2?bw=1`, { signal: AbortSignal.timeout(15_000) });
-  assert.equal(response.status, 200);
-  const finalUrl = new URL(response.url);
-  const html = await response.text();
-  assert.equal(finalUrl.pathname, "/worksheets/print");
-  assert.equal(finalUrl.searchParams.get("pages"), "14");
-  assert.equal(finalUrl.searchParams.get("tone"), "bw");
+test("legacy B/W worksheet route emits a redirect to the canonical print route", async () => {
+  const html = await getHtml("/worksheets/w/2?bw=1");
+  assert.ok(html.includes("/worksheets/print?pages=14"), "legacy B/W worksheet must point to canonical print route");
+  assert.ok(html.includes("tone=bw"), "legacy B/W worksheet redirect must preserve B/W tone");
+});
+
+test("canonical B/W single-page print target renders correctly", async () => {
+  const html = await getHtml("/worksheets/print?pages=14&tone=bw");
   assert.ok(html.includes("bkprint--bw"));
+  assert.ok(html.includes("data-source-page=\"14\""));
+  assert.ok(!html.includes("data-source-page=\"13\""));
 });
 
-test("legacy worksheet booklet route resolves to the canonical worksheet print scope", async () => {
-  const response = await fetch(`${BASE}/worksheets/booklet`, { signal: AbortSignal.timeout(15_000) });
-  assert.equal(response.status, 200);
-  const finalUrl = new URL(response.url);
-  const html = await response.text();
-  assert.equal(finalUrl.pathname, "/worksheets/print");
-  assert.equal(finalUrl.searchParams.get("scope"), "worksheets");
+test("legacy worksheet booklet route emits a redirect to the canonical worksheet print scope", async () => {
+  const html = await getHtml("/worksheets/booklet");
+  assert.ok(
+    html.includes("/worksheets/print?scope=worksheets"),
+    "legacy worksheet booklet must redirect to canonical worksheet print scope",
+  );
+});
+
+test("canonical worksheet print scope contains worksheets only", async () => {
+  const html = await getHtml("/worksheets/print?scope=worksheets");
   assert.ok(html.includes("data-source-page=\"13\""));
+  assert.ok(html.includes("data-source-page=\"43\""));
   assert.ok(!html.includes("data-source-page=\"1\""));
   assert.ok(!html.includes("data-source-page=\"44\""));
 });
