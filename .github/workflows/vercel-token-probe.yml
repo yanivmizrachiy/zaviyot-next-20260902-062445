@@ -1,0 +1,25 @@
+name: Vercel token probe
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/vercel-token-probe.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - name: Verify Vercel token is available without exposing it
+        shell: bash
+        run: |
+          if [ -z "${VERCEL_TOKEN:-}" ]; then
+            echo "::error::VERCEL_TOKEN is unavailable to this repository"
+            exit 1
+          fi
+          echo "VERCEL_TOKEN is available"
