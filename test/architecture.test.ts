@@ -5,11 +5,13 @@ import test from "node:test";
 const exists = (path: string) => fs.existsSync(path);
 const read = (path: string) => fs.readFileSync(path, "utf8");
 
-const NEW_PRODUCTION_URL = "https://zaviyot-next-20260902-062445.vercel.app";
-const NEW_PROJECT_ID = "prj_nNLdB3ec30mUsyYVse6cUT7Ib7Hm";
-const NEW_PROJECT_NAME = "zaviyot-next-20260902-062445";
-const OLD_PRODUCTION_URL = "https://zaviyot.vercel.app";
-const OLD_PROJECT_ID = "prj_vBueQ0MqpZWsK5dZt8hOBleIqnYi";
+const CANONICAL_PRODUCTION_URL = "https://zaviyot.vercel.app";
+const CANONICAL_PROJECT_ID = "prj_vBueQ0MqpZWsK5dZt8hOBleIqnYi";
+const CANONICAL_PROJECT_NAME = "zaviyot";
+const FORBIDDEN_NEXT_URL = "https://zaviyot-next-20260902-062445.vercel.app";
+const FORBIDDEN_NEXT_PROJECT_ID = "prj_nNLdB3ec30mUsyYVse6cUT7Ib7Hm";
+
+const escaped = (value: string) => new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
 
 test("repository has one authoritative product truth", () => {
   assert.ok(exists("SOURCE_OF_TRUTH.md"));
@@ -108,23 +110,23 @@ test("canonical downloadable artifacts exist and are real files", () => {
   }
 });
 
-test("production configuration is locked to the new Zaviyot project", () => {
+test("production configuration is locked to the teacher-facing Zaviyot project", () => {
   const deploy = read("scripts/deploy-production.mjs");
   const sitemap = read("src/app/sitemap.ts");
   const robots = read("src/app/robots.ts");
   const layout = read("src/app/layout.tsx");
 
-  assert.match(deploy, new RegExp(NEW_PROJECT_ID));
-  assert.match(deploy, new RegExp(NEW_PROJECT_NAME));
-  assert.match(deploy, new RegExp(NEW_PRODUCTION_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
-  assert.match(sitemap, new RegExp(NEW_PRODUCTION_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
-  assert.match(robots, new RegExp(NEW_PRODUCTION_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
-  assert.match(layout, new RegExp(NEW_PRODUCTION_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.match(deploy, escaped(CANONICAL_PROJECT_ID));
+  assert.match(deploy, escaped(CANONICAL_PROJECT_NAME));
+  assert.match(deploy, escaped(CANONICAL_PRODUCTION_URL));
 
-  for (const file of [deploy, sitemap, robots, layout]) {
-    assert.equal(file.includes(OLD_PRODUCTION_URL), false, "old Zaviyot production URL must not be active configuration");
-    assert.equal(file.includes(OLD_PROJECT_ID), false, "old Zaviyot project ID must not be active configuration");
+  for (const file of [sitemap, robots, layout]) {
+    assert.match(file, escaped(CANONICAL_PRODUCTION_URL));
+    assert.equal(file.includes(FORBIDDEN_NEXT_URL), false, "temporary NEXT URL must not be active public configuration");
   }
+
+  assert.match(deploy, escaped(FORBIDDEN_NEXT_PROJECT_ID));
+  assert.equal(deploy.includes(FORBIDDEN_NEXT_URL), false, "temporary NEXT URL must not be the deployment production URL");
 });
 
 test("only the approved homepage video assets remain", () => {
