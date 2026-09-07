@@ -10,6 +10,11 @@ const EXPECTED_PROJECT_NAME = "zaviyot";
 const EXPECTED_SCOPE = "yanivs-projects-322b2b37";
 const PRODUCTION_URL = "https://zaviyot.vercel.app";
 const FORBIDDEN_PROJECT_ID = "prj_nNLdB3ec30mUsyYVse6cUT7Ib7Hm";
+const NEW_SITE_MARKER = "HomeBookStage";
+const LEGACY_ASSETS_MUST_BE_ABSENT = [
+  "/video/zaviyot-angles-loop.mp4",
+  "/video/zaviyot-angles-poster.jpg",
+];
 const LOG_PREFIX = "[deploy:zaviyot]";
 
 function fail(message) {
@@ -45,7 +50,7 @@ function getVerifyPath() {
 
 function getVerifyText() {
   const cliArg = process.argv.slice(2).find((arg) => arg.startsWith("--verify-text="));
-  return cliArg?.slice("--verify-text=".length) || process.env.ZAVIYOT_VERIFY_TEXT || "";
+  return cliArg?.slice("--verify-text=".length) || process.env.ZAVIYOT_VERIFY_TEXT || NEW_SITE_MARKER;
 }
 
 function assertCanonicalGitState() {
@@ -141,6 +146,19 @@ async function verifyAsset(path) {
   console.log(`${LOG_PREFIX} asset verified: ${response.status} ${path}`);
 }
 
+async function verifyAbsentAsset(path) {
+  const url = new URL(path, PRODUCTION_URL).toString();
+  const response = await fetch(url, {
+    method: "HEAD",
+    redirect: "manual",
+    headers: { "cache-control": "no-cache" },
+  });
+  if (response.status !== 404) {
+    fail(`נכס legacy עדיין קיים לאחר cutover: HTTP ${response.status} ${url}`);
+  }
+  console.log(`${LOG_PREFIX} legacy asset absent as required: 404 ${path}`);
+}
+
 const cwd = process.cwd();
 const pkgPath = resolve(cwd, "package.json");
 if (!existsSync(pkgPath)) fail("package.json לא נמצא. יש להריץ מתוך שורש הריפו הקנוני של זוויות.");
@@ -160,17 +178,18 @@ const verifyPath = getVerifyPath();
 const verifyText = getVerifyText();
 console.log(`${LOG_PREFIX} canonical URL: ${PRODUCTION_URL}`);
 console.log(`${LOG_PREFIX} verify path: ${verifyPath}`);
+console.log(`${LOG_PREFIX} required new-site marker: ${verifyText}`);
 
-console.log(`${LOG_PREFIX} 1/4 בדיקות מלאות...`);
+console.log(`${LOG_PREFIX} 1/5 בדיקות מלאות...`);
 run("npm", ["run", "check"]);
 
-console.log(`${LOG_PREFIX} 2/4 פריסת Production לפרויקט הקיים בלבד...`);
+console.log(`${LOG_PREFIX} 2/5 פריסת Production לפרויקט הקיים בלבד...`);
 run("npx", ["vercel", "--prod", "--yes"]);
 
-console.log(`${LOG_PREFIX} 3/4 אימות האתר החי...`);
+console.log(`${LOG_PREFIX} 3/5 אימות שהמנוע החדש חי...`);
 await verifyUrl(verifyPath, verifyText);
 
-console.log(`${LOG_PREFIX} 4/4 אימות נכסים קנוניים...`);
+console.log(`${LOG_PREFIX} 4/5 אימות נכסים קנוניים...`);
 for (const asset of [
   "/booklet-worksheets/zaviyot-worksheets.pdf",
   "/booklet-worksheets/zaviyot-worksheets-bw.pdf",
@@ -181,6 +200,11 @@ for (const asset of [
   "/presentation/geometria-kdam-hesekit.pdf",
 ]) {
   await verifyAsset(asset);
+}
+
+console.log(`${LOG_PREFIX} 5/5 אימות שנכסי האתר הישן נעלמו...`);
+for (const asset of LEGACY_ASSETS_MUST_BE_ABSENT) {
+  await verifyAbsentAsset(asset);
 }
 
 console.log(`${LOG_PREFIX} PRODUCTION VERIFIED: ${new URL(verifyPath, PRODUCTION_URL)}`);

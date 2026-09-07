@@ -24,6 +24,16 @@ test("temporary NEXT project is explicitly forbidden as a production target", ()
   assert.doesNotMatch(deployScript, new RegExp(`PRODUCTION_URL = "${STAGING_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
 });
 
+test("production verification positively identifies the new app and rejects legacy assets", () => {
+  assert.match(deployScript, /NEW_SITE_MARKER = "HomeBookStage"/);
+  assert.match(deployScript, /verifyUrl\(verifyPath, verifyText\)/);
+  assert.match(deployScript, /LEGACY_ASSETS_MUST_BE_ABSENT/);
+  assert.match(deployScript, /\/video\/zaviyot-angles-loop\.mp4/);
+  assert.match(deployScript, /\/video\/zaviyot-angles-poster\.jpg/);
+  assert.match(deployScript, /verifyAbsentAsset/);
+  assert.match(deployScript, /response\.status !== 404/);
+});
+
 test("source of truth keeps the teacher-facing URL unchanged", () => {
   assert.match(truth, new RegExp(CANONICAL_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   assert.match(truth, new RegExp(CANONICAL_PROJECT));
