@@ -1,0 +1,42 @@
+.reader {
+  min-width: 0;
+}
+
+@media (min-width: 901px) {
+  .reader :global(.zreader) {
+    height: calc(100dvh - 72px) !important;
+    min-height: 650px;
+  }
+
+  .reader :global(.zreader__header) {
+    min-height: 44px !important;
+    padding-block: 3px !important;
+  }
+
+  .reader :global(.zreader__search-wrap input) {
+    height: 35px !important;
+  }
+
+  .reader :global(.zreader__bar) {
+    display: none !important;
+  }
+
+  .reader :global(.zreader__viewport--single),
+  .reader :global(.zreader__viewport--spread) {
+    padding: 0 !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .reader :global(.zreader) {
+    height: calc(100dvh - 92px) !important;
+    min-height: 560px;
+  }
+}
+
+@media (max-width: 520px) {
+  .reader :global(.zreader) {
+    height: calc(100dvh - 88px) !important;
+    min-height: 535px;
+  }
+}
