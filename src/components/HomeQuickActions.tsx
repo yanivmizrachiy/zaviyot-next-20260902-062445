@@ -69,26 +69,44 @@ export function HomeQuickActions() {
           }}
         >
           <section
-            className={`${styles.mediaDialog} ${media === "presentation" ? styles.mediaDialogPresentation : styles.mediaDialogVideo}`}
+            className={`${styles.mediaDialog} ${media === "presentation" ? styles.mediaDialogPresentation : styles.mediaDialogVideo} ${media === "video" ? "section--video" : ""}`}
             role="dialog"
             aria-modal="true"
-            aria-label={media === "video" ? "סרטון" : "מצגת"}
+            aria-label={media === "video" ? "סרטון המירוץ למיליון" : "מצגת"}
           >
             <div className={styles.mediaBar}>
-              <strong>{media === "video" ? "סרטון" : "מצגת"}</strong>
+              <strong className={media === "video" ? "pdfframe__title vtag__credit" : undefined}>
+                {media === "video" ? "קטע מתוך התוכנית „המירוץ למיליון”, קשת 12" : "מצגת"}
+              </strong>
               <div className={styles.mediaBarActions}>
                 {media === "video" ? (
-                  <a href={VIDEO_URL} download="זוויות - המירוץ למיליון.mp4">הורדה</a>
+                  <a href={VIDEO_URL} download="זוויות - המירוץ למיליון.mp4">הורדת הסרטון</a>
                 ) : null}
                 <button ref={closeRef} type="button" onClick={() => setMedia(null)} aria-label="סגירה">סגירה</button>
               </div>
             </div>
             <div className={`${styles.mediaBody} ${media === "presentation" ? styles.mediaBodyPresentation : styles.mediaBodyVideo}`}>
               {media === "video" ? (
-                <video className={styles.modalVideo} controls autoPlay playsInline preload="metadata" poster={POSTER_URL}>
-                  <source src={VIDEO_URL} type="video/mp4" />
-                  <a href={VIDEO_URL} download="זוויות - המירוץ למיליון.mp4">הורדת הסרטון</a>
-                </video>
+                <div className={styles.videoExperience}>
+                  <p className="vtag" id="video-tagline">
+                    <span className="vtag__line">הדרך למיליון לא תמיד ישרה —</span>
+                    <span className="vtag__line">
+                      לפעמים היא עוברת בזווית של{" "}
+                      <span className="vtag__deg">
+                        <svg className="vtag__deg-bg" viewBox="0 0 96 64" fill="none" aria-hidden="true">
+                          <path d="M12 52 H88" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+                          <path d="M12 52 56 8" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+                          <path d="M40 52 A28 28 0 0 0 31.8 32.2" stroke="var(--gold)" strokeWidth="4.5" strokeLinecap="round" />
+                        </svg>
+                        <span className="vtag__hi" dir="ltr">45°</span>
+                      </span>
+                    </span>
+                  </p>
+                  <video className={styles.modalVideo} controls autoPlay playsInline preload="metadata" poster={POSTER_URL} aria-labelledby="video-tagline">
+                    <source src={VIDEO_URL} type="video/mp4" />
+                    <a href={VIDEO_URL} download="זוויות - המירוץ למיליון.mp4">הורדת הסרטון</a>
+                  </video>
+                </div>
               ) : (
                 <div className={styles.modalPresentation}>
                   <PresentationViewer embed />
