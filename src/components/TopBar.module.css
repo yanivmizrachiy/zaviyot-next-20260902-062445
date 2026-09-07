@@ -1,17 +1,17 @@
 .topbar {
-  background: #ffffff;
-  color: #11203c;
-  border-bottom: 1px solid #e2e8f0;
+  background: #11203c;
+  color: #ffffff;
+  border-bottom: 2px solid #c7a454;
 }
 
 .inner {
   width: 100%;
   min-height: 64px;
   margin-inline: auto;
-  padding: 6px 14px 6px 10px;
+  padding: 6px 16px 6px 12px;
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
   direction: rtl;
 }
 
@@ -22,14 +22,22 @@
   flex: 0 0 52px;
 }
 
+@keyframes logoSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .logo {
   width: 52px;
   height: 52px;
   object-fit: cover;
   border-radius: 50%;
   background: #fff;
-  border: 1px solid #cfd8e6;
-  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.08);
+  border: 2px solid #c7a454;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12), 0 3px 10px rgba(0, 0, 0, 0.28);
+  animation: logoSpin 20s linear infinite;
+  transform-origin: 50% 50%;
+  will-change: transform;
 }
 
 .text {
@@ -43,7 +51,7 @@
 }
 
 .title {
-  color: #11203c;
+  color: #ffffff;
   font-family: var(--font-rubik), var(--font-assistant), system-ui, sans-serif;
   font-size: clamp(.92rem, .82rem + .28vw, 1.08rem);
   font-weight: 800;
@@ -53,9 +61,9 @@
 }
 
 .subtitle {
-  color: #58677e;
-  font-size: clamp(.69rem, .64rem + .14vw, .78rem);
-  font-weight: 650;
+  color: #f1d787;
+  font-size: clamp(.7rem, .65rem + .14vw, .8rem);
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -63,6 +71,10 @@
 
 .meta {
   display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo { animation: none; }
 }
 
 @media (max-width: 900px) {
