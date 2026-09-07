@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 // רק מסלולים ציבוריים שמחזירים תוכן קנוני בפועל.
 // מסלולי התאימות/redirect, הקורא וההדפסה אינם sitemap destinations.
-const SITE_URL = "https://zaviyot-next-20260902-062445.vercel.app";
+const SITE_URL = "https://zaviyot.vercel.app";
 
 export const PUBLIC_ROUTES = [
   "/",
