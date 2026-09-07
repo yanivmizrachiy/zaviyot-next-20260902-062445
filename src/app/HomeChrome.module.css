@@ -1,0 +1,122 @@
+.chrome {
+  position: sticky;
+  top: 0;
+  z-index: 950;
+  min-height: 64px;
+  display: grid;
+  grid-template-columns: minmax(500px, 0.9fr) minmax(0, 1.1fr);
+  align-items: stretch;
+  background: #fff;
+  border-bottom: 1px solid #dfe5ee;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+}
+
+.chrome > header {
+  min-width: 0;
+  border-bottom: 0 !important;
+}
+
+.chrome :global(.sitenav) {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  border: 0 !important;
+  background: #fff !important;
+}
+
+.chrome :global(.sitenav__inner) {
+  width: 100%;
+  max-width: none !important;
+  min-height: 64px !important;
+  padding: 6px 14px !important;
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: center;
+  justify-items: center;
+  gap: 8px !important;
+  overflow: visible;
+}
+
+.chrome :global(.sitenav__inner > *) {
+  min-width: 0;
+  justify-self: center;
+}
+
+.chrome :global(.sitenav__home),
+.chrome :global(.sitenav__link),
+.chrome :global(.accnav__btn) {
+  min-height: 38px !important;
+  padding: 6px 10px !important;
+  font-size: .76rem !important;
+  white-space: nowrap;
+  text-align: center;
+  justify-content: center;
+}
+
+.chrome :global(.sitenav__home) {
+  margin-inline-end: 0 !important;
+}
+
+.chrome :global(.accnav) {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+@media (max-width: 1180px) {
+  .chrome {
+    grid-template-columns: minmax(410px, .95fr) minmax(0, 1.05fr);
+  }
+
+  .chrome :global(.sitenav__inner) {
+    gap: 3px !important;
+    padding-inline: 6px !important;
+  }
+
+  .chrome :global(.sitenav__home),
+  .chrome :global(.sitenav__link),
+  .chrome :global(.accnav__btn) {
+    padding-inline: 6px !important;
+    font-size: .7rem !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .chrome {
+    position: sticky;
+    grid-template-columns: 1fr;
+    min-height: 88px;
+  }
+
+  .chrome :global(.sitenav) {
+    border-top: 1px solid #edf1f5 !important;
+  }
+
+  .chrome :global(.sitenav__inner) {
+    min-height: 38px !important;
+    padding: 2px 6px !important;
+    display: flex !important;
+    justify-content: flex-start;
+    gap: 4px !important;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .chrome :global(.sitenav__inner::-webkit-scrollbar) {
+    display: none;
+  }
+
+  .chrome :global(.sitenav__home),
+  .chrome :global(.sitenav__link),
+  .chrome :global(.accnav__btn) {
+    min-height: 34px !important;
+    padding: 4px 8px !important;
+    font-size: .7rem !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .chrome {
+    min-height: 84px;
+  }
+}

@@ -1,30 +1,26 @@
 import Image from "next/image";
+import styles from "./TopBar.module.css";
 
-// כותרת עליונה — מבנה זהה לחלוטין ל«מספרים מכוונים»: הלוגו בעמודת ההתחלה
-// בגודל קבוע וחד (--logo-s), והטקסט ממורכז בדף; עמודות הצד ברשת שומרות
-// מינימום ברוחב הלוגו — חפיפה עם הטקסט בלתי אפשרית. אחידות מלאה בין האתרים.
 export function TopBar() {
   return (
-    <header className="topbar">
-      <div className="container topbar__inner">
-        <span className="topbar__logobox">
+    <header className={styles.topbar}>
+      <div className={styles.inner}>
+        <span className={styles.logoBox}>
           <Image
-            className="topbar__logo"
+            className={styles.logo}
             src="/logo.png"
             alt="יחידת מתמטיקה — מחוז ירושלים והעיר ירושלים"
-            width={220}
-            height={220}
-            sizes="(max-width: 760px) 100px, 124px"
-            quality={90}
+            width={104}
+            height={104}
+            sizes="(max-width: 760px) 44px, 52px"
+            quality={92}
             priority
           />
         </span>
-        <div className="topbar__text">
-          <span className="topbar__lead">
-            הדרכה במחוז ירושלים והעיר ירושלים - מנח״י, בהובלת איילת קריספין
-          </span>
-          <span className="topbar__year">שנה״ל התשפ״ז</span>
-          <span className="topbar__credit">האתר מנוהל ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים</span>
+        <div className={styles.text}>
+          <span className={styles.title}>הדרכה במחוז ירושלים והעיר ירושלים – מנח״י</span>
+          <span className={styles.subtitle}>זוויות לכיתה ז׳</span>
+          <span className={styles.meta}>שנה״ל התשפ״ז · האתר מנוהל ע״י יניב רז, מדריך מחוזי חט״ב בעיר ירושלים</span>
         </div>
       </div>
     </header>

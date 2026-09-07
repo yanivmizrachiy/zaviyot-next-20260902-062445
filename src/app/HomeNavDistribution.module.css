@@ -1,0 +1,19 @@
+.spread :global(.sitenav__inner) {
+  justify-content: space-evenly !important;
+  gap: clamp(8px, 1vw, 18px) !important;
+  padding-inline: clamp(10px, 1.4vw, 22px) !important;
+}
+
+.spread :global(.sitenav__home),
+.spread :global(.sitenav__link),
+.spread :global(.accnav__btn) {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 900px) {
+  .spread :global(.sitenav__inner) {
+    justify-content: flex-start !important;
+    gap: 4px !important;
+    padding-inline: 6px !important;
+  }
+}

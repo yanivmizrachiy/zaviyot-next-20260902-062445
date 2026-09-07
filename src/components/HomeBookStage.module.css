@@ -1,8 +1,11 @@
 .stage {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 132px;
   gap: 8px;
-  align-items: start;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+  direction: ltr;
 }
 
 .reader {
@@ -13,15 +16,17 @@
 }
 
 .reader :global(.zreader) {
-  height: calc(100dvh - 190px);
-  min-height: 540px;
+  height: calc(100dvh - 126px);
+  min-height: 640px;
 }
 
+/* Desktop: actions become a slim vertical rail. The book keeps the height and
+   almost the full width instead of losing a full row underneath it. */
 .actions {
-  grid-column: 1;
-  grid-row: 2;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
   gap: 6px;
   padding: 6px;
   background: #0e1830;
@@ -29,16 +34,18 @@
   border-radius: 8px;
   box-shadow: 0 7px 20px rgba(14, 24, 48, 0.14);
   direction: rtl;
+  min-width: 0;
 }
 
 .actions a,
 .actions button {
-  min-height: 44px;
+  flex: 1 1 0;
+  min-height: 56px;
   min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 7px 10px;
+  padding: 7px 7px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 6px;
   color: #fff;
@@ -46,19 +53,19 @@
   text-align: center;
   font: inherit;
   font-weight: 800;
-  font-size: 0.8rem;
-  line-height: 1.25;
+  font-size: 0.78rem;
+  line-height: 1.16;
   cursor: pointer;
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.08);
   transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
 }
 
 .actions a:hover,
 .actions a:focus-visible,
 .actions button:hover,
 .actions button:focus-visible {
-  transform: translateY(-1px);
+  transform: translateX(-1px);
   filter: brightness(1.05);
   box-shadow: 0 5px 12px rgba(0, 0, 0, 0.16), inset 0 1px rgba(255, 255, 255, 0.1);
   outline: 3px solid rgba(119, 170, 226, 0.34);
@@ -193,8 +200,6 @@
   max-height: 100%;
 }
 
-/* The embedded PDF viewer must fill the modal by flex layout, not by brittle
-   fixed-height subtraction. This keeps the slide stage valid at every ratio. */
 .modalPresentation :global(.pdfframe) {
   display: flex;
   flex: 1 1 auto;
@@ -235,13 +240,14 @@
 
 @media (min-width: 901px) and (max-height: 760px) {
   .reader :global(.zreader) {
-    height: calc(100dvh - 170px);
-    min-height: 500px;
+    height: calc(100dvh - 112px);
+    min-height: 560px;
   }
 
   .actions a,
   .actions button {
-    min-height: 40px;
+    min-height: 48px;
+    font-size: 0.72rem;
   }
 
   .mediaDialog { max-height: 88dvh; }
@@ -250,39 +256,41 @@
 
 @media (max-width: 900px) {
   .stage {
-    gap: 6px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+    direction: rtl;
+  }
+
+  .reader {
+    grid-column: 1;
+    grid-row: 1;
   }
 
   .reader :global(.zreader) {
-    height: clamp(360px, calc(100dvh - 260px), 620px);
-    min-height: 0;
+    height: calc(100dvh - 104px);
+    min-height: 560px;
   }
 
   .actions {
+    grid-column: 1;
+    grid-row: 2;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 5px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
     overflow: visible;
-    padding: 5px;
-    padding-bottom: max(5px, env(safe-area-inset-bottom));
-    border-radius: 7px;
+    padding: 4px;
+    padding-bottom: max(4px, env(safe-area-inset-bottom));
+    border-radius: 6px;
   }
 
   .actions a,
   .actions button {
     min-width: 0;
-    min-height: 42px;
-    padding: 6px 5px;
-    font-size: 0.73rem;
-    line-height: 1.18;
-  }
-
-  .actionAccessories {
-    grid-column: span 1;
-  }
-
-  .actionDownload {
-    grid-column: span 2;
+    min-height: 38px;
+    padding: 5px 4px;
+    font-size: 0.66rem;
+    line-height: 1.12;
   }
 
   .mediaOverlay {
@@ -296,8 +304,6 @@
     border-radius: 8px;
   }
 
-  /* Phone/tablet presentation remains a compact modal. Explicit fullscreen is
-     available inside PresentationViewer and is the only path to 100dvh. */
   .mediaDialogPresentation {
     width: min(900px, calc(100% - 4px));
     height: min(86dvh, 720px);
@@ -353,16 +359,15 @@
 
 @media (max-width: 430px) {
   .reader :global(.zreader) {
-    height: clamp(340px, calc(100dvh - 250px), 560px);
-    min-height: 0;
+    height: calc(100dvh - 100px);
+    min-height: 540px;
   }
 
   .actions a,
   .actions button {
-    min-width: 0;
-    min-height: 40px;
-    padding: 5px 4px;
-    font-size: 0.69rem;
+    min-height: 36px;
+    padding: 4px 3px;
+    font-size: 0.62rem;
   }
 
   .mediaDialogVideo {
@@ -385,30 +390,23 @@
   }
 }
 
-/* Short landscape phones keep the modal inset and compact; fullscreen remains
-   an explicit user action in the presentation viewer. */
 @media (orientation: landscape) and (max-height: 520px) and (max-width: 950px) {
   .reader :global(.zreader) {
-    height: clamp(210px, calc(100dvh - 165px), 340px);
-    min-height: 0;
+    height: calc(100dvh - 74px);
+    min-height: 300px;
   }
 
   .actions {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 4px;
-    padding: 4px;
+    gap: 3px;
+    padding: 3px;
   }
 
   .actions a,
   .actions button {
-    min-height: 38px;
-    padding: 4px;
-    font-size: 0.66rem;
-  }
-
-  .actionAccessories,
-  .actionDownload {
-    grid-column: auto;
+    min-height: 34px;
+    padding: 3px;
+    font-size: 0.58rem;
   }
 
   .mediaDialogPresentation {

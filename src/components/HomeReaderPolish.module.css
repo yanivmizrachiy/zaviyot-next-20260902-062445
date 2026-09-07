@@ -1,0 +1,112 @@
+.reader {
+  min-width: 0;
+}
+
+@media (min-width: 901px) {
+  .reader :global(.zreader__brand) {
+    display: none;
+  }
+
+  .reader :global(.zreader__reader) {
+    position: relative;
+  }
+
+  .reader :global(.zreader__viewport--single),
+  .reader :global(.zreader__viewport--spread) {
+    padding-inline: 76px !important;
+  }
+
+  .reader :global(.zreader__bottom-nav--desktop) {
+    position: absolute;
+    z-index: 45;
+    top: 50%;
+    right: 12.5%;
+    left: 12.5%;
+    height: 70px;
+    min-height: 0;
+    padding: 0;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    border: 0;
+    pointer-events: none;
+  }
+
+  .reader :global(.zreader__bottom-nav--desktop span) {
+    display: none;
+  }
+
+  .reader :global(.zreader__bottom-nav--desktop button) {
+    pointer-events: auto;
+    width: 66px;
+    height: 66px;
+    min-width: 66px;
+    min-height: 66px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.97);
+    color: #11203c;
+    box-shadow: 0 6px 22px rgba(15, 23, 42, 0.18);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    font-size: 0;
+    line-height: 1;
+  }
+
+  .reader :global(.zreader__bottom-nav--desktop button)::before {
+    display: block;
+    font-size: 44px;
+    font-family: Arial, sans-serif;
+    font-weight: 400;
+    line-height: 1;
+    transform: translateY(-2px);
+  }
+
+  .reader :global(.zreader__bottom-nav--desktop button:first-of-type)::before {
+    content: "›";
+  }
+
+  .reader :global(.zreader__bottom-nav--desktop button:last-of-type)::before {
+    content: "‹";
+  }
+
+  .reader :global(.zreader__bottom-nav--desktop button:hover:not(:disabled)),
+  .reader :global(.zreader__bottom-nav--desktop button:focus-visible:not(:disabled)) {
+    background: #11203c;
+    color: #fff;
+    border-color: #11203c;
+    transform: scale(1.05);
+  }
+
+  .reader :global(.zreader__bottom-nav--desktop button:disabled) {
+    visibility: hidden;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  .reader :global(.zreader__viewport--single),
+  .reader :global(.zreader__viewport--spread) {
+    padding-inline: 66px !important;
+  }
+
+  .reader :global(.zreader__bottom-nav--desktop) {
+    right: 9%;
+    left: 9%;
+  }
+
+  .reader :global(.zreader__bottom-nav--desktop button) {
+    width: 58px;
+    height: 58px;
+    min-width: 58px;
+    min-height: 58px;
+  }
+
+  .reader :global(.zreader__bottom-nav--desktop button)::before {
+    font-size: 38px;
+  }
+}
