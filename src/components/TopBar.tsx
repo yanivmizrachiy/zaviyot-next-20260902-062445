@@ -1,8 +1,5 @@
 import Image from "next/image";
 
-// כותרת עליונה — מבנה זהה לחלוטין ל«מספרים מכוונים»: הלוגו בעמודת ההתחלה
-// בגודל קבוע וחד (--logo-s), והטקסט ממורכז בדף; עמודות הצד ברשת שומרות
-// מינימום ברוחב הלוגו — חפיפה עם הטקסט בלתי אפשרית. אחידות מלאה בין האתרים.
 export function TopBar() {
   return (
     <header className="topbar">
@@ -14,17 +11,15 @@ export function TopBar() {
             alt="יחידת מתמטיקה — מחוז ירושלים והעיר ירושלים"
             width={220}
             height={220}
-            sizes="(max-width: 760px) 100px, 124px"
+            sizes="(max-width: 760px) 42px, 52px"
             quality={90}
             priority
           />
         </span>
         <div className="topbar__text">
-          <span className="topbar__lead">
-            הדרכה במחוז ירושלים והעיר ירושלים - מנח״י, בהובלת איילת קריספין
-          </span>
-          <span className="topbar__year">שנה״ל התשפ״ז</span>
-          <span className="topbar__credit">האתר מנוהל ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים</span>
+          <span className="topbar__lead">הוראת זוויות בכיתה ז׳</span>
+          <span className="topbar__subtitle">הדרכה במחוז ירושלים והעיר ירושלים · בהובלת איילת קריספין</span>
+          <span className="topbar__meta">שנה״ל התשפ״ז · האתר מנוהל ע״י יניב רז, מדריך מחוזי חט״ב בעיר ירושלים</span>
         </div>
       </div>
     </header>
