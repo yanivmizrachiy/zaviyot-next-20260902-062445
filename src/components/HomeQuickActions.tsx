@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { ACCESSORIES_INDEX_HREF } from "@/lib/accessoriesItems";
 import { PresentationViewer } from "./PresentationViewer";
 import styles from "./HomeBookStage.module.css";
+import videoStyles from "./VideoExperience.module.css";
 
 const WORKSHEETS_PDF = "/booklet-worksheets/zaviyot-worksheets.pdf";
 const VIDEO_URL = "/video/zaviyot-race-lamillion.mp4";
@@ -69,15 +70,13 @@ export function HomeQuickActions() {
           }}
         >
           <section
-            className={`${styles.mediaDialog} ${media === "presentation" ? styles.mediaDialogPresentation : styles.mediaDialogVideo} ${media === "video" ? "section--video" : ""}`}
+            className={`${styles.mediaDialog} ${media === "presentation" ? styles.mediaDialogPresentation : styles.mediaDialogVideo}`}
             role="dialog"
             aria-modal="true"
             aria-label={media === "video" ? "סרטון המירוץ למיליון" : "מצגת"}
           >
             <div className={styles.mediaBar}>
-              <strong className={media === "video" ? "pdfframe__title vtag__credit" : undefined}>
-                {media === "video" ? "קטע מתוך התוכנית „המירוץ למיליון”, קשת 12" : "מצגת"}
-              </strong>
+              <strong>{media === "video" ? "קטע מתוך התוכנית „המירוץ למיליון”, קשת 12" : "מצגת"}</strong>
               <div className={styles.mediaBarActions}>
                 {media === "video" ? (
                   <a href={VIDEO_URL} download="זוויות - המירוץ למיליון.mp4">הורדת הסרטון</a>
@@ -87,22 +86,22 @@ export function HomeQuickActions() {
             </div>
             <div className={`${styles.mediaBody} ${media === "presentation" ? styles.mediaBodyPresentation : styles.mediaBodyVideo}`}>
               {media === "video" ? (
-                <div className={styles.videoExperience}>
-                  <p className="vtag" id="video-tagline">
-                    <span className="vtag__line">הדרך למיליון לא תמיד ישרה —</span>
-                    <span className="vtag__line">
+                <div className={videoStyles.shell}>
+                  <p className={videoStyles.tagline} id="video-tagline">
+                    <span className={videoStyles.line}>הדרך למיליון לא תמיד ישרה —</span>
+                    <span className={videoStyles.line}>
                       לפעמים היא עוברת בזווית של{" "}
-                      <span className="vtag__deg">
-                        <svg className="vtag__deg-bg" viewBox="0 0 96 64" fill="none" aria-hidden="true">
+                      <span className={videoStyles.deg}>
+                        <svg className={videoStyles.angle} viewBox="0 0 96 64" fill="none" aria-hidden="true">
                           <path d="M12 52 H88" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
                           <path d="M12 52 56 8" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
-                          <path d="M40 52 A28 28 0 0 0 31.8 32.2" stroke="var(--gold)" strokeWidth="4.5" strokeLinecap="round" />
+                          <path d="M40 52 A28 28 0 0 0 31.8 32.2" stroke="#c69b20" strokeWidth="4.5" strokeLinecap="round" />
                         </svg>
-                        <span className="vtag__hi" dir="ltr">45°</span>
+                        <span className={videoStyles.highlight} dir="ltr">45°</span>
                       </span>
                     </span>
                   </p>
-                  <video className={styles.modalVideo} controls autoPlay playsInline preload="metadata" poster={POSTER_URL} aria-labelledby="video-tagline">
+                  <video className={videoStyles.video} controls autoPlay playsInline preload="metadata" poster={POSTER_URL} aria-labelledby="video-tagline">
                     <source src={VIDEO_URL} type="video/mp4" />
                     <a href={VIDEO_URL} download="זוויות - המירוץ למיליון.mp4">הורדת הסרטון</a>
                   </video>
