@@ -1,0 +1,98 @@
+.topbar {
+  background: #ffffff;
+  color: #11203c;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.inner {
+  width: 100%;
+  max-width: 1500px;
+  min-height: 56px;
+  margin-inline: auto;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  direction: rtl;
+}
+
+.logoBox {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+}
+
+.logo {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #d7dee8;
+}
+
+.text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  text-align: right;
+  line-height: 1.2;
+}
+
+.title {
+  color: #11203c;
+  font-family: var(--font-rubik), var(--font-assistant), system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subtitle {
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .inner {
+    min-height: 48px;
+    padding: 4px 8px;
+    gap: 8px;
+  }
+
+  .logoBox,
+  .logo {
+    width: 38px;
+    height: 38px;
+  }
+
+  .logoBox {
+    flex-basis: 38px;
+  }
+
+  .title {
+    font-size: 0.9rem;
+  }
+
+  .subtitle {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 430px) {
+  .subtitle {
+    max-width: 72vw;
+  }
+}
