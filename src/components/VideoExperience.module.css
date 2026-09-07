@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "GveretLevinOriginal";
+  src: url("https://raw.githubusercontent.com/yanivmizrachiy/misparim/2cd9b94a4828ee81ab20ff8590c4f1e520db68de/zaviyot/src/fonts/GveretLevin-Regular.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
 .shell {
   width: min(820px, 100%);
   display: grid;
@@ -11,10 +19,10 @@
   padding: 2px 10px 0;
   text-align: center;
   color: #11203c;
-  font-family: cursive, var(--font-rubik), var(--font-assistant), sans-serif;
-  font-size: clamp(1.45rem, 1.05rem + 1.35vw, 2.45rem);
-  font-weight: 700;
-  line-height: 1.12;
+  font-family: "GveretLevinOriginal", var(--font-rubik), var(--font-assistant), cursive, sans-serif;
+  font-size: clamp(1.65rem, 1.1rem + 1.55vw, 2.7rem);
+  font-weight: 400;
+  line-height: 1.08;
 }
 
 .line {
@@ -29,8 +37,8 @@
   position: relative;
   display: inline-grid;
   place-items: center;
-  min-width: 92px;
-  min-height: 54px;
+  min-width: 96px;
+  min-height: 58px;
   margin-inline-start: 3px;
   vertical-align: middle;
   color: #11203c;
@@ -39,8 +47,8 @@
 .angle {
   position: absolute;
   inset: 50% auto auto 50%;
-  width: 86px;
-  height: 58px;
+  width: 90px;
+  height: 60px;
   transform: translate(-50%, -50%) rotate(-3deg);
   color: rgba(17, 32, 60, 0.2);
   pointer-events: none;
@@ -72,16 +80,16 @@
 @media (max-width: 760px) {
   .shell { gap: 8px; }
   .tagline {
-    font-size: clamp(1.08rem, .9rem + 1.4vw, 1.55rem);
+    font-size: clamp(1.22rem, .95rem + 1.6vw, 1.7rem);
     padding-inline: 4px;
   }
   .deg {
-    min-width: 70px;
-    min-height: 42px;
+    min-width: 72px;
+    min-height: 44px;
   }
   .angle {
-    width: 68px;
-    height: 46px;
+    width: 70px;
+    height: 48px;
   }
   .video {
     max-height: min(54dvh, 440px);
