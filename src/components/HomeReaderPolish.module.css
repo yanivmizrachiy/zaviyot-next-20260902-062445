@@ -1,0 +1,74 @@
+.reader {
+  min-width: 0;
+}
+
+@media (min-width: 901px) {
+  /* The site header already carries the book identity. Do not repeat it inside
+     the reader toolbar; keep search/mode controls and give them the width. */
+  .reader :global(.zreader__brand) {
+    display: none;
+  }
+
+  .reader :global(.zreader__reader) {
+    position: relative;
+  }
+
+  .reader :global(.zreader__bar) {
+    min-height: 38px;
+    padding-block: 4px;
+  }
+
+  .reader :global(.zreader__viewport--single),
+  .reader :global(.zreader__viewport--spread) {
+    padding: 2px;
+  }
+
+  /* Reuse the existing previous/next controls as conventional side controls.
+     Removing them from document flow gives the page back the whole bottom row. */
+  .reader :global(.zreader__bottom-nav--desktop) {
+    position: absolute;
+    z-index: 45;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: 46px;
+    min-height: 0;
+    padding: 0 7px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    border: 0;
+    pointer-events: none;
+  }
+
+  .reader :global(.zreader__bottom-nav--desktop span) {
+    display: none;
+  }
+
+  .reader :global(.zreader__bottom-nav--desktop button) {
+    pointer-events: auto;
+    min-width: 62px;
+    min-height: 42px;
+    padding: 6px 9px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.94);
+    color: #11203c;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.14);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+  }
+
+  .reader :global(.zreader__bottom-nav--desktop button:hover:not(:disabled)),
+  .reader :global(.zreader__bottom-nav--desktop button:focus-visible:not(:disabled)) {
+    background: #11203c;
+    color: #fff;
+    border-color: #11203c;
+  }
+
+  .reader :global(.zreader__bottom-nav--desktop button:disabled) {
+    visibility: hidden;
+  }
+}
