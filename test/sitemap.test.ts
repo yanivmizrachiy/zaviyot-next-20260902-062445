@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import sitemap, { PUBLIC_ROUTES } from "../src/app/sitemap.ts";
 
-const PRODUCTION_HOST = "zaviyot-next-20260902-062445.vercel.app";
+const PRODUCTION_HOST = "zaviyot.vercel.app";
 
 // ה-sitemap חייב לכלול את כל המסלולים הציבוריים הידועים — ורק אותם.
 // מסלולי קורא/הדפסה מסומנים noindex ולכן אסור שיופיעו.
@@ -14,7 +14,7 @@ test("sitemap contains every known public route", () => {
   assert.equal(urls.length, PUBLIC_ROUTES.length, "sitemap has unexpected extra routes");
 });
 
-test("sitemap uses only the new production hostname", () => {
+test("sitemap uses only the canonical production hostname", () => {
   for (const entry of sitemap()) {
     const url = new URL(entry.url);
     assert.equal(url.protocol, "https:");
