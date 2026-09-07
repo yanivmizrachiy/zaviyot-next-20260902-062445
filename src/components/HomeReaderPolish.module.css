@@ -20,8 +20,8 @@
     position: absolute;
     z-index: 45;
     top: 50%;
-    right: 6%;
-    left: 6%;
+    right: 12.5%;
+    left: 12.5%;
     height: 70px;
     min-height: 0;
     padding: 0;
@@ -95,8 +95,8 @@
   }
 
   .reader :global(.zreader__bottom-nav--desktop) {
-    right: 4%;
-    left: 4%;
+    right: 9%;
+    left: 9%;
   }
 
   .reader :global(.zreader__bottom-nav--desktop button) {
