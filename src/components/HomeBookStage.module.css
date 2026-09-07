@@ -1,6 +1,6 @@
 .stage {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 88px;
+  grid-template-columns: minmax(0, 1fr) 132px;
   gap: 8px;
   align-items: stretch;
   width: 100%;
@@ -45,7 +45,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 7px 5px;
+  padding: 7px 7px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 6px;
   color: #fff;
@@ -53,7 +53,7 @@
   text-align: center;
   font: inherit;
   font-weight: 800;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   line-height: 1.16;
   cursor: pointer;
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.08);
@@ -247,7 +247,7 @@
   .actions a,
   .actions button {
     min-height: 48px;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
   }
 
   .mediaDialog { max-height: 88dvh; }
@@ -272,7 +272,6 @@
     min-height: 560px;
   }
 
-  /* On touch screens the rail becomes a compact strip below the book. */
   .actions {
     grid-column: 1;
     grid-row: 2;
