@@ -22,7 +22,7 @@ const assistant = Assistant({
   display: "swap",
 });
 
-const SITE_URL = "https://zaviyot-next-20260902-062445.vercel.app";
+const SITE_URL = "https://zaviyot.vercel.app";
 const SITE_TITLE = "חוברת הוראת הזוויות לכיתה ז׳";
 const SITE_DESC = "לאור עדכון ת״ל לקראת תשפ״ז";
 
