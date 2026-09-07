@@ -19,7 +19,7 @@ export function TopBar() {
         </span>
         <div className={styles.text}>
           <span className={styles.title}>הדרכה במחוז ירושלים והעיר ירושלים – מנח״י</span>
-          <span className={styles.subtitle}>הוראת זוויות בכיתה ז׳ · בהובלת איילת קריספין</span>
+          <span className={styles.subtitle}>זוויות לכיתה ז׳</span>
           <span className={styles.meta}>שנה״ל התשפ״ז · האתר מנוהל ע״י יניב רז, מדריך מחוזי חט״ב בעיר ירושלים</span>
         </div>
       </div>
