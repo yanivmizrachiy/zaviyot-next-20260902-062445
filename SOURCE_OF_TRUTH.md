@@ -1,4 +1,4 @@
-# SOURCE OF TRUTH — ZAVIYOT NEXT
+# SOURCE OF TRUTH — ZAVIYOT
 
 This file is authoritative and MUST NOT be contradicted.
 
@@ -70,25 +70,39 @@ These URLs may remain so old bookmarks do not break, but they are NOT independen
 
 They must not contain their own reader, toolbar, worksheet registry, print renderer or PDF implementation.
 
-## 1. Absolute safety boundary
-All implementation work happens ONLY in this project:
-- `yanivmizrachiy/zaviyot-next-20260902-062445`
-- Vercel project `prj_nNLdB3ec30mUsyYVse6cUT7Ib7Hm`
-- production `https://zaviyot-next-20260902-062445.vercel.app`
+## 1. Canonical repository, production URL and migration boundary
 
-NEVER write, commit, push, merge, deploy, delete, rename or modify anything in:
-- `yanivmizrachiy/misparim`
-- the original `misparim/zaviyot`
+The ONE canonical source repository is:
+- `yanivmizrachiy/zaviyot-next-20260902-062445`
+
+The ONE canonical teacher-facing production URL is and MUST remain:
+- `https://zaviyot.vercel.app`
+
+The canonical Vercel production project is the existing project that owns that address:
+- project id `prj_vBueQ0MqpZWsK5dZt8hOBleIqnYi`
+
+The temporary/new Vercel project used while building this replacement:
+- `prj_nNLdB3ec30mUsyYVse6cUT7Ib7Hm`
+- `https://zaviyot-next-20260902-062445.vercel.app`
+
+is staging/migration infrastructure only. It must NOT become a second teacher-facing product. After the canonical site has been deployed and verified at `https://zaviyot.vercel.app`, the secondary project/domain should be retired or otherwise clearly cease to be an active production destination.
+
+The legacy source `yanivmizrachiy/misparim/zaviyot` is NOT a second active product and receives no new feature development. Before its active source is removed or retired, perform a strict old-vs-new audit of the entire legacy subtree, including binary assets, PDFs, videos, images, routes, fonts, scripts and tests. Every old-only file must be classified as one of:
+1. intentionally retired by this source of truth;
+2. duplicate/superseded by a canonical new file;
+3. still-required real content that MUST be migrated before cleanup.
+
+Never delete or retire a still-required file merely because the new repository currently lacks it. Git history is the permanent archive after the audit is complete.
+
+Old links already distributed to teachers MUST continue working at the same address. Do not solve migration by sending teachers to a new hostname. Existing deep routes/bookmarks must either remain valid or resolve through compatibility behavior inside the canonical site.
+
+Other repositories remain reference-only for this product unless the user separately and explicitly requests changes to them:
 - `yanivmizrachiy/razpages`
 - `yanivmizrachiy/jerusalem2`
-- the existing `https://zaviyot.vercel.app` project/deployment
 
-Those repositories/projects are REFERENCES ONLY.
-
-Reference snapshots used:
-- misparim: `e577e0cdf2673757997fc61a6dc7ebe0aaa0a879`
-- razpages: `d6ce709db13493ebc51b02a2d0d10e6acd5656d3`
-- jerusalem2: `89d779b1d5b3b4160f469b4e56079af1fe8a3649`
+Recovery points created before the 2026-09-07 canonical swap:
+- new canonical repo: `backup/pre-canonical-swap-20260907` at `5f4da62e4fa03025b015cbc9690f16934bbeb4b6`
+- legacy `misparim`: `backup/pre-zaviyot-replacement-20260907` at `2cd9b94a4828ee81ab20ff8590c4f1e520db68de`
 
 ## 2. Content integrity — iron rule
 - Do not invent, rewrite, improve, paraphrase or add educational wording.
@@ -325,6 +339,7 @@ It must be one click to a prebuilt printable PDF; do not generate the full workb
 - Do NOT delete canonical pages, worksheets, the four canonical PDFs, presentation, panorama, aids/accessories, active print infrastructure or unrelated real content.
 - Git history is the archive; production source must remain maintainable and non-duplicated.
 - Do not create new planning/specification Markdown documents that compete with this file. A future README, if ever needed, may only point to this file and may not contain independent requirements.
+- After the old-vs-new legacy audit is complete and production at `zaviyot.vercel.app` is verified, there must not remain two active Zaviyot source trees or two production products. Preserve history/backups, not duplicate live implementations.
 
 ## 14. Tests / CI
 Maintain real checks for:
@@ -372,5 +387,10 @@ Do not claim 100% complete until:
 - production build succeeds
 - required live routes return successfully
 - critical UI is checked at the required phone/laptop/desktop viewport matrix
-- no reference repo/project was modified
-- production points to the intended new Zaviyot project
+- the full legacy `misparim/zaviyot` subtree has been audited against the canonical repository, including binaries, and every old-only file is classified
+- every still-required old-only file has been migrated before cleanup
+- the legacy active source has been retired only after that audit and verification
+- production is deployed to the existing canonical Vercel project `prj_vBueQ0MqpZWsK5dZt8hOBleIqnYi`
+- `https://zaviyot.vercel.app` serves the verified new implementation without changing the teacher-facing URL
+- existing deep links/bookmarks are verified or covered by compatibility behavior
+- the secondary NEXT Vercel project is no longer treated as a second production site
