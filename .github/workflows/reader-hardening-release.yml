@@ -1,0 +1,92 @@
+name: One-shot Zaviyot reader hardening
+
+on:
+  push:
+    branches:
+      - release/reader-hardening-20260910
+
+permissions:
+  contents: write
+
+jobs:
+  harden:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release/reader-hardening-20260910
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Apply release hardening
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          def replace_once(path, old, new):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              if old not in text:
+                  raise SystemExit(f'Expected block not found in {path}')
+              p.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          # 1) Scale the fixed A4 iframe canvas into every visible reader sheet.
+          path = 'src/components/book/UnifiedBookReader.tsx'
+          replace_once(path,
+          '''const OPEN_GROUPS_KEY = "zaviyot-next:open-groups";\n''',
+          '''const OPEN_GROUPS_KEY = "zaviyot-next:open-groups";\nconst A4_WIDTH_PX = (210 / 25.4) * 96;\nconst A4_HEIGHT_PX = (297 / 25.4) * 96;\n''')
+
+          replace_once(path,
+          '''function Sheet({ page, lazy = false }: { page: number; lazy?: boolean }) {\n  const item = WS_PAGES[page - 1];\n  return (\n    <div className="zreader__sheet" data-book-page={page}>\n      <iframe\n        src={pageHref(page)}\n        title={`${item.title} — עמוד ${page}`}\n        loading={lazy ? "lazy" : "eager"}\n      />\n    </div>\n  );\n}\n''',
+          '''function Sheet({ page, lazy = false }: { page: number; lazy?: boolean }) {\n  const item = WS_PAGES[page - 1];\n  const sheetRef = useRef<HTMLDivElement>(null);\n  const frameRef = useRef<HTMLIFrameElement>(null);\n\n  useEffect(() => {\n    const sheet = sheetRef.current;\n    const frame = frameRef.current;\n    if (!sheet || !frame) return;\n\n    const fit = () => {\n      const rect = sheet.getBoundingClientRect();\n      if (!rect.width || !rect.height) return;\n      const scale = Math.min(rect.width / A4_WIDTH_PX, rect.height / A4_HEIGHT_PX);\n      frame.style.transform = `translate(-50%, -50%) scale(${scale})`;\n    };\n\n    fit();\n    const observer = new ResizeObserver(fit);\n    observer.observe(sheet);\n    window.addEventListener("orientationchange", fit);\n    return () => {\n      observer.disconnect();\n      window.removeEventListener("orientationchange", fit);\n    };\n  }, []);\n\n  if (!item) return null;\n  return (\n    <div\n      ref={sheetRef}\n      className="zreader__sheet"\n      data-book-page={page}\n      style={{ position: "relative", overflow: "hidden" }}\n    >\n      <iframe\n        ref={frameRef}\n        src={pageHref(page)}\n        title={`${item.title} — עמוד ${page}`}\n        loading={lazy ? "lazy" : "eager"}\n        scrolling="no"\n        style={{\n          position: "absolute",\n          top: "50%",\n          left: "50%",\n          width: `${A4_WIDTH_PX}px`,\n          height: `${A4_HEIGHT_PX}px`,\n          border: 0,\n          transform: "translate(-50%, -50%) scale(0)",\n          transformOrigin: "center center",\n        }}\n      />\n    </div>\n  );\n}\n''')
+
+          # 2) Restore saved page/mode only on a truly bare home visit.
+          replace_once(path,
+          '''    const params = new URLSearchParams(window.location.search);\n    const requestedPage = Number(params.get("bookPage"));\n    const requestedGroup = params.get("group");\n    // A normal fresh visit always starts on the real cover (page 1), single-page.\n    // Explicit deep links and the worksheets navigation remain respected.\n    const initialPage = requestedGroup === "worksheets"\n      ? firstWorksheetPage\n      : requestedPage\n        ? clampPage(requestedPage)\n        : 1;\n\n    const requestedMode = params.get("bookMode") as ReaderMode | null;\n    const candidate = requestedMode || "single";\n''',
+          '''    const params = new URLSearchParams(window.location.search);\n    const pageParam = params.get("bookPage");\n    const modeParam = params.get("bookMode");\n    const requestedGroup = params.get("group");\n    const bareHomeState = pageParam === null && modeParam === null && requestedGroup === null;\n    const requestedPage = pageParam === null ? Number.NaN : Number(pageParam);\n    const storedPage = Number(localStorage.getItem(PAGE_KEY));\n    const storedModeRaw = localStorage.getItem(MODE_KEY);\n    const storedMode: ReaderMode =\n      storedModeRaw === "spread" || storedModeRaw === "scroll" ? storedModeRaw : "single";\n\n    const initialPage = requestedGroup === "worksheets"\n      ? firstWorksheetPage\n      : pageParam !== null && Number.isFinite(requestedPage)\n        ? clampPage(requestedPage)\n        : bareHomeState && Number.isFinite(storedPage) && storedPage >= 1\n          ? clampPage(storedPage)\n          : 1;\n\n    const requestedMode = modeParam as ReaderMode | null;\n    const candidate: ReaderMode =\n      requestedMode === "spread" || requestedMode === "scroll" || requestedMode === "single"\n        ? requestedMode\n        : bareHomeState\n          ? storedMode\n          : "single";\n''')
+
+          # 3) Reader keyboard shortcuts must not run behind a media dialog.
+          replace_once(path,
+          '''    const onKeyDown = (event: KeyboardEvent) => {\n      if (event.altKey || event.ctrlKey || event.metaKey || isEditableTarget(event.target)) return;\n''',
+          '''    const onKeyDown = (event: KeyboardEvent) => {\n      if (document.body.dataset.zaviyotMediaOpen === "1") return;\n      if (event.altKey || event.ctrlKey || event.metaKey || isEditableTarget(event.target)) return;\n''')
+
+          # 4) Expose media-open state explicitly for the reader keyboard gate.
+          path = 'src/components/HomeQuickActions.tsx'
+          replace_once(path,
+          '''  useEffect(() => {\n    if (!media) return;\n    const previous = document.body.style.overflow;\n    document.body.style.overflow = "hidden";\n''',
+          '''  useEffect(() => {\n    if (!media) {\n      delete document.body.dataset.zaviyotMediaOpen;\n      return;\n    }\n    const previous = document.body.style.overflow;\n    document.body.style.overflow = "hidden";\n    document.body.dataset.zaviyotMediaOpen = "1";\n''')
+          replace_once(path,
+          '''    return () => {\n      document.removeEventListener("keydown", onKey);\n      document.body.style.overflow = previous;\n    };\n''',
+          '''    return () => {\n      document.removeEventListener("keydown", onKey);\n      document.body.style.overflow = previous;\n      delete document.body.dataset.zaviyotMediaOpen;\n    };\n''')
+
+          # 5) Deterministic A4 canvas in reader=1 mode; outer chrome stays removed.
+          path = 'src/app/worksheets/[n]/page.tsx'
+          replace_once(path,
+          '''      style={embedded ? { minHeight: "297mm", padding: 0, background: "#fff" } : undefined}\n''',
+          '''      style={embedded ? { width: "210mm", minHeight: "297mm", padding: 0, margin: 0, background: "#fff", overflow: "hidden" } : undefined}\n''')
+          replace_once(path,
+          '''        style={embedded ? { margin: 0, padding: 0, width: "100%", minHeight: "297mm" } : undefined}\n''',
+          '''        style={embedded ? { margin: 0, padding: 0, width: "210mm", minHeight: "297mm" } : undefined}\n''')
+          PY
+
+      - name: Install and verify
+        run: |
+          npm ci --no-audit --no-fund
+          npm run check
+
+      - name: Remove one-shot release scaffolding and commit
+        shell: bash
+        run: |
+          rm -f .release/reader-hardening-20260910.md
+          rm -f .github/workflows/reader-hardening-release.yml
+          rmdir .release 2>/dev/null || true
+          git config user.name "Zaviyot Release Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: harden Zaviyot 2 reader for canonical release"
+          git push origin HEAD:release/reader-hardening-20260910
