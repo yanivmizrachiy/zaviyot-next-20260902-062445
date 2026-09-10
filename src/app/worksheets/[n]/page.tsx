@@ -35,7 +35,7 @@ export default async function WsReadPage({
   return (
     <div
       className={`ws-page${embedded ? " ws-page--reader" : ""}`}
-      style={embedded ? { minHeight: "297mm", padding: 0, background: "#fff" } : undefined}
+      style={embedded ? { width: "210mm", minHeight: "297mm", padding: 0, margin: 0, background: "#fff", overflow: "hidden" } : undefined}
     >
       {!embedded && (
         <WsReaderBar
@@ -48,7 +48,7 @@ export default async function WsReadPage({
       )}
       <div
         className="ws-page__sheets"
-        style={embedded ? { margin: 0, padding: 0, width: "100%", minHeight: "297mm" } : undefined}
+        style={embedded ? { margin: 0, padding: 0, width: "210mm", minHeight: "297mm" } : undefined}
       >
         {page.kind === "image" ? (
           <div

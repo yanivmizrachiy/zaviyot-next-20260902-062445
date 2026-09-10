@@ -36,9 +36,13 @@ export function HomeQuickActions() {
   }, []);
 
   useEffect(() => {
-    if (!media) return;
+    if (!media) {
+      delete document.body.dataset.zaviyotMediaOpen;
+      return;
+    }
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    document.body.dataset.zaviyotMediaOpen = "1";
     requestAnimationFrame(() => closeRef.current?.focus());
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setMedia(null);
@@ -47,6 +51,7 @@ export function HomeQuickActions() {
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = previous;
+      delete document.body.dataset.zaviyotMediaOpen;
     };
   }, [media]);
 
