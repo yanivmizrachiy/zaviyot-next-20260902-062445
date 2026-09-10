@@ -8,3 +8,5 @@ Implement these release fixes without removing existing reader capabilities:
 4. Verify that `reader=1` pages do not render `WsReaderBar` or outer standalone reader chrome, and that embedded A4 wrappers use a deterministic 210mm × 297mm canvas suitable for scaling.
 5. Do not change the canonical URL, source-of-truth rules, deployment project IDs, PDFs, worksheet ordering, or teacher-facing content.
 6. Run the repo's normal checks/build. Remove this `.release/reader-hardening-20260910.md` task file before the PR is merged.
+
+Lockfile repair completed with npm 11.6.2; rerun the full release gate on the synchronized lockfile.
