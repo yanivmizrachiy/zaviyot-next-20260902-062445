@@ -14,6 +14,21 @@ const nextConfig: NextConfig = {
     // 90 — ללוגו העגול בכותרת (זהות האתר, חייב להיות חד); 75 — ברירת המחדל לשאר.
     qualities: [75, 90],
   },
+  // תאימות לקישור הישן שכבר הופץ בעבר. היעד נשאר בתוך אותו אתר קנוני.
+  async redirects() {
+    return [
+      {
+        source: "/matematika/zaviyot",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/matematika/zaviyot/:path*",
+        destination: "/:path*",
+        permanent: true,
+      },
+    ];
+  },
   // כותרות אבטחה בסיסיות לכל התגובות. ללא CSP קשיח בכוונה — כדי לא לשבור
   // הטמעות חוקיות (YouTube nocookie, PDF worker/blob, Matific, גופנים).
   async headers() {
