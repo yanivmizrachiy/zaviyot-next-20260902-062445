@@ -22,6 +22,8 @@ const MODE_KEY = "zaviyot-next:reader-mode-fit-v3";
 const PAGE_KEY = "zaviyot-next:last-page";
 const SELECTED_KEY = "zaviyot-next:selected-pages";
 const OPEN_GROUPS_KEY = "zaviyot-next:open-groups";
+const A4_WIDTH_PX = (210 / 25.4) * 96;
+const A4_HEIGHT_PX = (297 / 25.4) * 96;
 
 function clampPage(n: number) {
   return Math.max(1, Math.min(WS_TOTAL, Math.trunc(n || 1)));
@@ -49,12 +51,55 @@ function isEditableTarget(target: EventTarget | null) {
 
 function Sheet({ page, lazy = false }: { page: number; lazy?: boolean }) {
   const item = WS_PAGES[page - 1];
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    const sheet = sheetRef.current;
+    const frame = frameRef.current;
+    if (!sheet || !frame) return;
+
+    const fit = () => {
+      const rect = sheet.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const scale = Math.min(rect.width / A4_WIDTH_PX, rect.height / A4_HEIGHT_PX);
+      frame.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    };
+
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(sheet);
+    window.addEventListener("orientationchange", fit);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("orientationchange", fit);
+    };
+  }, []);
+
+  if (!item) return null;
   return (
-    <div className="zreader__sheet" data-book-page={page}>
+    <div
+      ref={sheetRef}
+      className="zreader__sheet"
+      data-book-page={page}
+      style={{ position: "relative", overflow: "hidden" }}
+    >
       <iframe
+        ref={frameRef}
         src={pageHref(page)}
         title={`${item.title} — עמוד ${page}`}
         loading={lazy ? "lazy" : "eager"}
+        scrolling="no"
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: `${A4_WIDTH_PX}px`,
+          height: `${A4_HEIGHT_PX}px`,
+          border: 0,
+          transform: "translate(-50%, -50%) scale(0)",
+          transformOrigin: "center center",
+        }}
       />
     </div>
   );
@@ -295,18 +340,31 @@ export function UnifiedBookReader() {
     media.addEventListener("change", applyWidth);
 
     const params = new URLSearchParams(window.location.search);
-    const requestedPage = Number(params.get("bookPage"));
+    const pageParam = params.get("bookPage");
+    const modeParam = params.get("bookMode");
     const requestedGroup = params.get("group");
-    // A normal fresh visit always starts on the real cover (page 1), single-page.
-    // Explicit deep links and the worksheets navigation remain respected.
+    const bareHomeState = pageParam === null && modeParam === null && requestedGroup === null;
+    const requestedPage = pageParam === null ? Number.NaN : Number(pageParam);
+    const storedPage = Number(localStorage.getItem(PAGE_KEY));
+    const storedModeRaw = localStorage.getItem(MODE_KEY);
+    const storedMode: ReaderMode =
+      storedModeRaw === "spread" || storedModeRaw === "scroll" ? storedModeRaw : "single";
+
     const initialPage = requestedGroup === "worksheets"
       ? firstWorksheetPage
-      : requestedPage
+      : pageParam !== null && Number.isFinite(requestedPage)
         ? clampPage(requestedPage)
-        : 1;
+        : bareHomeState && Number.isFinite(storedPage) && storedPage >= 1
+          ? clampPage(storedPage)
+          : 1;
 
-    const requestedMode = params.get("bookMode") as ReaderMode | null;
-    const candidate = requestedMode || "single";
+    const requestedMode = modeParam as ReaderMode | null;
+    const candidate: ReaderMode =
+      requestedMode === "spread" || requestedMode === "scroll" || requestedMode === "single"
+        ? requestedMode
+        : bareHomeState
+          ? storedMode
+          : "single";
     const initialMode: ReaderMode = initialPage === 1
       ? "single"
       : media.matches && candidate === "spread"
@@ -355,6 +413,7 @@ export function UnifiedBookReader() {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
+      if (document.body.dataset.zaviyotMediaOpen === "1") return;
       if (event.altKey || event.ctrlKey || event.metaKey || isEditableTarget(event.target)) return;
       if (event.key === "ArrowRight" || event.key === "PageUp") {
         event.preventDefault();
