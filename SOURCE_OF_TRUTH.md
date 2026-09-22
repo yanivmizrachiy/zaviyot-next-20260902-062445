@@ -394,3 +394,24 @@ Do not claim 100% complete until:
 - `https://zaviyot.vercel.app` serves the verified new implementation without changing the teacher-facing URL
 - existing deep links/bookmarks are verified or covered by compatibility behavior
 - the secondary NEXT Vercel project is no longer treated as a second production site
+
+
+## Legacy audit result — 2026-09-22
+
+The strict legacy-content preservation audit against `yanivmizrachiy/misparim/zaviyot` is complete for the current canonical source.
+
+Verified:
+- canonical book pages: legacy 44 / canonical 44;
+- canonical student worksheets: legacy 31 / canonical 31;
+- the page identities and reading order match; the only registry label change is the cover label, while the real cover component/content is preserved;
+- `BookletCoverPage.tsx`, `BookletTocSheet.tsx`, and `IntroUnderstandingSheet.tsx` are byte-identical between legacy and canonical source;
+- `aidTopics.ts`, `hamchashot/resource-sheets.tsx`, and `hamchashot/sheets.tsx` are byte-identical; the updated aids registry does not remove legacy visible content;
+- required media retained byte-identically: `zaviyot-race-lamillion.mp4`, its poster, the teaching presentation, Jerusalem panorama, logo, and worksheet image assets page 04–28;
+- the canonical worksheet/full-book PDFs are regenerated canonical artifacts and supersede the older PDF builds.
+
+Legacy-only public files were classified before cleanup:
+- `public/booklet-worksheets/page-01.webp`, `page-02.webp`, `page-03.webp`: superseded by the preserved live React cover/TOC/intro pages; not independent content;
+- `public/booklet/booklet-zaviyot.pdf`: retired duplicate PDF;
+- `public/video/zaviyot-angles-loop.mp4` and `public/video/zaviyot-angles-poster.jpg`: explicitly retired decorative Hero media.
+
+The audit found no still-required legacy educational content that must be migrated before canonical cutover. Production cutover and post-cutover verification remain mandatory before retiring legacy active source or duplicate repositories.
