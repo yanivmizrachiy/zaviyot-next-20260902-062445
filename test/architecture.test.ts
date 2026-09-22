@@ -11,7 +11,7 @@ const CANONICAL_PROJECT_NAME = "zaviyot";
 const FORBIDDEN_NEXT_URL = "https://zaviyot-next-20260902-062445.vercel.app";
 const FORBIDDEN_NEXT_PROJECT_ID = "prj_nNLdB3ec30mUsyYVse6cUT7Ib7Hm";
 
-const escaped = (value: string) => new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\const escaped = (value: string) => new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));"));
+const escaped = (value: string) => new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
 
 test("repository has one authoritative product truth", () => {
   assert.ok(exists("SOURCE_OF_TRUTH.md"));
