@@ -21,6 +21,88 @@ Forbidden competing sources:
 
 If any code, comment, old commit, generated artifact or external reference contradicts this file, this file wins unless the user explicitly changes the requirement.
 
+
+### AI bootstrap — mandatory operating protocol
+Any AI/agent entering this repository MUST use this file as its first context load before proposing or changing code.
+
+#### Compact mental model
+Keep this model in working memory:
+- ONE active repository: \`yanivmizrachiy/zaviyot-next-20260902-062445\`;
+- ONE active branch: \`main\`;
+- ONE authoritative requirements/architecture document: this file;
+- ONE canonical book/page/worksheet registry: \`src/components/worksheets/registry.ts\`;
+- ONE active reader: \`UnifiedBookReader\`;
+- ONE canonical page renderer: \`WorksheetPageRenderer.tsx\`;
+- ONE canonical print renderer: \`src/app/worksheets/print/page.tsx\`;
+- ONE static-PDF builder: \`scripts/build-static-print-pdf.mjs\`;
+- ONE teacher-facing URL: \`https://zaviyot.vercel.app\`;
+- ONE canonical Vercel production project: \`prj_vBueQ0MqpZWsK5dZt8hOBleIqnYi\`.
+
+If an apparent alternative exists, treat it as history, compatibility glue, generated output or a defect to investigate — NOT as a second source of truth.
+
+#### Read order for a new task
+1. Read this file completely.
+2. Classify the request using the task router below.
+3. Read only the canonical edit surface for that task plus its direct consumers and relevant tests.
+4. Inspect Git history only when the current source is insufficient to answer a historical/recovery question. History is never current specification.
+5. Make the smallest coherent change that satisfies the request.
+6. Run the required verification level before claiming completion.
+
+Do NOT start by repo-wide rewriting, recreating retired architecture, creating planning Markdown, copying data into a new registry, or inferring requirements from old branches/commits.
+
+#### Task router — where an AI should edit
+| User intent | Canonical edit surface | Usually also inspect |
+| --- | --- | --- |
+| header text, academic year, manager credit, logo, primary public asset paths | \`src/config/site.ts\` | \`TopBar.tsx\`, \`SiteFooter.tsx\`, \`HomeQuickActions.tsx\` |
+| book page order, worksheet classification, TOC metadata, groups | \`src/components/worksheets/registry.ts\` | \`WorksheetPageRenderer.tsx\`, worksheet tests |
+| wording/layout inside one teaching page | the canonical component selected by \`WorksheetPageRenderer.tsx\` | registry entry + route test for that page |
+| aids/accessories topics and ordering | \`src/lib/aidTopics.ts\` | \`src/components/hamchashot/**\`, aids tests |
+| global colors/design tokens | \`:root\` in \`src/app/globals.css\` | responsive/refinement CSS only if needed |
+| reader behavior/navigation/search/selection/modes | \`src/components/book/UnifiedBookReader.tsx\` | reader CSS + \`test/unified-reader.test.ts\` |
+| print behavior/page selection/BW rendering | \`src/app/worksheets/print/page.tsx\` | print CSS, PDF API, print/route tests |
+| static downloadable PDFs | canonical print route + \`scripts/build-static-print-pdf.mjs\` | \`.github/workflows/build-canonical-pdfs.yml\` |
+| homepage video/presentation actions | \`HomeQuickActions.tsx\` + \`src/config/site.ts\` | presentation component + architecture test |
+| legacy bookmark compatibility | redirect-only route involved | legacy-route tests; never build a second UI |
+| production deployment | \`scripts/deploy-production.mjs\` ONLY | deployment-target test + live verification |
+| architecture/requirements change | this file FIRST/IN SAME CHANGE | architecture test + affected canonical code |
+
+#### Change-scope rules
+- A normal content/UI edit does NOT justify architecture refactoring.
+- A local edit should stay local unless a real duplicated dependency is proven.
+- Do not centralize a value merely because it appears twice if making it configurable would weaken a safety lock.
+- Production URL/project identifiers stay hard-locked in deployment safety code; they are NOT convenience settings.
+- Generated PDFs are outputs, not editable source content.
+- Compatibility routes preserve old links only; do not add independent features to them.
+- Do not restore any retired item because it appears in history or an old screenshot.
+
+#### Verification ladder
+Use the smallest sufficient level, but never skip required safety:
+- content/config/component-only edit: \`npm run check:fast\`;
+- reader/route/print/architecture change: \`npm run check\`;
+- change affecting PDF source/rendering: \`npm run check\` + canonical PDF workflow/build verification;
+- production release: \`npm run deploy:prod\` + verify \`https://zaviyot.vercel.app\` and critical assets;
+- deletion/cleanup: prove the item has no required consumer and is not canonical before deleting it.
+
+#### Evidence and completion rules
+An AI must NOT say \`done\`, \`fixed\`, \`deployed\`, \`deleted\` or \`verified\` based only on intention or a code edit.
+Completion requires evidence appropriate to the task, such as:
+- the resulting commit/HEAD exists;
+- CI/tests completed successfully;
+- generated assets were rebuilt/verified when affected;
+- live Production returned the expected new behavior when deployment was part of the task;
+- deleted paths/repositories are confirmed absent.
+
+If verification is unavailable, state exactly what is changed and what remains unverified.
+
+#### Handling a new user instruction
+A direct current user instruction may change a rule in this file. When that happens:
+1. treat the user's explicit new instruction as authoritative;
+2. update this file in the SAME logical change so future AI agents inherit it;
+3. update code/tests that enforce the old rule;
+4. do not leave contradictory old wording elsewhere.
+
+If the user's request is ambiguous and a destructive action would be required, preserve data and choose the reversible path. If the request is clear, do not invent extra requirements.
+
 ### Active architecture map
 The production architecture is intentionally small and explicit:
 - Homepage composition: `src/app/page.tsx`
