@@ -5,9 +5,15 @@ on:
     branches: [main]
     paths:
       - "src/components/worksheets/**"
-      - "src/components/book/**"
-      - "src/app/worksheets/**"
-      - "src/app/api/book-pdf/**"
+      - "src/components/BookletCoverPage.tsx"
+      - "src/components/hamchashot/resource-sheets.tsx"
+      - "src/app/worksheets/print/**"
+      - "src/app/*.css"
+      - "src/app/layout.tsx"
+      - "public/booklet-worksheets/*.webp"
+      - "public/applets/**"
+      - "public/logo.png"
+      - "public/team/ayelet-krispin-portrait.png"
       - "scripts/build-static-print-pdf.mjs"
       - "package.json"
       - "package-lock.json"

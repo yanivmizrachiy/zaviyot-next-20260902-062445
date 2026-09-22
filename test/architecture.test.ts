@@ -32,6 +32,19 @@ test("canonical book data comes only from registry", () => {
   assert.equal(exists("src/components/flipbook"), false);
 });
 
+test("worksheet raster assets exactly match image pages declared by the registry", () => {
+  const registry = read("src/components/worksheets/registry.ts");
+  const imageIds = [...registry.matchAll(/\bimg:\s*(\d+)/g)].map((match) => Number(match[1]));
+  const expected = [...new Set(imageIds)]
+    .sort((a, b) => a - b)
+    .map((id) => `page-${String(id).padStart(2, "0")}.webp`);
+  const actual = fs.readdirSync("public/booklet-worksheets")
+    .filter((name) => name.endsWith(".webp"))
+    .sort();
+
+  assert.deepEqual(actual, expected);
+});
+
 test("retired duplicate product paths stay deleted", () => {
   [
     "src/components/VideoSection.tsx",
@@ -105,6 +118,11 @@ test("one canonical PDF builder and minimal automation surface remain", () => {
 
   const workflow = read(".github/workflows/build-canonical-pdfs.yml");
   assert.match(workflow, /scripts\/build-static-print-pdf\.mjs/);
+  assert.match(workflow, /public\/booklet-worksheets\/\*\.webp/);
+  assert.match(workflow, /src\/components\/BookletCoverPage\.tsx/);
+  assert.match(workflow, /src\/components\/hamchashot\/resource-sheets\.tsx/);
+  assert.doesNotMatch(workflow, /src\/components\/book\/\*\*/);
+  assert.doesNotMatch(workflow, /src\/app\/api\/book-pdf\/\*\*/);
   assert.doesNotMatch(workflow, /build-booklet-pdf/);
 });
 
