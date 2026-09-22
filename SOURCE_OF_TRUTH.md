@@ -415,3 +415,16 @@ Legacy-only public files were classified before cleanup:
 - `public/video/zaviyot-angles-loop.mp4` and `public/video/zaviyot-angles-poster.jpg`: explicitly retired decorative Hero media.
 
 The audit found no still-required legacy educational content that must be migrated before canonical cutover. Production cutover and post-cutover verification remain mandatory before retiring legacy active source or duplicate repositories.
+
+
+## Canonical consolidation status — 2026-09-22
+
+- Canonical repository: `yanivmizrachiy/zaviyot-next-20260902-062445`.
+- Permanent public teacher-facing URL: `https://zaviyot.vercel.app`. This URL MUST NOT change.
+- The verified new design/content is the target implementation that must be served behind the permanent URL.
+- Legacy repositories `yanivmizrachiy/zaviyot-digital-workbook` and `yanivmizrachiy/zaviyot-worksheets-only` are non-canonical and must not receive further development.
+- Legacy source `yanivmizrachiy/misparim/zaviyot` remains temporarily preserved only because it currently backs the public production URL.
+- Content preservation audit passed: 44/44 book pages, 31/31 student worksheets, and required media/resources are preserved in the canonical repository.
+- No legacy repository/source may be deleted before `https://zaviyot.vercel.app` is verified live on the canonical implementation.
+- After successful production cutover and live verification, retire/delete the legacy Zaviyot sources so that one active canonical Zaviyot repository remains.
+- Current production-write blocker: the available Vercel connection is read/inspect capable but does not expose project promote/deploy write; GitHub has no `VERCEL_TOKEN`, and GitHub→Vercel OIDC exchange returned `Not authorized`.
