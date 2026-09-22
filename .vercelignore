@@ -1,4 +1,8 @@
 .references/
+*.log
 log-*.txt
+RESULTS.txt
 BUILD_FAILURES.md
-
+*.bak
+*.tmp
+*.tsbuildinfo

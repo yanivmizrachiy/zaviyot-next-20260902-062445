@@ -37,5 +37,5 @@ test("production verification positively identifies the new app and rejects lega
 test("source of truth keeps the teacher-facing URL unchanged", () => {
   assert.match(truth, new RegExp(CANONICAL_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   assert.match(truth, new RegExp(CANONICAL_PROJECT));
-  assert.match(truth, /Old links already distributed to teachers MUST continue working at the same address/);
+  assert.match(truth, /There is exactly ONE teacher-facing production URL/);
 });

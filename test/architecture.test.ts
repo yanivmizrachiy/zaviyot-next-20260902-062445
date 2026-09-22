@@ -11,12 +11,19 @@ const CANONICAL_PROJECT_NAME = "zaviyot";
 const FORBIDDEN_NEXT_URL = "https://zaviyot-next-20260902-062445.vercel.app";
 const FORBIDDEN_NEXT_PROJECT_ID = "prj_nNLdB3ec30mUsyYVse6cUT7Ib7Hm";
 
-const escaped = (value: string) => new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+const escaped = (value: string) => new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\const escaped = (value: string) => new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));"));
 
 test("repository has one authoritative product truth", () => {
   assert.ok(exists("SOURCE_OF_TRUTH.md"));
   assert.equal(exists("MIGRATION_PROMPT.md"), false);
   assert.equal(exists("claude-implementation.log"), false);
+
+  const rootMarkdown = fs.readdirSync(".").filter((name) => name.endsWith(".md")).sort();
+  assert.deepEqual(rootMarkdown, ["README.md", "SOURCE_OF_TRUTH.md"]);
+
+  const readme = read("README.md");
+  assert.match(readme, /\[SOURCE_OF_TRUTH\.md\]\(\.\/SOURCE_OF_TRUTH\.md\)/);
+  assert.doesNotMatch(readme, /^##\s/m, "README must remain a pointer, not a competing specification");
 });
 
 test("canonical book data comes only from registry", () => {
@@ -86,9 +93,17 @@ test("legacy angle-types URL redirects to the canonical book page", () => {
   assert.doesNotMatch(route, /AnglesTypesSheet|ws-sheet|worksheetContentNode/);
 });
 
-test("one canonical PDF builder remains", () => {
-  assert.ok(exists("scripts/build-static-print-pdf.mjs"));
-  const workflow = read(".github/workflows/build-worksheet-pdfs.yml");
+test("one canonical PDF builder and minimal automation surface remain", () => {
+  assert.deepEqual(
+    fs.readdirSync("scripts").sort(),
+    ["build-static-print-pdf.mjs", "deploy-production.mjs"],
+  );
+  assert.deepEqual(
+    fs.readdirSync(".github/workflows").sort(),
+    ["build-canonical-pdfs.yml", "ci.yml"],
+  );
+
+  const workflow = read(".github/workflows/build-canonical-pdfs.yml");
   assert.match(workflow, /scripts\/build-static-print-pdf\.mjs/);
   assert.doesNotMatch(workflow, /build-booklet-pdf/);
 });

@@ -34,7 +34,7 @@ The production architecture is intentionally small and explicit:
 - Canonical print route: `src/app/worksheets/print/page.tsx`
 - Selected-page PDF API: `src/app/api/book-pdf/route.ts`
 - ONLY canonical static-PDF builder: `scripts/build-static-print-pdf.mjs`
-- PDF automation: `.github/workflows/build-worksheet-pdfs.yml`
+- PDF automation: `.github/workflows/build-canonical-pdfs.yml`
 - Architecture regression guard: `test/architecture.test.ts`
 
 Canonical downloadable artifacts:
@@ -62,6 +62,7 @@ Retired items MUST NOT be restored unless the user explicitly asks for them:
 - old duplicate `scripts/build-booklet-pdf.mjs`
 - retired GveretLevin video font
 - unused duplicate portrait `public/team/ayelet-krispin.png`
+- superseded raster pages `public/booklet-worksheets/page-01.webp`, `page-02.webp`, `page-03.webp`
 
 ### Legacy URL compatibility — redirect only
 These URLs may remain so old bookmarks do not break, but they are NOT independent products or rendering engines:
@@ -368,66 +369,26 @@ Maintain real checks for:
 CI must run on pull requests and push to main.
 Do not weaken tests to make them pass.
 
-## 15. Completion standard
-Do not claim 100% complete until:
-- install/CI succeeds
-- lint/typecheck/tests pass when present
-- production build succeeds
-- required live routes return successfully
-- critical UI is checked at the required phone/laptop/desktop viewport matrix
-- the full legacy `misparim/zaviyot` subtree has been audited against the canonical repository, including binaries, and every old-only file is classified
-- every still-required old-only file has been migrated before cleanup
-- the legacy active source has been retired only after that audit and verification
-- production is deployed to the existing canonical Vercel project `prj_vBueQ0MqpZWsK5dZt8hOBleIqnYi`
-- `https://zaviyot.vercel.app` serves the verified new implementation without changing the teacher-facing URL
-- existing deep links/bookmarks are verified or covered by compatibility behavior
-- the secondary NEXT Vercel project is no longer treated as a second production site
+## 15. Release and maintenance standard
+Do not claim a release complete until:
+- dependency install succeeds from the committed lockfile;
+- lint, typecheck, tests and production build pass;
+- required live routes and canonical downloadable assets return successfully;
+- the teacher-facing URL remains `https://zaviyot.vercel.app`;
+- the deployment targets only Vercel project `prj_vBueQ0MqpZWsK5dZt8hOBleIqnYi`;
+- existing deep links/bookmarks remain valid through canonical routes or redirect-only compatibility routes;
+- exactly 44 book pages and exactly 31 student worksheets remain derived from `registry.ts`;
+- retired paths/assets remain absent;
+- no second repository, second SSOT, second registry, second PDF builder or alternate production engine is introduced.
 
-
-## Legacy audit result — 2026-09-22
-
-The strict legacy-content preservation audit against `yanivmizrachiy/misparim/zaviyot` is complete for the current canonical source.
-
-Verified:
-- canonical book pages: legacy 44 / canonical 44;
-- canonical student worksheets: legacy 31 / canonical 31;
-- the page identities and reading order match; the only registry label change is the cover label, while the real cover component/content is preserved;
-- `BookletCoverPage.tsx`, `BookletTocSheet.tsx`, and `IntroUnderstandingSheet.tsx` are byte-identical between legacy and canonical source;
-- `aidTopics.ts`, `hamchashot/resource-sheets.tsx`, and `hamchashot/sheets.tsx` are byte-identical; the updated aids registry does not remove legacy visible content;
-- required media retained byte-identically: `zaviyot-race-lamillion.mp4`, its poster, the teaching presentation, Jerusalem panorama, logo, and worksheet image assets page 04–28;
-- the canonical worksheet/full-book PDFs are regenerated canonical artifacts and supersede the older PDF builds.
-
-Legacy-only public files were classified before cleanup:
-- `public/booklet-worksheets/page-01.webp`, `page-02.webp`, `page-03.webp`: superseded by the preserved live React cover/TOC/intro pages; not independent content;
-- `public/booklet/booklet-zaviyot.pdf`: retired duplicate PDF;
-- `public/video/zaviyot-angles-loop.mp4` and `public/video/zaviyot-angles-poster.jpg`: explicitly retired decorative Hero media.
-
-The audit found no still-required legacy educational content that must be migrated before canonical cutover. Production cutover and post-cutover verification remain mandatory before retiring legacy active source or duplicate repositories.
-
-
-## Canonical consolidation status — 2026-09-22
-
-- Canonical repository: `yanivmizrachiy/zaviyot-next-20260902-062445`.
-- Permanent public teacher-facing URL: `https://zaviyot.vercel.app`. This URL MUST NOT change.
-- The verified new design/content is the target implementation that must be served behind the permanent URL.
-- Legacy repositories `yanivmizrachiy/zaviyot-digital-workbook` and `yanivmizrachiy/zaviyot-worksheets-only` were deleted after verified production cutover and backup.
-- Legacy source `yanivmizrachiy/misparim/zaviyot` was retired from `misparim` after the public production URL was verified on the canonical implementation.
-- Content preservation audit passed: 44/44 book pages, 31/31 student worksheets, and required media/resources are preserved in the canonical repository.
-- `https://zaviyot.vercel.app` is verified live on the canonical implementation; the permanent public URL did not change.
-- Production cutover and legacy cleanup are complete: one active canonical Zaviyot repository remains.
-- Production cutover completed successfully on 2026-09-22 using the existing Vercel project `prj_vBueQ0MqpZWsK5dZt8hOBleIqnYi`; the permanent alias remains `https://zaviyot.vercel.app`.
-
-
-## Canonical cutover completed — 2026-09-22
-
-Verified final state:
-- permanent public teacher-facing URL: `https://zaviyot.vercel.app`;
-- production serves the canonical new implementation;
-- canonical source repository: `yanivmizrachiy/zaviyot-next-20260902-062445`;
-- production source commit at cutover: `9e0999456890dba708ada171dac77f2a36bb0ceb`;
-- 44/44 book pages and 31/31 student worksheets preserved;
-- required canonical PDFs, race video/poster, presentation, aids and public routes verified;
-- retired decorative legacy angle-loop assets return 404 as required;
-- `zaviyot-digital-workbook` and `zaviyot-worksheets-only` deleted after backup;
-- `misparim/zaviyot`, legacy Zaviyot launchers and legacy Zaviyot CI removed after production verification;
-- do not recreate additional active Zaviyot repositories or alternate teacher-facing URLs.
+## 16. Final verified state — 2026-09-22
+- Exactly one active Zaviyot source repository remains: `yanivmizrachiy/zaviyot-next-20260902-062445`.
+- `SOURCE_OF_TRUTH.md` is the only authoritative requirements/architecture document.
+- Production is live at the unchanged teacher-facing URL `https://zaviyot.vercel.app`.
+- Production uses the canonical Vercel project `prj_vBueQ0MqpZWsK5dZt8hOBleIqnYi`.
+- The canonical production cutover was verified from source commit `9e0999456890dba708ada171dac77f2a36bb0ceb`.
+- Content preservation is verified: 44/44 book pages, 31/31 student worksheets, canonical PDFs, presentation, race video/poster, panorama and aids/resources.
+- Legacy repositories `zaviyot-digital-workbook` and `zaviyot-worksheets-only` were deleted after backup and production verification.
+- The former `misparim/zaviyot` source, its old launchers and its old CI were retired after production verification.
+- Decorative legacy angle-loop assets and other explicitly retired duplicate paths remain deleted.
+- Historical migration details live in Git history/backups, not as competing active specification.
