@@ -70,39 +70,27 @@ These URLs may remain so old bookmarks do not break, but they are NOT independen
 
 They must not contain their own reader, toolbar, worksheet registry, print renderer or PDF implementation.
 
-## 1. Canonical repository, production URL and migration boundary
+## 1. Canonical repository and production
 
-The ONE canonical source repository is:
+There is exactly ONE active Zaviyot repository:
 - `yanivmizrachiy/zaviyot-next-20260902-062445`
 
-The ONE canonical teacher-facing production URL is and MUST remain:
+There is exactly ONE teacher-facing production URL:
 - `https://zaviyot.vercel.app`
 
-The canonical Vercel production project is the existing project that owns that address:
+There is exactly ONE canonical Vercel production project for the public site:
 - project id `prj_vBueQ0MqpZWsK5dZt8hOBleIqnYi`
 
-The temporary/new Vercel project used while building this replacement:
-- `prj_nNLdB3ec30mUsyYVse6cUT7Ib7Hm`
-- `https://zaviyot-next-20260902-062445.vercel.app`
+Final-state rules:
+- no second Zaviyot repository;
+- no `misparim/zaviyot` subtree;
+- no alternate teacher-facing Zaviyot URL;
+- no development in deleted/legacy repositories;
+- no competing SSOT;
+- all Zaviyot code, tests, assets, deployment logic and future development live only in this repository;
+- Git history and backup archives are recovery history only, never active sources.
 
-is staging/migration infrastructure only. It must NOT become a second teacher-facing product. After the canonical site has been deployed and verified at `https://zaviyot.vercel.app`, the secondary project/domain should be retired or otherwise clearly cease to be an active production destination.
-
-The legacy source `yanivmizrachiy/misparim/zaviyot` is NOT a second active product and receives no new feature development. Before its active source is removed or retired, perform a strict old-vs-new audit of the entire legacy subtree, including binary assets, PDFs, videos, images, routes, fonts, scripts and tests. Every old-only file must be classified as one of:
-1. intentionally retired by this source of truth;
-2. duplicate/superseded by a canonical new file;
-3. still-required real content that MUST be migrated before cleanup.
-
-Never delete or retire a still-required file merely because the new repository currently lacks it. Git history is the permanent archive after the audit is complete.
-
-Old links already distributed to teachers MUST continue working at the same address. Do not solve migration by sending teachers to a new hostname. Existing deep routes/bookmarks must either remain valid or resolve through compatibility behavior inside the canonical site.
-
-Other repositories remain reference-only for this product unless the user separately and explicitly requests changes to them:
-- `yanivmizrachiy/razpages`
-- `yanivmizrachiy/jerusalem2`
-
-Recovery points created before the 2026-09-07 canonical swap:
-- new canonical repo: `backup/pre-canonical-swap-20260907` at `5f4da62e4fa03025b015cbc9690f16934bbeb4b6`
-- legacy `misparim`: `backup/pre-zaviyot-replacement-20260907` at `2cd9b94a4828ee81ab20ff8590c4f1e520db68de`
+The old migration/staging phase is complete. Any temporary/staging deployment that still exists is not a source repository, not a teacher-facing product and not a source of truth.
 
 ## 2. Content integrity — iron rule
 - Do not invent, rewrite, improve, paraphrase or add educational wording.
