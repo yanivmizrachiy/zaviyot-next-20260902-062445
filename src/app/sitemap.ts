@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
-import { SITE } from "@/config/site";
 
 // רק מסלולים ציבוריים שמחזירים תוכן קנוני בפועל.
 // מסלולי התאימות/redirect, הקורא וההדפסה אינם sitemap destinations.
+const SITE_URL = "https://zaviyot.vercel.app";
 
 export const PUBLIC_ROUTES = [
   "/",
@@ -14,7 +14,7 @@ export const PUBLIC_ROUTES = [
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return PUBLIC_ROUTES.map((route) => ({
-    url: route === "/" ? SITE.publicUrl : `${SITE.publicUrl}${route}`,
+    url: route === "/" ? SITE_URL : `${SITE_URL}${route}`,
     changeFrequency: "monthly",
     priority: route === "/" ? 1 : 0.7,
   }));

@@ -3,7 +3,6 @@ import { Rubik, Assistant } from "next/font/google";
 import { InPageTransitions } from "@/components/InPageTransitions";
 import { SiteReturnNav } from "@/components/SiteReturnNav";
 import Script from "next/script";
-import { SITE } from "@/config/site";
 import "./globals.css";
 import "./home-refinement.css";
 import "./book-realism.css";
@@ -23,17 +22,18 @@ const assistant = Assistant({
   display: "swap",
 });
 
+const SITE_URL = "https://zaviyot.vercel.app";
 const SITE_TITLE = "חוברת הוראת הזוויות לכיתה ז׳";
 const SITE_DESC = "לאור עדכון ת״ל לקראת תשפ״ז";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE.publicUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: SITE_TITLE,
     template: "%s · זוויות",
   },
   description: SITE_DESC,
-  applicationName: SITE.applicationName,
+  applicationName: "זוויות",
   authors: [{ name: "איילת קריספין" }],
   keywords: [
     "זוויות",
@@ -49,8 +49,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: SITE_TITLE,
     description: SITE_DESC,
-    url: SITE.publicUrl,
-    siteName: SITE.applicationName,
+    url: SITE_URL,
+    siteName: "זוויות",
     locale: "he_IL",
     type: "website",
   },

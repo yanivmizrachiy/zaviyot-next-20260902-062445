@@ -9,7 +9,6 @@ import {
   wsGroupOf,
 } from "@/components/worksheets/registry";
 import "./unified-book-reader.css";
-import { PUBLIC_ASSETS } from "@/config/site";
 
 type ReaderMode = "single" | "spread" | "scroll";
 type PrintTone = "color" | "bw";
@@ -36,8 +35,8 @@ function pageHref(page: number) {
 
 function workbookPdfHref(tone: PrintTone) {
   return tone === "bw"
-    ? PUBLIC_ASSETS.worksheetsPdfBw
-    : PUBLIC_ASSETS.worksheetsPdf;
+    ? "/booklet-worksheets/zaviyot-worksheets-bw.pdf"
+    : "/booklet-worksheets/zaviyot-worksheets.pdf";
 }
 
 function isEditableTarget(target: EventTarget | null) {
@@ -302,8 +301,8 @@ export function UnifiedBookReader() {
       href = workbookPdfHref(printTone);
     } else if (allBook) {
       href = printTone === "bw"
-        ? PUBLIC_ASSETS.fullBookPdfBw
-        : PUBLIC_ASSETS.fullBookPdf;
+        ? "/booklet/hoveret-zaviyot-bw.pdf"
+        : "/booklet/hoveret-zaviyot.pdf";
     } else {
       const params = new URLSearchParams({
         pages: pages.join(","),

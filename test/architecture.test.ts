@@ -152,7 +152,6 @@ test("canonical downloadable artifacts exist and are real files", () => {
 
 test("production configuration is locked to the teacher-facing Zaviyot project", () => {
   const deploy = read("scripts/deploy-production.mjs");
-  const siteConfig = read("src/config/site.ts");
   const sitemap = read("src/app/sitemap.ts");
   const robots = read("src/app/robots.ts");
   const layout = read("src/app/layout.tsx");
@@ -161,9 +160,8 @@ test("production configuration is locked to the teacher-facing Zaviyot project",
   assert.match(deploy, escaped(CANONICAL_PROJECT_NAME));
   assert.match(deploy, escaped(CANONICAL_PRODUCTION_URL));
 
-  assert.match(siteConfig, escaped(CANONICAL_PRODUCTION_URL));
   for (const file of [sitemap, robots, layout]) {
-    assert.match(file, /SITE\.publicUrl/);
+    assert.match(file, escaped(CANONICAL_PRODUCTION_URL));
     assert.equal(file.includes(FORBIDDEN_NEXT_URL), false, "temporary NEXT URL must not be active public configuration");
   }
 
