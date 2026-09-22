@@ -4,11 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ACCESSORIES_INDEX_HREF } from "@/lib/accessoriesItems";
 import { PresentationViewer } from "./PresentationViewer";
+import { PUBLIC_ASSETS } from "@/config/site";
 import styles from "./HomeBookStage.module.css";
-
-const WORKSHEETS_PDF = "/booklet-worksheets/zaviyot-worksheets.pdf";
-const VIDEO_URL = "/video/zaviyot-race-lamillion.mp4";
-const POSTER_URL = "/video/zaviyot-race-poster.jpg";
 
 type Media = "video" | "presentation" | null;
 type MediaEvent = CustomEvent<{ media?: Exclude<Media, null> }>;
@@ -62,7 +59,7 @@ export function HomeQuickActions() {
         <button className={styles.actionPresentation} type="button" onClick={() => setMedia("presentation")}>מצגת</button>
         <Link className={styles.actionWorksheets} href="/?group=worksheets#worksheets">דפי עבודה</Link>
         <Link className={styles.actionAccessories} href={ACCESSORIES_INDEX_HREF}>אביזרים נלווים להמחשה</Link>
-        <a className={`${styles.actionDownload} ${styles.actionPrimary}`} href={WORKSHEETS_PDF} download="חוברת העבודה - זוויות.pdf">הורדת חוברת העבודה</a>
+        <a className={`${styles.actionDownload} ${styles.actionPrimary}`} href={PUBLIC_ASSETS.worksheetsPdf} download={PUBLIC_ASSETS.worksheetDownloadName}>הורדת חוברת העבודה</a>
       </nav>
 
       {media ? (
@@ -83,16 +80,16 @@ export function HomeQuickActions() {
               <strong>{media === "video" ? "סרטון" : "מצגת"}</strong>
               <div className={styles.mediaBarActions}>
                 {media === "video" ? (
-                  <a href={VIDEO_URL} download="זוויות - המירוץ למיליון.mp4">הורדה</a>
+                  <a href={PUBLIC_ASSETS.video} download={PUBLIC_ASSETS.videoDownloadName}>הורדה</a>
                 ) : null}
                 <button ref={closeRef} type="button" onClick={() => setMedia(null)} aria-label="סגירה">סגירה</button>
               </div>
             </div>
             <div className={`${styles.mediaBody} ${media === "presentation" ? styles.mediaBodyPresentation : styles.mediaBodyVideo}`}>
               {media === "video" ? (
-                <video className={styles.modalVideo} controls autoPlay playsInline preload="metadata" poster={POSTER_URL}>
-                  <source src={VIDEO_URL} type="video/mp4" />
-                  <a href={VIDEO_URL} download="זוויות - המירוץ למיליון.mp4">הורדת הסרטון</a>
+                <video className={styles.modalVideo} controls autoPlay playsInline preload="metadata" poster={PUBLIC_ASSETS.videoPoster}>
+                  <source src={PUBLIC_ASSETS.video} type="video/mp4" />
+                  <a href={PUBLIC_ASSETS.video} download={PUBLIC_ASSETS.videoDownloadName}>הורדת הסרטון</a>
                 </video>
               ) : (
                 <div className={styles.modalPresentation}>

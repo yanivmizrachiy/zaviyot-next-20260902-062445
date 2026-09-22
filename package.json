@@ -12,9 +12,10 @@
     "test": "node --experimental-strip-types --test test/architecture.test.ts test/deployment-target.test.ts test/page-classification.test.ts test/worksheets.test.ts test/sitemap.test.ts test/print-ready.test.ts test/aids.test.ts test/unified-reader.test.ts test/legacy-route.test.ts",
     "typecheck": "tsc --noEmit",
     "lint:ci": "eslint . --max-warnings=0",
-    "check": "npm run lint:ci && npm run typecheck && npm test && npm run build && npm run test:routes",
+    "check": "npm run check:fast && npm run build && npm run test:routes",
     "test:routes": "node --experimental-strip-types --test test/routes.test.ts",
-    "deploy:prod": "node scripts/deploy-production.mjs"
+    "deploy:prod": "node scripts/deploy-production.mjs",
+    "check:fast": "npm run lint:ci && npm run typecheck && npm test"
   },
   "dependencies": {
     "next": "16.2.10",

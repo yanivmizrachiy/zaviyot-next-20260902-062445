@@ -26,6 +26,13 @@ test("repository has one authoritative product truth", () => {
   assert.doesNotMatch(readme, /^##\s/m, "README must remain a pointer, not a competing specification");
 });
 
+test("easy-edit site config does not duplicate book structure", () => {
+  const config = read("src/config/site.ts");
+  assert.match(config, /export const SITE/);
+  assert.match(config, /export const PUBLIC_ASSETS/);
+  assert.doesNotMatch(config, /WS_PAGES|worksheet:\s*true|groupStart/);
+});
+
 test("canonical book data comes only from registry", () => {
   assert.ok(exists("src/components/worksheets/registry.ts"));
   assert.equal(exists("scripts/page-manifest.ts"), false);
@@ -145,6 +152,7 @@ test("canonical downloadable artifacts exist and are real files", () => {
 
 test("production configuration is locked to the teacher-facing Zaviyot project", () => {
   const deploy = read("scripts/deploy-production.mjs");
+  const siteConfig = read("src/config/site.ts");
   const sitemap = read("src/app/sitemap.ts");
   const robots = read("src/app/robots.ts");
   const layout = read("src/app/layout.tsx");
@@ -153,8 +161,9 @@ test("production configuration is locked to the teacher-facing Zaviyot project",
   assert.match(deploy, escaped(CANONICAL_PROJECT_NAME));
   assert.match(deploy, escaped(CANONICAL_PRODUCTION_URL));
 
+  assert.match(siteConfig, escaped(CANONICAL_PRODUCTION_URL));
   for (const file of [sitemap, robots, layout]) {
-    assert.match(file, escaped(CANONICAL_PRODUCTION_URL));
+    assert.match(file, /SITE\.publicUrl/);
     assert.equal(file.includes(FORBIDDEN_NEXT_URL), false, "temporary NEXT URL must not be active public configuration");
   }
 
@@ -189,7 +198,7 @@ test("cross-device responsive layer obeys source truth", () => {
   assert.match(truth, /must not become an oversized full-page media block on desktop or phone/);
   assert.match(homeActions, /mediaDialogPresentation/);
   assert.match(homeActions, /onPointerDown/);
-  assert.match(homeActions, /download="זוויות - המירוץ למיליון\.mp4"/);
+  assert.match(homeActions, /PUBLIC_ASSETS\.videoDownloadName/);
   assert.match(homeStage, /\.mediaDialogPresentation\s*\{[^}]*width:\s*min\(/);
   assert.match(homeStage, /\.mediaDialogPresentation\s*\{[^}]*height:\s*min\(/);
   assert.doesNotMatch(homeStage, /\.mediaDialogPresentation\s*\{[^}]*height:\s*100dvh/);

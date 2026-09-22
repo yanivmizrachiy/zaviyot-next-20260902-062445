@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { SITE } from "@/config/site";
 
 export function SiteFooter() {
   return (
@@ -7,15 +8,15 @@ export function SiteFooter() {
         <span className="footer__brand">
           <Image
             className="footer__logo"
-            src="/logo.png"
-            alt="יחידת מתמטיקה — מחוז ירושלים והעיר ירושלים"
+            src={SITE.logo.src}
+            alt={SITE.logo.alt}
             width={52}
             height={52}
             sizes="52px"
           />
           <span>חוברת הוראת הזוויות לכיתה ז׳</span>
         </span>
-        <span>האתר מנוהל ע״י יניב רז · מדריך מחוזי חט״ב בעיר ירושלים</span>
+        <span>{SITE.managerCredit}</span>
       </div>
     </footer>
   );

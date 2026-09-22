@@ -29,6 +29,7 @@ The production architecture is intentionally small and explicit:
 - Active reader: `src/components/book/UnifiedBookReader.tsx`
 - Reader styling: `src/components/book/unified-book-reader.css`
 - Lightweight physical-book visual layer: `src/app/book-realism.css`
+- Site/public asset edit config: `src/config/site.ts`
 - Canonical book/page/worksheet data: `src/components/worksheets/registry.ts`
 - Canonical page rendering: `src/components/worksheets/WorksheetPageRenderer.tsx`
 - Canonical print route: `src/app/worksheets/print/page.tsx`
@@ -288,7 +289,7 @@ The final OS/browser print dialog may be system-controlled after the in-site Heb
 
 ### Single PDF pipeline
 There is ONE static-PDF build engine: `scripts/build-static-print-pdf.mjs`.
-It is parameterized by `PDF_PATH`, `PDF_OUT` and `PDF_PORT` and produces the four canonical downloadable PDFs through `.github/workflows/build-worksheet-pdfs.yml`.
+It is parameterized by `PDF_PATH`, `PDF_OUT` and `PDF_PORT` and produces the four canonical downloadable PDFs through `.github/workflows/build-canonical-pdfs.yml`.
 Do not add a second full-book builder or a second worksheet builder.
 
 ## 11. Fast workbook downloads
@@ -392,3 +393,19 @@ Do not claim a release complete until:
 - The former `misparim/zaviyot` source, its old launchers and its old CI were retired after production verification.
 - Decorative legacy angle-loop assets and other explicitly retired duplicate paths remain deleted.
 - Historical migration details live in Git history/backups, not as competing active specification.
+
+
+## 17. Future editing map
+For future edits, use the smallest canonical surface:
+- site header/year/manager credit/logo/public asset paths: `src/config/site.ts`;
+- book pages/order/worksheet classification/TOC: `src/components/worksheets/registry.ts`;
+- aids/accessories topics and ordering: `src/lib/aidTopics.ts`;
+- colors/global design tokens: the `:root` block in `src/app/globals.css`;
+- page-specific teaching content/layout: the canonical component selected by `WorksheetPageRenderer.tsx`.
+
+Fast safe workflow:
+- during editing: `npm run check:fast`;
+- before release: `npm run check`;
+- production: `npm run deploy:prod`.
+
+Production project IDs and safety locks stay in `scripts/deploy-production.mjs` and are intentionally not easy-edit settings.

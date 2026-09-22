@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SectionHead } from "./SectionHead";
+import { PUBLIC_ASSETS } from "@/config/site";
 
 // מצגת הוראת זוויות — מצג שקופיות בעיצוב ובכפתורי הפעולה של מצגת "מספרים מכוונים"
 // (סרגל עליון כהה עם כותרת + מסך מלא + הורדה, במת שקופית 16:9, סרגל תחתון עם
@@ -10,9 +11,6 @@ import { SectionHead } from "./SectionHead";
 const WORKER_URL = "/pdf.worker.min.mjs";
 // ברירות המחדל = מצגת הוראת הזוויות. אפשר להזריק מצגת אחרת (PDF) דרך ה-props, כך
 // שאותו נגן משרת כמה מצגות בחוברת (למשל "גאומטריה קדם-היסקית") — עם כפתורי פעולה זהים.
-const DEFAULT_PDF_URL = "/presentation/geometria-kdam-hesekit.pdf";
-const DEFAULT_DOWNLOAD_NAME = "גאומטריה קדם-היסקית — מצגת.pdf";
-const DEFAULT_TITLE = "מצגת ההוראה — גאומטריה קדם-היסקית";
 
 type Viewport = {
   width: number;
@@ -36,9 +34,9 @@ type LinkBox = { left: number; top: number; width: number; height: number; url?:
 
 export function PresentationViewer({
   embed = false,
-  pdfUrl = DEFAULT_PDF_URL,
-  downloadName = DEFAULT_DOWNLOAD_NAME,
-  title = DEFAULT_TITLE,
+  pdfUrl = PUBLIC_ASSETS.presentationPdf,
+  downloadName = PUBLIC_ASSETS.presentationDownloadName,
+  title = PUBLIC_ASSETS.presentationTitle,
 }: {
   embed?: boolean;
   pdfUrl?: string;
