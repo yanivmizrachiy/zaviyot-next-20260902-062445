@@ -26,6 +26,23 @@ test("repository has one authoritative product truth", () => {
   assert.doesNotMatch(readme, /^##\s/m, "README must remain a pointer, not a competing specification");
 });
 
+test("source of truth contains AI operating protocol", () => {
+  const truth = read("SOURCE_OF_TRUTH.md");
+  for (const marker of [
+    "### AI bootstrap — mandatory operating protocol",
+    "#### Compact mental model",
+    "#### Task router — where an AI should edit",
+    "#### Verification ladder",
+    "#### Evidence and completion rules",
+    "#### Handling a new user instruction",
+    "ONE active repository",
+    "ONE canonical book/page/worksheet registry",
+    "must NOT say",
+  ]) {
+    assert.ok(truth.includes(marker), `SOURCE_OF_TRUTH.md missing AI protocol marker: ${marker}`);
+  }
+});
+
 test("easy-edit site config does not duplicate book structure", () => {
   const config = read("src/config/site.ts");
   assert.match(config, /export const SITE/);
