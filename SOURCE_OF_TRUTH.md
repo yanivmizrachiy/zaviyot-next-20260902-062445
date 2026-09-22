@@ -27,16 +27,16 @@ Any AI/agent entering this repository MUST use this file as its first context lo
 
 #### Compact mental model
 Keep this model in working memory:
-- ONE active repository: \`yanivmizrachiy/zaviyot-next-20260902-062445\`;
-- ONE active branch: \`main\`;
+- ONE active repository: `yanivmizrachiy/zaviyot-next-20260902-062445`;
+- ONE active branch: `main`;
 - ONE authoritative requirements/architecture document: this file;
-- ONE canonical book/page/worksheet registry: \`src/components/worksheets/registry.ts\`;
-- ONE active reader: \`UnifiedBookReader\`;
-- ONE canonical page renderer: \`WorksheetPageRenderer.tsx\`;
-- ONE canonical print renderer: \`src/app/worksheets/print/page.tsx\`;
-- ONE static-PDF builder: \`scripts/build-static-print-pdf.mjs\`;
-- ONE teacher-facing URL: \`https://zaviyot.vercel.app\`;
-- ONE canonical Vercel production project: \`prj_vBueQ0MqpZWsK5dZt8hOBleIqnYi\`.
+- ONE canonical book/page/worksheet registry: `src/components/worksheets/registry.ts`;
+- ONE active reader: `UnifiedBookReader`;
+- ONE canonical page renderer: `WorksheetPageRenderer.tsx`;
+- ONE canonical print renderer: `src/app/worksheets/print/page.tsx`;
+- ONE static-PDF builder: `scripts/build-static-print-pdf.mjs`;
+- ONE teacher-facing URL: `https://zaviyot.vercel.app`;
+- ONE canonical Vercel production project: `prj_vBueQ0MqpZWsK5dZt8hOBleIqnYi`.
 
 If an apparent alternative exists, treat it as history, compatibility glue, generated output or a defect to investigate — NOT as a second source of truth.
 
@@ -53,17 +53,17 @@ Do NOT start by repo-wide rewriting, recreating retired architecture, creating p
 #### Task router — where an AI should edit
 | User intent | Canonical edit surface | Usually also inspect |
 | --- | --- | --- |
-| header text, academic year, manager credit, logo, primary public asset paths | \`src/config/site.ts\` | \`TopBar.tsx\`, \`SiteFooter.tsx\`, \`HomeQuickActions.tsx\` |
-| book page order, worksheet classification, TOC metadata, groups | \`src/components/worksheets/registry.ts\` | \`WorksheetPageRenderer.tsx\`, worksheet tests |
-| wording/layout inside one teaching page | the canonical component selected by \`WorksheetPageRenderer.tsx\` | registry entry + route test for that page |
-| aids/accessories topics and ordering | \`src/lib/aidTopics.ts\` | \`src/components/hamchashot/**\`, aids tests |
-| global colors/design tokens | \`:root\` in \`src/app/globals.css\` | responsive/refinement CSS only if needed |
-| reader behavior/navigation/search/selection/modes | \`src/components/book/UnifiedBookReader.tsx\` | reader CSS + \`test/unified-reader.test.ts\` |
-| print behavior/page selection/BW rendering | \`src/app/worksheets/print/page.tsx\` | print CSS, PDF API, print/route tests |
-| static downloadable PDFs | canonical print route + \`scripts/build-static-print-pdf.mjs\` | \`.github/workflows/build-canonical-pdfs.yml\` |
-| homepage video/presentation actions | \`HomeQuickActions.tsx\` + \`src/config/site.ts\` | presentation component + architecture test |
+| header text, academic year, manager credit, logo, primary public asset paths | `src/config/site.ts` | `TopBar.tsx`, `SiteFooter.tsx`, `HomeQuickActions.tsx` |
+| book page order, worksheet classification, TOC metadata, groups | `src/components/worksheets/registry.ts` | `WorksheetPageRenderer.tsx`, worksheet tests |
+| wording/layout inside one teaching page | the canonical component selected by `WorksheetPageRenderer.tsx` | registry entry + route test for that page |
+| aids/accessories topics and ordering | `src/lib/aidTopics.ts` | `src/components/hamchashot/**`, aids tests |
+| global colors/design tokens | `:root` in `src/app/globals.css` | responsive/refinement CSS only if needed |
+| reader behavior/navigation/search/selection/modes | `src/components/book/UnifiedBookReader.tsx` | reader CSS + `test/unified-reader.test.ts` |
+| print behavior/page selection/BW rendering | `src/app/worksheets/print/page.tsx` | print CSS, PDF API, print/route tests |
+| static downloadable PDFs | canonical print route + `scripts/build-static-print-pdf.mjs` | `.github/workflows/build-canonical-pdfs.yml` |
+| homepage video/presentation actions | `HomeQuickActions.tsx` + `src/config/site.ts` | presentation component + architecture test |
 | legacy bookmark compatibility | redirect-only route involved | legacy-route tests; never build a second UI |
-| production deployment | \`scripts/deploy-production.mjs\` ONLY | deployment-target test + live verification |
+| production deployment | `scripts/deploy-production.mjs` ONLY | deployment-target test + live verification |
 | architecture/requirements change | this file FIRST/IN SAME CHANGE | architecture test + affected canonical code |
 
 #### Change-scope rules
@@ -77,14 +77,14 @@ Do NOT start by repo-wide rewriting, recreating retired architecture, creating p
 
 #### Verification ladder
 Use the smallest sufficient level, but never skip required safety:
-- content/config/component-only edit: \`npm run check:fast\`;
-- reader/route/print/architecture change: \`npm run check\`;
-- change affecting PDF source/rendering: \`npm run check\` + canonical PDF workflow/build verification;
-- production release: \`npm run deploy:prod\` + verify \`https://zaviyot.vercel.app\` and critical assets;
+- content/config/component-only edit: `npm run check:fast`;
+- reader/route/print/architecture change: `npm run check`;
+- change affecting PDF source/rendering: `npm run check` + canonical PDF workflow/build verification;
+- production release: `npm run deploy:prod` + verify `https://zaviyot.vercel.app` and critical assets;
 - deletion/cleanup: prove the item has no required consumer and is not canonical before deleting it.
 
 #### Evidence and completion rules
-An AI must NOT say \`done\`, \`fixed\`, \`deployed\`, \`deleted\` or \`verified\` based only on intention or a code edit.
+An AI must NOT say `done`, `fixed`, `deployed`, `deleted` or `verified` based only on intention or a code edit.
 Completion requires evidence appropriate to the task, such as:
 - the resulting commit/HEAD exists;
 - CI/tests completed successfully;
