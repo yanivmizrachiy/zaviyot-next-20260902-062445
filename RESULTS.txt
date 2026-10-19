@@ -1,0 +1,4 @@
+Project folder: C:\Users\yaniv\Desktop\zaviyot-next-work\zaviyot-next
+GitHub: https://github.com/yanivmizrachiy/zaviyot-next-20260902-062445
+Vercel: https://zaviyot-next-20260902-062445-mon4ebl0g-yanivs-projects-322b2b37.vercel.app
+Source commits: misparim=e577e0cdf2673757997fc61a6dc7ebe0aaa0a879 razpages=d6ce709db13493ebc51b02a2d0d10e6acd5656d3 jerusalem2=89d779b1d5b3b4160f469b4e56079af1fe8a3649
